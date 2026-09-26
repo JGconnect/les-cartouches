@@ -46,26 +46,20 @@ Les Cartouches/
 
 ---
 
-## Mettre le site en ligne (Netlify)
+## Mise en ligne (GitHub Pages)
 
-Le projet Netlify **les-cartouches** existe déjà.
+Le jeu est en ligne sur **https://jgconnect.github.io/les-cartouches/**
 
-1. Se connecter sur [netlify.com](https://app.netlify.com) avec le compte de
-   Julien.
-2. Ouvrir le projet **les-cartouches** → onglet **Deploys**.
-3. **Glisser-déposer le dossier `site`** dans la zone de dépôt (« Drag and drop
-   your site output folder here »).
-4. Après quelques secondes, le site est en ligne :
-   **https://les-cartouches.netlify.app**
-
-> Astuce : glisser bien le **dossier `site`** (et pas seulement le fichier
-> `index.html`), pour que l'adresse racine ouvre directement le jeu.
-
----
+- Hébergement **gratuit et illimité** sur GitHub Pages (dépôt public `JGconnect/les-cartouches`).
+- **Automatique** : chaque modification poussée sur la branche `main` remet le site en ligne toute seule
+  (fichier `.github/workflows/pages.yml`, onglet **Actions** du dépôt pour suivre).
+- Le dossier publié est `site/`.
+- **Netlify n'est plus utilisé** (chaque mise en ligne y coûtait 15 crédits sur 300 par mois).
+  La règle `ignore = "exit 0"` dans `netlify.toml` y bloque toute nouvelle mise en ligne.
 
 ## Vérifier que les avis remontent bien
 
-1. Ouvrir https://les-cartouches.netlify.app sur un téléphone.
+1. Ouvrir https://jgconnect.github.io/les-cartouches/ sur un téléphone.
 2. Jouer une partie, puis donner un 👍 ou 👎 à la fin.
 3. Dans Supabase → projet **cartouches** → **Table Editor** → table `retours` :
    une nouvelle ligne doit apparaître.
