@@ -290,17 +290,46 @@
   ];
 
   var NINON=[
-    "Tu es bien assis ?","Tu as compris la règle ?","Tu t'appelles bien comme ça ?","Tu es prêt à jouer ?",
-    "Tu bois quelque chose ce soir ?","Tu trouves que je pose trop de questions ?","Tu es en couple ?",
-    "Tu as un peu chaud, non ?","Tu regrettes déjà d'avoir accepté ?","Tu es sûr de ta dernière réponse ?",
-    "Tu veux que j'arrête ?","Tu penses tenir jusqu'au bout ?","Tu as déjà perdu à ce jeu ?",
-    "Tu me trouves pénible, hein ?","Tu jures que tu n'as pas triché ?","Tu vas craquer, avoue ?",
-    "Attends… tu viens de dire un mot interdit ?","Tu es d'accord avec moi, au fond ?","Tu t'amuses, au moins ?",
-    "Tu sais que je peux continuer longtemps ?","Tu as bien fermé la porte en arrivant ?","Tu me suis toujours ?",
+    /* mise en jambe / méta — l'appli te cuisine */
+    "Tu es bien installé·e ?","Tu as vraiment compris la règle ?","Tu te sens prêt·e, là ?",
+    "C'est ton dernier mot ?","Tu es sûr·e de toi ?","Tu confirmes ce que tu viens de dire ?",
+    "Attends… tu allais dire un mot interdit, non ?","Tu réfléchis ou tu paniques ?","Tu trouves ça facile, hein ?",
+    "Tu me trouves pénible ?","Tu veux vraiment que je continue ?","Tu penses tenir plus de trente secondes ?",
+    "Tu sens que tu vas craquer ?","Tu me suis toujours ?","Tu es d'accord avec moi, au fond ?",
+    "Donc si je comprends bien, tu assumes ?","Tu jures que tu ne triches pas ?","Tu regrettes d'avoir accepté de jouer ?",
+    /* soirée */
+    "Tu tiens bien l'alcool, toi ?","Tu comptes finir la soirée sobre ?","Tu es du genre à partir en douce ?",
+    "Tu as déjà dansé sur une table ?","Tu es le boute-en-train du groupe ?","Tu seras le premier à t'endormir ce soir ?",
+    "Tu ramènes toujours la même bouteille, non ?","Tu resservirais tout le monde là, tout de suite ?",
+    "Tu as déjà oublié une soirée entière ?","Tu textotes tes ex après deux verres ?",
+    /* perso / habitudes */
+    "Tu parles à tes plantes ?","Tu fais ton lit tous les matins ?","Tu chantes sous la douche ?",
+    "Tu regardes ton téléphone au réveil avant de dire bonjour ?","Tu réponds aux messages dans la seconde ?",
+    "Tu es plutôt du matin ?","Tu gardes tes tickets de caisse ?","Tu remets deux fois le même jean sans le laver ?",
+    "Tu manges la pizza avec les mains ?","Tu laisses toujours la vaisselle pour plus tard ?",
+    "Tu te reconnais dans ce que je dis ?","Tu es quelqu'un d'organisé ?",
+    /* opinions / relances qui font parler */
+    "Décris-moi ta journée d'hier.","Raconte-moi ton dernier fou rire.","C'est quoi ton pire défaut, franchement ?",
+    "Explique-moi pourquoi tu as choisi cette place à table.","Qu'est-ce qui te ferait quitter la soirée maintenant ?",
+    "Dis-moi un truc que personne ici ne sait sur toi.","C'est quoi ta plus grande qualité ?",
+    "Qu'est-ce que tu penses vraiment de ce jeu ?","Décris la personne à ta droite en un mot.",
+    /* piège relationnel */
+    "Tu es célibataire, toi ?","Tu es amoureux·se en ce moment ?","Tu crois au coup de foudre ?",
+    "Tu as déjà menti à quelqu'un de cette table ?","Tu dis toujours la vérité, toi ?",
+    "Tu gardes bien les secrets ?","Tu as un secret, là, tout de suite ?","Tu draguerais quelqu'un ici ?",
+    "Tu penses qu'on te trouve sympa ?","Tu te trouves séduisant·e ?",
+    /* ego / provoc gentille */
+    "Tu te trouves intelligent·e ?","Tu penses avoir toujours raison ?","Tu te crois plus drôle que la moyenne ?",
+    "Tu es un peu vantard·e, non ?","Tu es susceptible ?","Tu es rancunier·ère ?","Tu es radin·e, avoue ?",
+    "Tu te compares aux autres ?","Tu es jaloux·se de nature ?","Tu aimes avoir le dernier mot ?",
+    /* pièges classiques oui/non */
+    "Le ciel est bleu, non ?","Deux et deux font quatre, exact ?","On est bien samedi… ou pas ?",
+    "Tu respires, là ?","Tu m'entends bien ?","Tu es d'accord pour dire que tu es d'accord ?",
+    "Tu nierais si je disais que tu mens ?","Tu répondrais oui si je te posais une question simple ?",
+    /* montée en tension */
+    "Tu commences à transpirer, non ?","Tu sens la pression monter ?","Tu veux abandonner, hein ?",
     "Tu penses vraiment gagner cette manche ?","Tu as un mot interdit sur le bout de la langue, là ?",
-    "Tu trouves ça facile, hein ?","Tu es la personne la plus honnête de la table ?","Tu vas répondre ou tu réfléchis encore ?",
-    "Tu confirmes que tu joues bien avec nous ?","Tu as déjà bu ce soir ?","Tu es en train de paniquer, non ?",
-    "Tu aimes ce jeu, avoue ?","Tu es sûr de vouloir continuer ?"
+    "Tu vas tenir encore combien de temps, à ton avis ?","Avoue, tu t'amuses ?"
   ];
 
   var MENTEUR=[
@@ -774,7 +803,14 @@
   }
 
   function renderTrap(P){
-    function pickQ(){return deck[Math.floor(Math.random()*deck.length)];}
+    var pool=[],pi=0,lastQ=null;
+    function pickQ(){
+      if(pi>=pool.length){
+        pool=shuffle(deck);pi=0;
+        if(pool.length>1&&pool[0]===lastQ){pool.push(pool.shift());}
+      }
+      lastQ=pool[pi++];return lastQ;
+    }
     var order=shuffle(players.length>=1?players:VICTIMS);
     var turn=0;
     var SPEEDS={lent:4200,moyen:2800,rapide:1700};
