@@ -1,5 +1,7 @@
-# Configuration de déploiement Netlify — Les Cartouches
-# Le site est une simple page statique dans le dossier "site".
+# Le site est désormais hébergé sur GitHub Pages (voir .github/workflows/pages.yml).
+# Netlify n'est plus utilisé : la règle "ignore" annule toute nouvelle mise en ligne
+# pour ne plus consommer de crédits (une mise en ligne annulée ne coûte rien).
 [build]
   publish = "site"
   command = ""
+  ignore = "exit 0"
