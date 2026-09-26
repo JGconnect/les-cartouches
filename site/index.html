@@ -487,7 +487,7 @@
       var done=false;function fin(){if(done)return;done=true;onend&&onend();}
       u.onend=fin;u.onerror=fin;
       window.speechSynthesis.speak(u);
-      setTimeout(fin,Math.min(9000,1400+text.length*95));
+      setTimeout(fin,Math.min(12000,2000+text.length*110));
     }catch(e){setTimeout(function(){onend&&onend();},1600);}
   }
   function shutUp(){if(SPEAK){try{window.speechSynthesis.cancel();}catch(e){}}}
@@ -774,28 +774,48 @@
   }
 
   function renderTrap(P){
-    function pick(){return deck[Math.floor(Math.random()*deck.length)];}
-    P.innerHTML=bannerHTML(G,cur)+
+    function pickQ(){return deck[Math.floor(Math.random()*deck.length)];}
+    var order=shuffle(players.length>=1?players:VICTIMS);
+    var turn=0;
+    var SPEEDS={lent:4200,moyen:2800,rapide:1700};
+    var speed="moyen";
+    P.innerHTML=
+      '<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Question pour</div><div class="name" id="who">—</div></div></div>'+
       '<div class="body">'+
         '<div class="chip"><span class="dot"></span>Interrogatoire</div>'+
-        '<h2 class="qtext" id="q">Prêt·e ? Appuie sur « Lancer ».</h2>'+
-        '<p class="instr" id="tstatus">L\'appli va te mitrailler de questions à voix haute. Réponds vite, sans jamais dire « oui » ni « non ».</p>'+
+        '<h2 class="qtext" id="q">Choisis un rythme, puis lance.</h2>'+
+        '<p class="instr" id="tstatus">L\'appli appelle une personne, pose la question, et enchaîne. Réponds vite, sans jamais dire « oui » ni « non ».</p>'+
+        '<div class="ambiance"><div class="lbl">Rythme</div><div class="seg" id="spd">'+
+          '<button data-s="lent">Lent</button>'+
+          '<button data-s="moyen" class="on">Moyen</button>'+
+          '<button data-s="rapide">Rapide</button>'+
+        '</div></div>'+
       '</div>'+
       '<div class="strip">Interdit de dire <span class="tag2"><b class="y">OUI</b><b class="x">NON</b></span> sinon '+I()+'</div>'+
       '<div class="foot"><button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
-      '<div class="row-crack"><button class="btn drink" id="crack">Mot interdit → '+I()+'</button><button class="btn ghost" id="nx">Au suivant →</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
-    var qEl=el("q"),statusEl=el("tstatus"),runBtn=el("run");
-    var gap=SPEAK?1400:500;
-    function nextQ(){
+      '<div class="row-crack"><button class="btn drink" id="crack">Mot interdit → '+I()+'</button><button class="btn ghost" id="skip">Passer →</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+    var qEl=el("q"),whoEl=el("who"),statusEl=el("tstatus"),runBtn=el("run");
+    Array.prototype.forEach.call(el("spd").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){
+        speed=b.getAttribute("data-s");
+        Array.prototype.forEach.call(el("spd").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+      });
+    });
+    function who(){return String(order[turn%order.length]);}
+    function step(){
       if(!trapRun)return;
-      var q=pick();
+      var person=who(),q=pickQ();
+      if(whoEl)whoEl.textContent=person;
       if(qEl)qEl.textContent=q;
-      say(q,function(){if(!trapRun)return;trapT=setTimeout(nextQ,gap);});
+      say(person.replace(/·/g,"")+". "+q,function(){
+        if(!trapRun)return;
+        trapT=setTimeout(function(){turn++;step();},SPEEDS[speed]);
+      });
     }
     function startLoop(){
       trapRun=true;runBtn.textContent="⏸ Pause";
       statusEl.textContent="Réponds vite… sans « oui » ni « non » !";
-      say("À toi, "+String(cur).replace(/·/g,""),function(){if(trapRun)nextQ();});
+      step();
     }
     function pauseLoop(){
       trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();
@@ -804,9 +824,12 @@
     runBtn.addEventListener("click",function(){trapRun?pauseLoop():startLoop();});
     el("crack").addEventListener("click",function(){
       var wasRunning=trapRun;if(trapRun)pauseLoop();
-      penalty(cur,wasRunning?startLoop:null);
+      penalty(who(),wasRunning?function(){trapRun=true;runBtn.textContent="⏸ Pause";turn++;step();}:null);
     });
-    el("nx").addEventListener("click",function(){stopVoiceLoop();idx++;renderRound();});
+    el("skip").addEventListener("click",function(){
+      shutUp();if(trapT){clearTimeout(trapT);trapT=null;}
+      turn++;if(trapRun)step();else{whoEl.textContent=who();}
+    });
     el("stop").addEventListener("click",function(){stopVoiceLoop();endGame();});
   }
 
