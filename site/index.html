@@ -532,7 +532,7 @@
      rules:["Une personne passe sur le grill. Le téléphone lui envoie le sujet, puis les questions pièges.","Elle ne répond que par <b>oui</b> ou <b>non</b>. Rien d'autre.","Elle explique, nuance ou dit « ça dépend » ? <b>{Pen}.</b>"]},
     {id:"ninon",name:"Ni oui ni non",em:"🤐",gc:"#7c6cff",tg:"Tiens la conversation sans jamais dire oui ni non.",
      type:"trap",vic:"Sur la sellette",
-     rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b> et tu es <b>éliminé·e</b>. Le dernier debout gagne la manche."]},
+     rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b>. En mode <b>survivant</b> (au choix), tu es éliminé·e et le dernier debout gagne."]},
     {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Vrai ou bluff ? La table décide.",
      type:"menteur",vic:"Au tour de",partie:10,
      rules:["Le téléphone donne une affirmation « J'ai déjà… » à la personne désignée.","Elle annonce si c'est <b>vrai</b> ou <b>faux</b>, en jouant la comédie.","La table vote. Démasqué·e → elle {boit}. Bluff réussi → la table {boit}."]},
@@ -823,8 +823,10 @@
     function pickRelances(){
       var n=Math.random()<0.5?1:2,r=shuffle(RELANCES);return r.slice(0,n);
     }
-    var surv=players.length>=2;
-    var roster=shuffle(surv?players:VICTIMS);
+    var canSurv=players.length>=2,surv=canSurv;
+    var roster=shuffle(canSurv?players:VICTIMS);
+    function idleMsg(){return surv?"L'appli appelle quelqu'un, le mitraille de questions et de relances. Un oui ou un non : éliminé·e. Dernier debout gagne.":(canSurv?"Mode libre : pas d'élimination, juste des pénalités.":"Ajoute au moins 2 prénoms sur l'accueil pour pouvoir jouer en mode survivant.");}
+    function crackLbl(){return surv?"A craqué → éliminé·e":"Mot interdit → "+I();}
     var alive=roster.slice(),out=[];
     var turn=0,curP=null;
     var SPEEDS={lent:4200,moyen:2800,rapide:1700};
@@ -834,8 +836,9 @@
       '<div class="body">'+
         '<div class="chip"><span class="dot"></span><span id="tmode">'+(surv?'Mode survivant':'Interrogatoire')+'</span></div>'+
         '<h2 class="qtext" id="q">Choisis un rythme, puis lance.</h2>'+
-        '<p class="instr" id="tstatus">'+(surv?'L\'appli appelle quelqu\'un, le mitraille de questions et de relances. Un oui ou un non : éliminé·e. Dernier debout gagne.':'Ajoute au moins 2 prénoms sur l\'accueil pour jouer en mode survivant. Là, on joue sans élimination.')+'</p>'+
-        (surv?'<div class="chips alive" id="alive"></div>':'')+
+        '<p class="instr" id="tstatus">'+idleMsg()+'</p>'+
+        (canSurv?'<div class="chips alive" id="alive"></div>':'')+
+        (canSurv?'<div class="ambiance"><div class="lbl">Mode</div><div class="seg two" id="tm"><button data-m="surv" class="on">🏆 Survivant<span class="s">élimination</span></button><button data-m="libre">🎲 Libre<span class="s">sans élimination</span></button></div></div>':'')+
         '<div class="ambiance"><div class="lbl">Rythme</div><div class="seg" id="spd">'+
           '<button data-s="lent">Lent</button>'+
           '<button data-s="moyen" class="on">Moyen</button>'+
@@ -845,19 +848,35 @@
       '<div class="strip">Interdit de dire <span class="tag2"><b class="y">OUI</b><b class="x">NON</b></span> sinon '+I()+'</div>'+
       '<div class="foot">'+
         '<button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
-        '<div class="row-crack"><button class="btn drink" id="crack">'+(surv?'A craqué → éliminé·e':'Mot interdit → '+I())+'</button><button class="btn ghost" id="skip">Passer →</button></div>'+
+        '<div class="row-crack"><button class="btn drink" id="crack">'+crackLbl()+'</button><button class="btn ghost" id="skip">Passer →</button></div>'+
         '<button class="btn" id="again" hidden>🔁 Nouvelle manche</button>'+
         '<button class="linkbtn" id="stop">Terminer la partie</button>'+
       '</div>';
     var qEl=el("q"),whoEl=el("who"),statusEl=el("tstatus"),runBtn=el("run"),againBtn=el("again");
     function drawAlive(){
-      var box=el("alive");if(!box)return;
+      var box=el("alive");if(!box)return;box.hidden=!surv;
       box.innerHTML=roster.map(function(p){
         var cls="pchip"+(out.indexOf(p)>=0?" out":"")+(p===curP&&out.indexOf(p)<0?" cur":"");
         return '<span class="'+cls+'">'+esc(p)+'</span>';
       }).join("");
     }
     drawAlive();
+    if(canSurv){
+      Array.prototype.forEach.call(el("tm").querySelectorAll("button"),function(b){
+        b.addEventListener("click",function(){
+          var want=b.getAttribute("data-m")==="surv";if(want===surv)return;
+          surv=want;
+          Array.prototype.forEach.call(el("tm").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+          alive=roster.slice();out=[];turn=0;
+          el("tmode").textContent=surv?"Mode survivant":"Mode libre";
+          el("crack").textContent=crackLbl();
+          el("crack").disabled=false;el("skip").disabled=false;
+          if(!againBtn.hidden){againBtn.hidden=true;runBtn.hidden=false;runBtn.textContent="▶️ Lancer l'interrogatoire";}
+          if(!trapRun)statusEl.textContent=idleMsg();
+          drawAlive();
+        });
+      });
+    }
     Array.prototype.forEach.call(el("spd").querySelectorAll("button"),function(b){
       b.addEventListener("click",function(){
         speed=b.getAttribute("data-s");
