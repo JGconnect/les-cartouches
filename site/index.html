@@ -163,6 +163,10 @@
   .plbl .cnt{color:var(--accent);font-variant-numeric:tabular-nums}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .pchip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 13px;font-weight:600;font-size:14px}
+  .alive{justify-content:center}
+  .alive .pchip{padding:5px 13px;font-size:13px}
+  .alive .pchip.cur{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 22%, var(--surface-2))}
+  .alive .pchip.out{opacity:.38;text-decoration:line-through}
   .px{background:none;border:none;color:var(--ink-faint);font-size:17px;line-height:1;cursor:pointer;width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
   .px:hover{color:var(--ink);background:var(--line)}
   .addrow{display:flex;gap:8px}
@@ -528,7 +532,7 @@
      rules:["Une personne passe sur le grill. Le téléphone lui envoie le sujet, puis les questions pièges.","Elle ne répond que par <b>oui</b> ou <b>non</b>. Rien d'autre.","Elle explique, nuance ou dit « ça dépend » ? <b>{Pen}.</b>"]},
     {id:"ninon",name:"Ni oui ni non",em:"🤐",gc:"#7c6cff",tg:"Tiens la conversation sans jamais dire oui ni non.",
      type:"trap",vic:"Sur la sellette",
-     rules:["Une personne est cuisinée en rafale par le téléphone.","Elle doit répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Elle lâche un mot interdit ou reste muette trop longtemps ? <b>{Pen}.</b>"]},
+     rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b> et tu es <b>éliminé·e</b>. Le dernier debout gagne la manche."]},
     {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Vrai ou bluff ? La table décide.",
      type:"menteur",vic:"Au tour de",partie:10,
      rules:["Le téléphone donne une affirmation « J'ai déjà… » à la personne désignée.","Elle annonce si c'est <b>vrai</b> ou <b>faux</b>, en jouant la comédie.","La table vote. Démasqué·e → elle {boit}. Bluff réussi → la table {boit}."]},
@@ -803,6 +807,7 @@
   }
 
   function renderTrap(P){
+    /* tirage des questions sans répétition */
     var pool=[],pi=0,lastQ=null;
     function pickQ(){
       if(pi>=pool.length){
@@ -811,16 +816,26 @@
       }
       lastQ=pool[pi++];return lastQ;
     }
-    var order=shuffle(players.length>=1?players:VICTIMS);
-    var turn=0;
+    /* relances-pièges enchaînées sur la même personne */
+    var RELANCES=["Vraiment ?","Tu es sûr·e ?","Tu confirmes ?","C'est ta réponse finale ?","Tu peux le jurer ?",
+      "Répète un peu ?","Et tu assumes ?","Sans mentir ?","Tu maintiens ?","Même devant tout le monde ?",
+      "Ah bon ?","Tu en es certain·e ?","C'est vrai, ça ?","Tu le penses vraiment ?","Tu me le promets ?"];
+    function pickRelances(){
+      var n=Math.random()<0.5?1:2,r=shuffle(RELANCES);return r.slice(0,n);
+    }
+    var surv=players.length>=2;
+    var roster=shuffle(surv?players:VICTIMS);
+    var alive=roster.slice(),out=[];
+    var turn=0,curP=null;
     var SPEEDS={lent:4200,moyen:2800,rapide:1700};
     var speed="moyen";
     P.innerHTML=
-      '<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Question pour</div><div class="name" id="who">—</div></div></div>'+
+      '<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Sur la sellette</div><div class="name" id="who">—</div></div></div>'+
       '<div class="body">'+
-        '<div class="chip"><span class="dot"></span>Interrogatoire</div>'+
+        '<div class="chip"><span class="dot"></span><span id="tmode">'+(surv?'Mode survivant':'Interrogatoire')+'</span></div>'+
         '<h2 class="qtext" id="q">Choisis un rythme, puis lance.</h2>'+
-        '<p class="instr" id="tstatus">L\'appli appelle une personne, pose la question, et enchaîne. Réponds vite, sans jamais dire « oui » ni « non ».</p>'+
+        '<p class="instr" id="tstatus">'+(surv?'L\'appli appelle quelqu\'un, le mitraille de questions et de relances. Un oui ou un non : éliminé·e. Dernier debout gagne.':'Ajoute au moins 2 prénoms sur l\'accueil pour jouer en mode survivant. Là, on joue sans élimination.')+'</p>'+
+        (surv?'<div class="chips alive" id="alive"></div>':'')+
         '<div class="ambiance"><div class="lbl">Rythme</div><div class="seg" id="spd">'+
           '<button data-s="lent">Lent</button>'+
           '<button data-s="moyen" class="on">Moyen</button>'+
@@ -828,24 +843,48 @@
         '</div></div>'+
       '</div>'+
       '<div class="strip">Interdit de dire <span class="tag2"><b class="y">OUI</b><b class="x">NON</b></span> sinon '+I()+'</div>'+
-      '<div class="foot"><button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
-      '<div class="row-crack"><button class="btn drink" id="crack">Mot interdit → '+I()+'</button><button class="btn ghost" id="skip">Passer →</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
-    var qEl=el("q"),whoEl=el("who"),statusEl=el("tstatus"),runBtn=el("run");
+      '<div class="foot">'+
+        '<button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
+        '<div class="row-crack"><button class="btn drink" id="crack">'+(surv?'A craqué → éliminé·e':'Mot interdit → '+I())+'</button><button class="btn ghost" id="skip">Passer →</button></div>'+
+        '<button class="btn" id="again" hidden>🔁 Nouvelle manche</button>'+
+        '<button class="linkbtn" id="stop">Terminer la partie</button>'+
+      '</div>';
+    var qEl=el("q"),whoEl=el("who"),statusEl=el("tstatus"),runBtn=el("run"),againBtn=el("again");
+    function drawAlive(){
+      var box=el("alive");if(!box)return;
+      box.innerHTML=roster.map(function(p){
+        var cls="pchip"+(out.indexOf(p)>=0?" out":"")+(p===curP&&out.indexOf(p)<0?" cur":"");
+        return '<span class="'+cls+'">'+esc(p)+'</span>';
+      }).join("");
+    }
+    drawAlive();
     Array.prototype.forEach.call(el("spd").querySelectorAll("button"),function(b){
       b.addEventListener("click",function(){
         speed=b.getAttribute("data-s");
         Array.prototype.forEach.call(el("spd").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
       });
     });
-    function who(){return String(order[turn%order.length]);}
+    function clean(s){return String(s).replace(/·/g,"");}
     function step(){
       if(!trapRun)return;
-      var person=who(),q=pickQ();
-      if(whoEl)whoEl.textContent=person;
-      if(qEl)qEl.textContent=q;
-      say(person.replace(/·/g,"")+". "+q,function(){
+      if(surv&&alive.length<=1){win();return;}
+      curP=alive[turn%alive.length];
+      whoEl.textContent=curP;drawAlive();
+      var list=[pickQ()].concat(pickRelances());
+      play(list,0);
+    }
+    function play(list,i){
+      if(!trapRun)return;
+      var q=list[i];
+      qEl.textContent=q;
+      var txt=(i===0?clean(curP)+". ":"")+q;
+      say(txt,function(){
         if(!trapRun)return;
-        trapT=setTimeout(function(){turn++;step();},SPEEDS[speed]);
+        var last=(i>=list.length-1);
+        var gap=last?SPEEDS[speed]:Math.round(SPEEDS[speed]*0.6);
+        trapT=setTimeout(function(){
+          if(last){turn++;step();}else{play(list,i+1);}
+        },gap);
       });
     }
     function startLoop(){
@@ -857,14 +896,48 @@
       trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();
       runBtn.textContent="▶️ Reprendre";statusEl.textContent="En pause. Reprends quand tu veux.";
     }
+    function win(){
+      trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}
+      var w=alive[0];curP=w;drawAlive();
+      whoEl.textContent=w;
+      qEl.textContent="🏆 "+w+" gagne la manche !";
+      statusEl.textContent="Dernier·ère debout. Nouvelle manche ?";
+      runBtn.hidden=true;againBtn.hidden=false;
+      el("crack").disabled=true;el("skip").disabled=true;
+      say(clean(w)+" gagne la manche ! Bravo.",function(){});
+    }
     runBtn.addEventListener("click",function(){trapRun?pauseLoop():startLoop();});
     el("crack").addEventListener("click",function(){
+      if(!curP||out.indexOf(curP)>=0)return;
       var wasRunning=trapRun;if(trapRun)pauseLoop();
-      penalty(who(),wasRunning?function(){trapRun=true;runBtn.textContent="⏸ Pause";turn++;step();}:null);
+      var loser=curP;
+      penalty(loser,function(){
+        if(surv){
+          var k=alive.indexOf(loser);
+          if(k>=0){alive.splice(k,1);out.push(loser);turn=k;}
+          curP=null;whoEl.textContent="…";
+          drawAlive();
+          if(alive.length<=1){win();return;}
+          statusEl.textContent=loser+" est éliminé·e. Plus que "+alive.length+" en jeu.";
+          say(clean(loser)+" est éliminé. Au suivant !",function(){
+            if(wasRunning){trapRun=true;runBtn.textContent="⏸ Pause";step();}
+          });
+        }else if(wasRunning){
+          trapRun=true;runBtn.textContent="⏸ Pause";turn++;step();
+        }
+      });
     });
     el("skip").addEventListener("click",function(){
       shutUp();if(trapT){clearTimeout(trapT);trapT=null;}
-      turn++;if(trapRun)step();else{whoEl.textContent=who();}
+      turn++;
+      if(trapRun){step();}else{curP=alive[turn%alive.length];whoEl.textContent=curP;drawAlive();}
+    });
+    againBtn.addEventListener("click",function(){
+      roster=shuffle(roster);alive=roster.slice();out=[];turn=0;curP=null;
+      againBtn.hidden=true;runBtn.hidden=false;
+      el("crack").disabled=false;el("skip").disabled=false;
+      whoEl.textContent="—";qEl.textContent="Nouvelle manche ! Tout le monde revient.";
+      drawAlive();startLoop();
     });
     el("stop").addEventListener("click",function(){stopVoiceLoop();endGame();});
   }
