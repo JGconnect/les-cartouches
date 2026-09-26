@@ -294,46 +294,53 @@
   ];
 
   var NINON=[
-    /* mise en jambe / méta — l'appli te cuisine */
-    "Tu es bien installé·e ?","Tu as vraiment compris la règle ?","Tu te sens prêt·e, là ?",
-    "C'est ton dernier mot ?","Tu es sûr·e de toi ?","Tu confirmes ce que tu viens de dire ?",
-    "Attends… tu allais dire un mot interdit, non ?","Tu réfléchis ou tu paniques ?","Tu trouves ça facile, hein ?",
-    "Tu me trouves pénible ?","Tu veux vraiment que je continue ?","Tu penses tenir plus de trente secondes ?",
-    "Tu sens que tu vas craquer ?","Tu me suis toujours ?","Tu es d'accord avec moi, au fond ?",
-    "Donc si je comprends bien, tu assumes ?","Tu jures que tu ne triches pas ?","Tu regrettes d'avoir accepté de jouer ?",
+    /* pièges réflexes : on répond oui/non sans réfléchir */
+    "Tu m'entends bien ?","Tu as compris que tu n'as pas le droit de dire oui ?","Tu es en train de réfléchir, là ?",
+    "Tu veux que je répète la question ?","Tu es prêt·e pour la suivante ?","Tu trouves que je parle trop vite ?",
+    "Tu as envie de répondre non, avoue ?","Tu ne vas quand même pas dire oui ?","Tu n'as jamais triché à un jeu, n'est-ce pas ?",
+    "Tu es d'accord que cette question est facile ?","Tu as déjà joué à ce jeu avant ?","Tu as eu chaud à la question d'avant ?",
+    /* aveux gênants */
+    "Tu as déjà stalké un ex jusqu'à ses photos d'il y a dix ans ?","Tu as déjà fait semblant de ne pas voir quelqu'un dans la rue ?",
+    "Tu as déjà lu les messages de quelqu'un par-dessus son épaule ?","Tu as déjà ghosté quelqu'un ?",
+    "Tu as déjà envoyé un message à la mauvaise personne ?","Tu as déjà dit « je t'aime » sans le penser ?",
+    "Tu as déjà offert un cadeau qu'on t'avait offert ?","Tu as déjà inventé une excuse pour ne pas venir à une soirée ?",
+    "Tu as déjà fait un faux compliment ce soir ?","Tu as déjà menti à quelqu'un de cette table ?",
+    "Tu as déjà parlé de quelqu'un ici dans son dos ?","Tu as déjà tapé ton propre nom sur Google ?",
+    "Tu as déjà fait semblant d'avoir vu un film culte ?","Tu as déjà oublié le prénom de quelqu'un que tu avais embrassé ?",
+    "Tu as déjà pleuré devant une pub ?","Tu as déjà eu un crush sur un ou une prof ?",
+    "Tu as déjà fouillé l'armoire à pharmacie chez quelqu'un ?","Tu as déjà fait semblant d'être au téléphone pour éviter quelqu'un ?",
+    /* pression autour de la table */
+    "Tu trouves que la personne à ta gauche est bien habillée ce soir ?","Tu es la personne la plus drôle de cette table ?",
+    "Tu partirais en vacances avec la personne en face de toi ?","Tu as un chouchou à cette table ?",
+    "Tu pourrais sortir avec quelqu'un d'ici ?","Tu préfères la personne à ta droite à celle à ta gauche ?",
+    "Tu confierais ton téléphone déverrouillé à quelqu'un d'ici ?","Tu connais un secret sur quelqu'un de cette table ?",
+    "Tu es venu·e ce soir pour quelqu'un en particulier ?","Tu trouves qu'il y a quelqu'un de trop ce soir ?",
+    "Tu as déjà été jaloux·se de quelqu'un ici ?","Tu laisserais la personne en face de toi choisir ta prochaine coupe de cheveux ?",
+    /* ego */
+    "Tu te trouves plus beau ou plus belle que la moyenne ?","Tu penses que tout le monde t'aime bien ?",
+    "Tu es mauvais·e perdant·e ?","Tu penses avoir toujours raison ?","Tu es rancunier·ère ?","Tu es radin·e ?",
+    "Tu es fier·e de ta dernière réponse ?","Tu te relis en te trouvant brillant·e ?","Tu te crois plus malin·e que les autres ici ?",
+    "Tu te regardes dans les vitrines quand tu passes devant ?",
+    /* amour */
+    "Tu crois à l'âme sœur ?","Tu retournerais avec un ex ?","Tu as encore le numéro de ton ex ?",
+    "Tu es amoureux·se en ce moment ?","Tu as déjà été amoureux·se de deux personnes en même temps ?",
+    "Tu pardonnerais une infidélité ?","Tu as déjà regardé le téléphone de ton ou ta partenaire ?",
+    "Tu as déjà dit « je t'aime » en premier ?","Tu as déjà dragué quelqu'un juste pour rendre une autre personne jalouse ?",
     /* soirée */
-    "Tu tiens bien l'alcool, toi ?","Tu comptes finir la soirée sobre ?","Tu es du genre à partir en douce ?",
-    "Tu as déjà dansé sur une table ?","Tu es le boute-en-train du groupe ?","Tu seras le premier à t'endormir ce soir ?",
-    "Tu ramènes toujours la même bouteille, non ?","Tu resservirais tout le monde là, tout de suite ?",
-    "Tu as déjà oublié une soirée entière ?","Tu textotes tes ex après deux verres ?",
-    /* perso / habitudes */
-    "Tu parles à tes plantes ?","Tu fais ton lit tous les matins ?","Tu chantes sous la douche ?",
-    "Tu regardes ton téléphone au réveil avant de dire bonjour ?","Tu réponds aux messages dans la seconde ?",
-    "Tu es plutôt du matin ?","Tu gardes tes tickets de caisse ?","Tu remets deux fois le même jean sans le laver ?",
-    "Tu manges la pizza avec les mains ?","Tu laisses toujours la vaisselle pour plus tard ?",
-    "Tu te reconnais dans ce que je dis ?","Tu es quelqu'un d'organisé ?",
-    /* opinions / relances qui font parler */
-    "Décris-moi ta journée d'hier.","Raconte-moi ton dernier fou rire.","C'est quoi ton pire défaut, franchement ?",
-    "Explique-moi pourquoi tu as choisi cette place à table.","Qu'est-ce qui te ferait quitter la soirée maintenant ?",
-    "Dis-moi un truc que personne ici ne sait sur toi.","C'est quoi ta plus grande qualité ?",
-    "Qu'est-ce que tu penses vraiment de ce jeu ?","Décris la personne à ta droite en un mot.",
-    /* piège relationnel */
-    "Tu es célibataire, toi ?","Tu es amoureux·se en ce moment ?","Tu crois au coup de foudre ?",
-    "Tu as déjà menti à quelqu'un de cette table ?","Tu dis toujours la vérité, toi ?",
-    "Tu gardes bien les secrets ?","Tu as un secret, là, tout de suite ?","Tu draguerais quelqu'un ici ?",
-    "Tu penses qu'on te trouve sympa ?","Tu te trouves séduisant·e ?",
-    /* ego / provoc gentille */
-    "Tu te trouves intelligent·e ?","Tu penses avoir toujours raison ?","Tu te crois plus drôle que la moyenne ?",
-    "Tu es un peu vantard·e, non ?","Tu es susceptible ?","Tu es rancunier·ère ?","Tu es radin·e, avoue ?",
-    "Tu te compares aux autres ?","Tu es jaloux·se de nature ?","Tu aimes avoir le dernier mot ?",
-    /* pièges classiques oui/non */
-    "Le ciel est bleu, non ?","Deux et deux font quatre, exact ?","On est bien samedi… ou pas ?",
-    "Tu respires, là ?","Tu m'entends bien ?","Tu es d'accord pour dire que tu es d'accord ?",
-    "Tu nierais si je disais que tu mens ?","Tu répondrais oui si je te posais une question simple ?",
-    /* montée en tension */
-    "Tu commences à transpirer, non ?","Tu sens la pression monter ?","Tu veux abandonner, hein ?",
-    "Tu penses vraiment gagner cette manche ?","Tu as un mot interdit sur le bout de la langue, là ?",
-    "Tu vas tenir encore combien de temps, à ton avis ?","Avoue, tu t'amuses ?"
+    "Tu as déjà fini une soirée sans savoir comment tu étais rentré·e ?","Tu écris à tes ex après trois verres ?",
+    "Tu comptes être le ou la dernière à partir ce soir ?","Tu as déjà dansé sur une table ?",
+    "Tu tiens mieux l'alcool que tout le monde ici ?","Tu te souviens de tout de ta dernière soirée ?",
+    "Tu as déjà dormi tout habillé·e après une soirée ?","Tu as déjà quitté une soirée sans dire au revoir ?",
+    /* choix tranchés */
+    "L'ananas sur la pizza, c'est acceptable ?","Les chaussettes dans les sandales, c'est défendable ?",
+    "Tu pourrais vivre une semaine sans ton téléphone ?","Tu voudrais connaître la date de ta mort ?",
+    "Tu effacerais un souvenir si tu pouvais ?","Tu accepterais un million pour ne plus jamais voir ton ou ta meilleur·e ami·e ?",
+    "Tu mangerais un insecte pour cent euros ?","Tu referais exactement la même vie ?",
+    "Tu lirais ton journal intime devant tout le monde pour mille euros ?","Tu échangerais ta vie avec quelqu'un ici pendant une semaine ?",
+    /* montée en pression */
+    "Tu sens que tu vas craquer ?","Tu commences à transpirer ?","Tu regrettes d'avoir accepté de jouer ?",
+    "Tu veux abandonner ?","Tu penses que tu vas gagner ?","Tu as un mot interdit sur le bout de la langue ?",
+    "Tu t'amuses toujours autant ?","Tu crois que les autres vont craquer avant toi ?"
   ];
 
   var MENTEUR=[
@@ -807,7 +814,7 @@
   }
 
   function renderTrap(P){
-    /* tirage des questions sans répétition */
+    /* questions : tirage sans répétition */
     var pool=[],pi=0,lastQ=null;
     function pickQ(){
       if(pi>=pool.length){
@@ -816,21 +823,21 @@
       }
       lastQ=pool[pi++];return lastQ;
     }
-    /* relances-pièges enchaînées sur la même personne */
-    var RELANCES=["Vraiment ?","Tu es sûr·e ?","Tu confirmes ?","C'est ta réponse finale ?","Tu peux le jurer ?",
-      "Répète un peu ?","Et tu assumes ?","Sans mentir ?","Tu maintiens ?","Même devant tout le monde ?",
-      "Ah bon ?","Tu en es certain·e ?","C'est vrai, ça ?","Tu le penses vraiment ?","Tu me le promets ?"];
-    function pickRelances(){
-      var n=Math.random()<0.5?1:2,r=shuffle(RELANCES);return r.slice(0,n);
-    }
+    /* relances-pièges (toujours fermées) */
+    var RELANCES=["Vraiment ?","Sûr·e ?","Tu confirmes ?","C'est définitif ?","Tu le jurerais ?","Même devant ta mère ?",
+      "Même après trois verres ?","Même pour cent euros ?","Tu veux changer ta réponse ?","Tu mens, là, non ?",
+      "Tu veux qu'on vérifie ?","Tu assumes ?","Et tu en es fier·e ?","Tu le redirais demain ?",
+      "Tu en es certain·e ?","Tu le penses vraiment ?","Tu le dirais devant ton ex ?"];
+    var rpool=[],ri=0;
+    function pickR(){if(ri>=rpool.length){rpool=shuffle(RELANCES);ri=0;}return rpool[ri++];}
     var canSurv=players.length>=2,surv=canSurv;
     var roster=shuffle(canSurv?players:VICTIMS);
-    function idleMsg(){return surv?"L'appli appelle quelqu'un, le mitraille de questions et de relances. Un oui ou un non : éliminé·e. Dernier debout gagne.":(canSurv?"Mode libre : pas d'élimination, juste des pénalités.":"Ajoute au moins 2 prénoms sur l'accueil pour pouvoir jouer en mode survivant.");}
-    function crackLbl(){return surv?"A craqué → éliminé·e":"Mot interdit → "+I();}
     var alive=roster.slice(),out=[];
-    var turn=0,curP=null;
+    var curP=null,nextP=null,bag=[],lastN=0;
     var SPEEDS={lent:4200,moyen:2800,rapide:1700};
     var speed="moyen";
+    function idleMsg(){return surv?"L'appli appelle quelqu'un au hasard et le mitraille de questions. Un oui ou un non : éliminé·e. Dernier debout gagne.":(canSurv?"Mode libre : pas d'élimination, juste des pénalités.":"Ajoute au moins 2 prénoms sur l'accueil pour pouvoir jouer en mode survivant.");}
+    function crackLbl(){return surv?"A craqué → éliminé·e":"Mot interdit → "+I();}
     P.innerHTML=
       '<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Sur la sellette</div><div class="name" id="who">—</div></div></div>'+
       '<div class="body">'+
@@ -861,13 +868,14 @@
       }).join("");
     }
     drawAlive();
+    function resetRound(){alive=roster.slice();out=[];bag=[];curP=null;nextP=null;lastN=0;}
     if(canSurv){
       Array.prototype.forEach.call(el("tm").querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){
           var want=b.getAttribute("data-m")==="surv";if(want===surv)return;
           surv=want;
           Array.prototype.forEach.call(el("tm").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
-          alive=roster.slice();out=[];turn=0;
+          resetRound();
           el("tmode").textContent=surv?"Mode survivant":"Mode libre";
           el("crack").textContent=crackLbl();
           el("crack").disabled=false;el("skip").disabled=false;
@@ -884,26 +892,47 @@
       });
     });
     function clean(s){return String(s).replace(/·/g,"");}
+    /* personne suivante : ordre imprévisible, chacun passe avant qu'on recommence, jamais deux fois de suite */
+    function nextPerson(){
+      bag=bag.filter(function(p){return alive.indexOf(p)>=0;});
+      if(!bag.length)bag=shuffle(alive);
+      if(alive.length>1&&bag[0]===curP){
+        if(bag.length>1){bag.push(bag.shift());}
+        else{bag=shuffle(alive.filter(function(p){return p!==curP;})).concat([curP]);}
+      }
+      return bag.shift();
+    }
+    /* longueur de rafale : 1 à 4, jamais la même deux fois de suite */
+    function burstLen(){
+      var w=[[1,25],[2,30],[3,25],[4,20]].filter(function(x){return x[0]!==lastN;});
+      var tot=w.reduce(function(s,x){return s+x[1];},0),r=Math.random()*tot,a=0,n=w[0][0];
+      for(var i=0;i<w.length;i++){a+=w[i][1];if(r<a){n=w[i][0];break;}}
+      lastN=n;return n;
+    }
+    function buildBurst(){
+      var n=burstLen(),list=[{t:pickQ(),r:false}];
+      for(var i=1;i<n;i++){
+        if(!list[i-1].r&&Math.random()<0.5)list.push({t:pickR(),r:true});
+        else list.push({t:pickQ(),r:false});
+      }
+      return list;
+    }
     function step(){
       if(!trapRun)return;
       if(surv&&alive.length<=1){win();return;}
-      curP=alive[turn%alive.length];
+      curP=nextP||nextPerson();nextP=null;
       whoEl.textContent=curP;drawAlive();
-      var list=[pickQ()].concat(pickRelances());
-      play(list,0);
+      play(buildBurst(),0);
     }
     function play(list,i){
       if(!trapRun)return;
-      var q=list[i];
-      qEl.textContent=q;
-      var txt=(i===0?clean(curP)+". ":"")+q;
-      say(txt,function(){
+      var it=list[i];
+      qEl.textContent=it.t;
+      say((i===0?clean(curP)+". ":"")+it.t,function(){
         if(!trapRun)return;
         var last=(i>=list.length-1);
-        var gap=last?SPEEDS[speed]:Math.round(SPEEDS[speed]*0.6);
-        trapT=setTimeout(function(){
-          if(last){turn++;step();}else{play(list,i+1);}
-        },gap);
+        var gap=last?SPEEDS[speed]:Math.round(SPEEDS[speed]*(list[i+1].r?0.55:0.8));
+        trapT=setTimeout(function(){if(last){step();}else{play(list,i+1);}},gap);
       });
     }
     function startLoop(){
@@ -933,7 +962,7 @@
       penalty(loser,function(){
         if(surv){
           var k=alive.indexOf(loser);
-          if(k>=0){alive.splice(k,1);out.push(loser);turn=k;}
+          if(k>=0){alive.splice(k,1);out.push(loser);}
           curP=null;whoEl.textContent="…";
           drawAlive();
           if(alive.length<=1){win();return;}
@@ -942,17 +971,16 @@
             if(wasRunning){trapRun=true;runBtn.textContent="⏸ Pause";step();}
           });
         }else if(wasRunning){
-          trapRun=true;runBtn.textContent="⏸ Pause";turn++;step();
+          trapRun=true;runBtn.textContent="⏸ Pause";step();
         }
       });
     });
     el("skip").addEventListener("click",function(){
       shutUp();if(trapT){clearTimeout(trapT);trapT=null;}
-      turn++;
-      if(trapRun){step();}else{curP=alive[turn%alive.length];whoEl.textContent=curP;drawAlive();}
+      if(trapRun){step();}else{nextP=nextPerson();curP=nextP;whoEl.textContent=curP;drawAlive();}
     });
     againBtn.addEventListener("click",function(){
-      roster=shuffle(roster);alive=roster.slice();out=[];turn=0;curP=null;
+      roster=shuffle(roster);resetRound();
       againBtn.hidden=true;runBtn.hidden=false;
       el("crack").disabled=false;el("skip").disabled=false;
       whoEl.textContent="—";qEl.textContent="Nouvelle manche ! Tout le monde revient.";
