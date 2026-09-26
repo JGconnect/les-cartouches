@@ -468,6 +468,30 @@
   function t(s){var v=VOC[mode];return s.replace(/\{(\w+)\}/g,function(m,k){return v[k]!==undefined?v[k]:m;});}
   function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 
+  /* ---------------- SYNTHÈSE VOCALE (voix française) ---------------- */
+  var SPEAK=("speechSynthesis" in window)&&("SpeechSynthesisUtterance" in window);
+  var frVoice=null;
+  function loadVoices(){
+    if(!SPEAK)return;
+    var vs=window.speechSynthesis.getVoices()||[];
+    frVoice=vs.filter(function(v){return /^fr(-|_)?/i.test(v.lang);})[0]
+          ||vs.filter(function(v){return /fran/i.test(v.name);})[0]||null;
+  }
+  if(SPEAK){loadVoices();try{window.speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
+  function say(text,onend){
+    if(!SPEAK){setTimeout(function(){onend&&onend();},Math.min(3500,Math.max(1600,text.length*55)));return;}
+    try{
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang="fr-FR";if(frVoice)u.voice=frVoice;u.rate=1.05;u.pitch=1;
+      var done=false;function fin(){if(done)return;done=true;onend&&onend();}
+      u.onend=fin;u.onerror=fin;
+      window.speechSynthesis.speak(u);
+      setTimeout(fin,Math.min(9000,1400+text.length*95));
+    }catch(e){setTimeout(function(){onend&&onend();},1600);}
+  }
+  function shutUp(){if(SPEAK){try{window.speechSynthesis.cancel();}catch(e){}}}
+
   /* ---------------- MÉTA DES JEUX ---------------- */
   var GAMES=[
     {id:"ouinon",name:"Oui ou Non",em:"🔥",gc:"#ff4d8d",tg:"Réponds par oui ou non, et ne craque pas.",
@@ -509,7 +533,7 @@
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}}
   function show(name){
-    clearT();closeSheet();
+    clearT();closeSheet();stopVoiceLoop();
     for(var k in screens)screens[k].hidden=(k!==name);
     el("back").classList.toggle("show",name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
@@ -534,6 +558,8 @@
 
   /* ---------------- ÉTAT ---------------- */
   var G=null, deck=[], idx=0, rIdx=0, vics=[], ambiance="epice", showProg=false, cur="";
+  var trapRun=false, trapT=null;
+  function stopVoiceLoop(){trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();}
 
   /* ---------------- HUB ---------------- */
   function buildHub(focus){
@@ -751,16 +777,37 @@
     function pick(){return deck[Math.floor(Math.random()*deck.length)];}
     P.innerHTML=bannerHTML(G,cur)+
       '<div class="body">'+
-        '<div class="chip"><span class="dot"></span>Rafale</div>'+
-        '<h2 class="qtext" id="q">'+pick()+'</h2>'+
+        '<div class="chip"><span class="dot"></span>Interrogatoire</div>'+
+        '<h2 class="qtext" id="q">Prêt·e ? Appuie sur « Lancer ».</h2>'+
+        '<p class="instr" id="tstatus">L\'appli va te mitrailler de questions à voix haute. Réponds vite, sans jamais dire « oui » ni « non ».</p>'+
       '</div>'+
       '<div class="strip">Interdit de dire <span class="tag2"><b class="y">OUI</b><b class="x">NON</b></span> sinon '+I()+'</div>'+
-      '<div class="foot"><button class="btn" id="more">Autre question</button>'+
+      '<div class="foot"><button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
       '<div class="row-crack"><button class="btn drink" id="crack">Mot interdit → '+I()+'</button><button class="btn ghost" id="nx">Au suivant →</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
-    el("more").addEventListener("click",function(){el("q").textContent=pick();});
-    el("crack").addEventListener("click",function(){penalty(cur);});
-    el("nx").addEventListener("click",function(){idx++;renderRound();});
-    el("stop").addEventListener("click",endGame);
+    var qEl=el("q"),statusEl=el("tstatus"),runBtn=el("run");
+    var gap=SPEAK?1400:500;
+    function nextQ(){
+      if(!trapRun)return;
+      var q=pick();
+      if(qEl)qEl.textContent=q;
+      say(q,function(){if(!trapRun)return;trapT=setTimeout(nextQ,gap);});
+    }
+    function startLoop(){
+      trapRun=true;runBtn.textContent="⏸ Pause";
+      statusEl.textContent="Réponds vite… sans « oui » ni « non » !";
+      say("À toi, "+String(cur).replace(/·/g,""),function(){if(trapRun)nextQ();});
+    }
+    function pauseLoop(){
+      trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();
+      runBtn.textContent="▶️ Reprendre";statusEl.textContent="En pause. Reprends quand tu veux.";
+    }
+    runBtn.addEventListener("click",function(){trapRun?pauseLoop():startLoop();});
+    el("crack").addEventListener("click",function(){
+      var wasRunning=trapRun;if(trapRun)pauseLoop();
+      penalty(cur,wasRunning?startLoop:null);
+    });
+    el("nx").addEventListener("click",function(){stopVoiceLoop();idx++;renderRound();});
+    el("stop").addEventListener("click",function(){stopVoiceLoop();endGame();});
   }
 
   function renderMenteur(P){
