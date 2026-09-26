@@ -1,0 +1,5 @@
+# Configuration de déploiement Netlify — Les Cartouches
+# Le site est une simple page statique dans le dossier "site".
+[build]
+  publish = "site"
+  command = ""
