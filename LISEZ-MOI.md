@@ -54,8 +54,8 @@ Le jeu est en ligne sur **https://jgconnect.github.io/les-cartouches/**
 - **Automatique** : chaque modification poussée sur la branche `main` remet le site en ligne toute seule
   (fichier `.github/workflows/pages.yml`, onglet **Actions** du dépôt pour suivre).
 - Le dossier publié est `site/`.
-- **Netlify n'est plus utilisé** (chaque mise en ligne y coûtait 15 crédits sur 300 par mois).
-  La règle `ignore = "exit 0"` dans `netlify.toml` y bloque toute nouvelle mise en ligne.
+- **Netlify n'est plus utilisé** (chaque mise en ligne y coûtait 15 crédits sur 300 par mois) :
+  les projets Netlify ont été supprimés le 27/09/2026.
 
 ## Vérifier que les avis remontent bien
 
