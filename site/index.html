@@ -1647,12 +1647,19 @@
       '</div>'+
       '<div class="foot">'+
         '<button class="btn" id="pick">L\'accusé·e est désigné·e →</button>'+
+        '<button class="linkbtn" id="noone">Personne ne correspond → autre accusation</button>'+
         '<button class="btn ghost" id="tgo" hidden>Lancer la plaidoirie (30 s)</button>'+
         '<div class="row2" id="verdict" hidden><button class="btn drink" id="guilty">Coupable → '+I()+'</button><button class="btn" id="free">Acquitté·e → accusateurs '+I()+'</button></div>'+
       '</div>';
     el("tnum").textContent=G.secs;
+    el("noone").addEventListener("click",function(){
+      var spare=TRIBUNAL.filter(function(x){return deck.indexOf(x)<0;});
+      if(!spare.length){advance();return;}
+      deck[idx]=spare[Math.floor(Math.random()*spare.length)];
+      renderRound();
+    });
     el("pick").addEventListener("click",function(){
-      el("pick").hidden=true;el("trial").hidden=false;el("tgo").hidden=false;el("verdict").hidden=false;
+      el("pick").hidden=true;el("noone").hidden=true;el("trial").hidden=false;el("tgo").hidden=false;el("verdict").hidden=false;
       el("msg").innerHTML="L'accusé·e a <b>trente secondes</b> pour plaider non coupable. Puis la table vote.";
     });
     el("tgo").addEventListener("click",function(){el("ring").classList.remove("done");runTimer(G.secs,function(){el("msg").textContent="Temps écoulé, au vote !";});});
