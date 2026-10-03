@@ -1097,9 +1097,9 @@
     {id:"chrono",name:"Le Chrono",em:"⏱️",gc:"#4ec5ff",tg:"Cite un truc en cinq secondes, sinon {pen}.",
      type:"chrono",secs:5,
      rules:["Le téléphone donne une catégorie.","On tourne : chacun cite un élément en moins de cinq secondes.","Tu sèches ou tu répètes ? {Pen}, et on change de catégorie."]},
-    {id:"tribunal",name:"Le Tribunal",em:"⚖️",gc:"#ff4d6d",tg:"Plaide ta cause devant la table.",
+    {id:"tribunal",name:"Le Tribunal",em:"⚖️",gc:"#ff4d6d",tg:"La table désigne l'accusé·e, qui plaide sa cause.",
      type:"tribunal",secs:30,vic:"L'accusé·e",partie:10,
-     rules:["Une personne est accusée d'un travers par le téléphone.","Elle a trente secondes pour plaider non coupable.","La table vote. Coupable → elle {boit}. Acquittée → ses accusateurs {boivent}."]},
+     rules:["Le téléphone lit un <b>chef d'accusation</b>. À trois, tout le monde <b>pointe la personne qui le mérite le plus</b> : c'est l'accusé·e.","L'accusé·e a <b>trente secondes</b> pour plaider non coupable, avec toute sa mauvaise foi.","La table rend son verdict. Coupable → l'accusé·e {boit}. Acquitté·e → ceux qui l'ont pointé·e {boivent}."]},
     {id:"dilemme",name:"Le Dilemme",em:"🤔",gc:"#c77dff",tg:"Deux options, aucune échappatoire.",
      type:"dilemme",vic:"Au choix de",partie:8,
      rules:["Le téléphone pose un choix impossible entre deux options.","La personne désignée <b>tranche</b> et défend son choix devant la table.","Elle refuse de choisir ou botte en touche ? <b>{Pen}.</b> Puis le débat s'enflamme."]}
@@ -1600,14 +1600,14 @@
         '<p class="instr" id="msg">Cinq secondes par personne. On lance dès que tu es prêt.</p>'+
       '</div>'+
       '<div class="foot">'+
-        '<button class="btn" id="go">Lancer le chrono</button>'+
+        '<button class="btn" id="tgo">Lancer le chrono</button>'+
         '<div class="row2"><button class="btn drink" id="fail">A séché → '+I()+'</button><button class="btn ghost" id="nx">Autre catégorie →</button></div>'+
         '<button class="linkbtn" id="stop">Terminer la partie</button>'+
       '</div>';
     el("tnum").textContent=G.secs;
-    el("go").addEventListener("click",function(){
+    el("tgo").addEventListener("click",function(){
       el("ring").classList.remove("done");
-      el("go").textContent="Réussi, on relance";
+      el("tgo").textContent="Réussi, on relance";
       runTimer(G.secs,function(){el("msg").textContent="Trop lent ! "+I();});
     });
     el("fail").addEventListener("click",function(){clearT();penalty("celui ou celle qui a séché");});
@@ -1638,20 +1638,25 @@
   }
 
   function renderTribunal(P){
-    P.innerHTML=bannerHTML(G,cur)+
+    P.innerHTML=
       '<div class="body">'+
         '<div class="chip"><span class="dot"></span>Chef d\'accusation</div>'+
-        '<h2 class="qtext">Accusé·e '+deck[idx]+'.</h2>'+
-        ringHTML()+
-        '<p class="instr" id="msg">Trente secondes pour plaider non coupable.</p>'+
+        '<h2 class="qtext">Qui ici est coupable '+deck[idx]+' ?</h2>'+
+        '<p class="instr" id="msg">À trois, tout le monde <b>pointe le ou la coupable</b>. La personne la plus désignée passe au tribunal.</p>'+
+        '<div id="trial" hidden>'+ringHTML()+'</div>'+
       '</div>'+
       '<div class="foot">'+
-        '<button class="btn ghost" id="go">Lancer la plaidoirie (30 s)</button>'+
-        '<div class="row2"><button class="btn drink" id="guilty">Coupable → '+I()+'</button><button class="btn" id="free">Acquitté·e → accusateurs '+I()+'</button></div>'+
+        '<button class="btn" id="pick">L\'accusé·e est désigné·e →</button>'+
+        '<button class="btn ghost" id="tgo" hidden>Lancer la plaidoirie (30 s)</button>'+
+        '<div class="row2" id="verdict" hidden><button class="btn drink" id="guilty">Coupable → '+I()+'</button><button class="btn" id="free">Acquitté·e → accusateurs '+I()+'</button></div>'+
       '</div>';
     el("tnum").textContent=G.secs;
-    el("go").addEventListener("click",function(){el("ring").classList.remove("done");runTimer(G.secs,function(){el("msg").textContent="Temps écoulé, au vote !";});});
-    el("guilty").addEventListener("click",function(){clearT();penalty(cur,advance);});
+    el("pick").addEventListener("click",function(){
+      el("pick").hidden=true;el("trial").hidden=false;el("tgo").hidden=false;el("verdict").hidden=false;
+      el("msg").innerHTML="L'accusé·e a <b>trente secondes</b> pour plaider non coupable. Puis la table vote.";
+    });
+    el("tgo").addEventListener("click",function(){el("ring").classList.remove("done");runTimer(G.secs,function(){el("msg").textContent="Temps écoulé, au vote !";});});
+    el("guilty").addEventListener("click",function(){clearT();penalty("l'accusé·e",advance);});
     el("free").addEventListener("click",function(){clearT();penalty("les accusateurs",advance);});
   }
 
