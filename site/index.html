@@ -98,6 +98,10 @@
   .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
   .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
   .lchip.hard{border-style:dashed}
+  .lchip.pop{animation:lpop .45s ease}
+  @keyframes lpop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .heard{margin:0;text-align:center;font-size:13px;color:var(--ink-faint);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .heard[hidden]{display:none}
   .lgrid.ten{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:center}
   .lgrid.ten .lchip{border-radius:16px;padding:16px 10px;font-size:16px;line-height:1.2}
   .lchip.on{background:var(--ga);border-color:var(--ga);color:#241500}
@@ -1707,7 +1711,7 @@
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}}
   function show(name){
-    clearT();closeSheet();stopVoiceLoop();
+    clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();
     for(var k in screens)screens[k].hidden=(k!==name);
     el("back").classList.toggle("show",name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
@@ -2504,6 +2508,39 @@
   /* ---------------- LA LISTE ---------------- */
   var lTeams=2, lDur=60;
   function teamName(i){return "Équipe "+(i+1);}
+  /* ---------------- MICRO (reconnaissance vocale du navigateur) ---------------- */
+  var REC=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+  var lMic=!!REC, micObj=null, micOn=false;
+  function normTxt(t){
+    return " "+String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/œ/g,"oe").replace(/æ/g,"ae")
+      .replace(/[^a-z0-9]+/g," ").split(" ").filter(Boolean).map(function(w){return w.length>3?w.replace(/(s|x)$/,""):w;}).join(" ")+" ";
+  }
+  function itemKeys(t){
+    var keys=[],main=t.replace(/\(.*?\)/g,"").trim(),par=(t.match(/\(([^)]*)\)/)||[])[1];
+    keys.push(normTxt(main));
+    if(par)keys.push(normTxt(par));
+    var m=normTxt(main).replace(/^ (le|la|les|l|un|une|des) /," ");if(keys.indexOf(m)<0)keys.push(m);
+    var ws=normTxt(main).trim().split(" ");
+    if(ws.length>1&&ws[ws.length-1].length>=5)keys.push(" "+ws[ws.length-1]+" ");
+    return keys.filter(function(k){return k.trim().length>=2;});
+  }
+  function micStart(onText){
+    if(!REC)return false;
+    micStop();
+    try{
+      var r=new REC();r.lang="fr-FR";r.continuous=true;r.interimResults=true;r.maxAlternatives=3;
+      r.onresult=function(e){
+        var txt="";
+        for(var i=e.resultIndex;i<e.results.length;i++){for(var a=0;a<e.results[i].length;a++)txt+=" "+e.results[i][a].transcript;}
+        onText(txt,e.results[e.results.length-1][0].transcript);
+      };
+      r.onerror=function(e){if(e.error==="not-allowed"||e.error==="service-not-allowed"){micOn=false;onText(null,"⚠️ Micro refusé : autorise-le dans les réglages du navigateur, ou coche à la main.");}};
+      r.onend=function(){if(micOn&&micObj===r){try{r.start();}catch(e){}}};
+      micObj=r;micOn=true;r.start();return true;
+    }catch(e){micOn=false;return false;}
+  }
+  function micStop(){micOn=false;if(micObj){try{micObj.abort();}catch(e){}micObj=null;}}
+
   function renderListe(P){
     var team=teamName(idx%lTeams);
     var cat=deck[idx%deck.length];
@@ -2532,9 +2569,15 @@
     function ready(){
       P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+team+' · '+lDur+' secondes</div>'+
         '<h2 class="qtext">'+esc(cat.c)+'</h2>'+
-        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. L\'appli en cache <b>'+items.length+'</b> : tu coches celles qui sont dites. Les <b>⭐ difficiles</b> valent 2 points.</p></div>'+
+        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. L\'appli en cache <b>'+items.length+'</b> : tu coches celles qui sont dites. Les <b>⭐ difficiles</b> valent 2 points.</p>'+
+        (REC?'<div class="ambiance"><div class="lbl">Micro</div><div class="seg two" id="lmic"><button data-m="1"'+(lMic?' class="on"':'')+'>🎙️ Activé<span class="s">coche tout seul</span></button><button data-m="0"'+(lMic?'':' class="on"')+'>✋ Désactivé<span class="s">à la main</span></button></div></div>'+
+          '<p class="hint">Le téléphone écoute les réponses et les coche tout seul. Tu peux toujours cocher ou décocher à la main.</p>':
+          '<p class="hint">Ce navigateur ne permet pas la reconnaissance vocale : on coche à la main.</p>')+'</div>'+
         '<div class="foot"><button class="btn" id="lgo">▶️ Top chrono</button><button class="linkbtn" id="lother">Autre catégorie</button></div>';
       el("lgo").addEventListener("click",run);
+      if(el("lmic"))Array.prototype.forEach.call(el("lmic").querySelectorAll("button"),function(b){
+        b.addEventListener("click",function(){lMic=b.getAttribute("data-m")==="1";Array.prototype.forEach.call(el("lmic").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
+      });
       el("lother").addEventListener("click",function(){
         var spare=LISTES.filter(function(x){return deck.indexOf(x)<0;});
         var pool=spare.length?spare:LISTES.filter(function(x){return x!==cat;});
@@ -2553,10 +2596,28 @@
       running=true;
       P.innerHTML='<div class="lhead"><div class="lcat">'+esc(cat.c)+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lfound"></span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
         '<div class="lgrid ten" id="lgrid">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
-        '<div class="foot lfoot"><button class="btn sm" id="lstop">⏹ Stop</button></div>';
+        '<div class="foot lfoot"><p class="heard" id="lheard" hidden></p><button class="btn sm" id="lstop">⏹ Stop</button></div>';
       Array.prototype.forEach.call(P.querySelectorAll(".lchip"),function(b){
         b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);paint();if(count()>=items.length)setTimeout(done,600);});
       });
+      if(lMic&&REC){
+        var keys=items.map(function(it){return itemKeys(it.t);});
+        var ok=micStart(function(txt,last){
+          if(!running)return;
+          var h=el("lheard");h.hidden=false;
+          if(txt===null){h.textContent=last;return;}
+          h.textContent="🎙️ « "+last.trim()+" »";
+          var n=normTxt(txt);
+          keys.forEach(function(ks,i){
+            if(got[i])return;
+            for(var k=0;k<ks.length;k++){if(n.indexOf(ks[k])>=0){
+              got[i]=true;var b=P.querySelector('.lchip[data-i="'+i+'"]');
+              if(b){b.classList.add("on","pop");(function(bb){setTimeout(function(){bb.classList.remove("pop");},500);})(b);}
+              paint();if(count()>=items.length)setTimeout(done,600);break;}}
+          });
+        });
+        if(ok){var h0=el("lheard");h0.hidden=false;h0.textContent="🎙️ J'écoute…";}
+      }
       el("lstop").addEventListener("click",done);
       paint();
       clearT();
@@ -2565,6 +2626,7 @@
     function done(){
       if(!running)return;running=false;clearT();
       try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      micStop();
       try{say("Temps écoulé !");}catch(e){}
       var s=score(),n=count();
       addPts(team,s);
