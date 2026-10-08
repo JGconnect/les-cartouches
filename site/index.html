@@ -55,6 +55,8 @@
   .back.show{display:inline-flex}
   .progress{font-variant-numeric:tabular-nums;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
   .progress[hidden]{display:none}
+  .brand,.back,.progress{white-space:nowrap}
+  @media (max-width:420px){.top{gap:8px}.brand{letter-spacing:.08em;font-size:13.5px}.progress{font-size:11px;letter-spacing:.04em}}
 
   .stage{flex:1;display:flex;flex-direction:column}
   .screen{flex:1;display:flex;flex-direction:column}
@@ -100,6 +102,29 @@
   .lfoot{position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(6px + env(safe-area-inset-bottom,0px))}
   .row3{display:grid;grid-template-columns:1.6fr .6fr 1fr;gap:8px}
   .row3 .btn{padding:13px 8px;font-size:15px}
+  .chips.pick .pchip.on{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 30%, var(--surface-2));color:var(--ink)}
+  .pad{gap:10px}.pad .pp{color:var(--ga);font-variant-numeric:tabular-nums;margin-left:4px}
+  .bigletter{font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:var(--ga);text-align:center}
+  .bigletter.sm{font-size:72px}
+  .brow2{display:flex;align-items:center;justify-content:center;gap:22px}.brow2 .ring{width:130px;height:130px;margin:0}.brow2 .ring .num{font-size:44px}
+  .bcats{text-align:left;margin:0 auto;padding:14px 16px 14px 40px;background:var(--surface);border:1px solid var(--line);border-radius:16px;display:grid;gap:7px;font-size:16px;font-weight:600;width:100%;max-width:380px}
+  .bcats li::marker{color:var(--ga);font-weight:800}
+  .tcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 18px;display:grid;gap:12px}
+  .tword{font-family:var(--display);font-weight:800;font-size:clamp(34px,10vw,50px);line-height:1.05;color:var(--ga)}
+  .tlbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  .tban{display:grid;gap:6px}.tban span{font-size:19px;font-weight:600;color:var(--trash);text-decoration:line-through;text-decoration-thickness:2px}
+  .qtext.sm{font-size:22px}
+  .quote{font-style:italic}
+  .answer{background:var(--surface);border:1px solid var(--ga);border-radius:16px;padding:14px 16px;display:grid;gap:6px}
+  .answer .aw{font-family:var(--display);font-weight:800;font-size:22px;color:var(--ga)}
+  .answer .as{font-size:14.5px;color:var(--ink-soft);line-height:1.45}
+  .answer.ok{border-color:#2bb673}.answer.ok .aw{color:#2bb673}.answer.ko{border-color:#e5484d}.answer.ko .aw{color:#e5484d}
+  #qans,#vans{display:grid;gap:12px}#qans[hidden],#vans[hidden]{display:none}
+  .hstart{font-size:17px;line-height:1.5;font-style:italic;color:var(--ink-soft);margin:0}
+  .hturn{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:grid;gap:4px}
+  .hturn .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-top:6px}
+  .hname{font-family:var(--display);font-weight:800;font-size:22px}
+  .hword{font-family:var(--display);font-weight:800;font-size:clamp(32px,9vw,44px);color:var(--ga)}
   .missed{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;text-align:left}
   .missed summary{cursor:pointer;font-weight:600;color:var(--ink-soft)}
   .missed p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft)}
@@ -1334,6 +1359,257 @@
     {c:"Les signes du zodiaque",a:"Bélier|Taureau|Gémeaux|Cancer|Lion|Vierge|Balance|Scorpion|Sagittaire|Capricorne|Verseau|Poissons",h:""},
     {c:"Les objets qu'on met dans une valise de vacances",a:"Brosse à dents|Dentifrice|Maillot de bain|Tee-shirts|Pantalon|Short|Chaussettes|Sous-vêtements|Pyjama|Chargeur|Lunettes de soleil|Crème solaire|Serviette|Shampoing|Gel douche|Déodorant|Chaussures|Pull|Veste",h:"Adaptateur de prise|Trousse à pharmacie|Passeport|Bouchons d'oreilles|Masque de nuit|Batterie externe|Casquette|Tongs|Livre|Coton-tiges|Brosse à cheveux|Rasoir|Parapluie|Coussin de voyage|Lessive"}
   ];
+  /* ---------------- PETIT BAC ---------------- */
+  var BAC_LETTRES="ABCDEFGHIJLMNOPRSTV".split("");
+  var BAC_CATS=["Prénom","Pays","Ville","Animal","Fruit ou légume","Métier","Marque","Objet de la maison","Sport","Film","Chanteur ou chanteuse","Personnage de dessin animé","Plat","Célébrité","Moyen de transport","Instrument de musique","Vêtement","Partie du corps","Super-héros ou méchant","Jeu vidéo","Série télé","Boisson","Fleur ou plante","Chose qu'on trouve dans une salle de bain","Chose qu'on emporte en vacances","Excuse pour être en retard","Mot anglais","Personnage historique","Fromage","Dessert","Chose qui fait peur","Prénom de garçon","Prénom de fille","Département ou région","Capitale","Mot de plus de 8 lettres","Chose qui colle","Chose ronde","Chose qu'on trouve dans un bus","Cadeau nul","Marque de voiture","Appli de téléphone","Personnage de film","Animal marin","Oiseau","Insecte ou petite bête","Outil","Verbe","Chose verte","Chose qui sent mauvais","Activité du dimanche","Accessoire","Chanson","Émission de télé","Jouet","Chose qu'on trouve dans un frigo","Ville de France","Chose qui fait du bruit","Mot qui fait rire","Couleur ou nuance"];
+
+  /* ---------------- LE MOT INTERDIT : mot à faire deviner | trois mots interdits ---------------- */
+  var TABOO=[
+    "Plage|sable|mer|soleil","Pizza|Italie|fromage|four","Vampire|sang|dents|Dracula","Anniversaire|gâteau|bougies|cadeau","Avion|voler|pilote|aéroport",
+    "Téléphone|appeler|portable|écran","Fantôme|drap|peur|château","Neige|blanc|froid|ski","Football|ballon|but|équipe","Dentiste|dents|carie|cabinet",
+    "Pyjama|dormir|nuit|lit","Parapluie|pluie|ouvrir|mouillé","Réveil|matin|sonner|heure","Chocolat|cacao|tablette|noir","Pirate|bateau|trésor|crochet",
+    "Licorne|corne|cheval|arc-en-ciel","Selfie|photo|téléphone|soi","Mariage|robe|bague|église","Sirène|queue|poisson|mer","Cinéma|film|écran|pop-corn",
+    "Pompier|feu|camion|sirène","Momie|Égypte|bandelettes|pyramide","Cactus|piquant|désert|plante","Karaoké|chanter|micro|paroles","Barbe|poils|menton|raser",
+    "Escargot|lent|coquille|bave","Tour Eiffel|Paris|fer|monument","Croissant|beurre|boulangerie|matin","Pingouin|banquise|noir|blanc","Volcan|lave|éruption|montagne",
+    "Fusée|espace|lancer|astronaute","Robot|machine|métal|intelligence","Moustache|lèvre|poils|nez","Sorcière|balai|chapeau|magie","Camping|tente|nature|vacances",
+    "Bébé|pleurer|couche|biberon","Glace|froid|cornet|parfum","Coiffeur|cheveux|couper|ciseaux","Hamburger|pain|steak|fast-food","Princesse|château|roi|couronne",
+    "Prison|barreaux|voleur|cellule","Bibliothèque|livres|lire|silence","Clown|cirque|nez|rire","Dinosaure|préhistoire|fossile|T-rex","Tatouage|encre|peau|dessin",
+    "Ascenseur|étage|monter|bouton","Montagne|sommet|neige|grimper","Zombie|mort|vivant|cerveau","Facteur|lettre|courrier|boîte","Trottinette|roues|guidon|rouler",
+    "Bougie|flamme|cire|allumer","Serpent|ramper|venin|langue","Vacances|été|voyage|repos","Banane|jaune|fruit|singe","Télécommande|télé|chaîne|bouton",
+    "Fromage|lait|vache|camembert","Miroir|reflet|glace|voir","Docteur|médecin|malade|ordonnance","Ninja|Japon|noir|combat","Sushi|riz|poisson|Japon",
+    "Embouteillage|voitures|bouchon|route","Boussole|nord|direction|aiguille","Arc-en-ciel|couleurs|pluie|ciel","Pâtes|Italie|spaghetti|cuire","Lune|nuit|ciel|croissant",
+    "Kangourou|Australie|sauter|poche","Requin|mer|dents|nager","Valise|voyage|bagage|roulettes","Chaussette|pied|paire|laine","Magicien|tour|lapin|chapeau",
+    "Bowling|quilles|boule|strike","Piscine|nager|eau|plonger","Ours|forêt|miel|brun","Discothèque|danser|musique|nuit","Moustique|piquer|bzz|été",
+    "Bonhomme de neige|carotte|hiver|blanc","Hélicoptère|hélice|voler|pilote","Poubelle|déchets|jeter|sac","Taxi|voiture|chauffeur|course","Ballon|gonfler|air|fête",
+    "Château de sable|plage|seau|pelle","Gâteau|four|sucre|anniversaire","Football américain|ballon|casque|Super Bowl","Père Noël|cadeaux|barbe|traîneau","Lapin|oreilles|carotte|sauter",
+    "Wi-Fi|internet|réseau|code","Influenceur|Instagram|abonnés|réseaux","Cafard|insecte|cuisine|dégoûtant","Hôpital|malade|médecin|lit","Plombier|tuyau|fuite|Mario",
+    "Grand-mère|vieille|famille|mamie","Chauve|cheveux|tête|crâne","Ronfler|dormir|bruit|nez","Sauna|chaud|transpirer|bois","Canapé|salon|assis|coussin",
+    "Ferme|vache|tracteur|campagne","Supermarché|courses|caddie|caisse","Train|rails|gare|SNCF","Bus|chauffeur|arrêt|ticket","Métro|souterrain|ligne|station",
+    "Éternuer|nez|atchoum|rhume","Bisou|lèvres|embrasser|joue","Licenciement|travail|patron|viré","Carte bleue|payer|banque|code","Journal|lire|nouvelles|papier",
+    "Guitare|cordes|jouer|musique","Batterie|tambour|baguettes|frapper","Pharaon|Égypte|roi|pyramide","Chevalier|armure|épée|château","Fée|ailes|baguette|magie",
+    "Astronaute|espace|fusée|Lune","Catcheur|ring|combat|muscles","Boxe|gants|ring|coups","Golf|trou|balle|club","Tennis|raquette|balle|filet",
+    "Raclette|fromage|fondre|pommes de terre","Crêpe|farine|poêle|Bretagne","Baguette|pain|boulangerie|France","Champagne|bulles|fête|bouteille","Café|tasse|matin|noir"
+  ];
+
+  /* ---------------- BLIND TEST FREDONNÉ : titre | interprète ---------------- */
+  var CHANSONS=[
+    "Alors on danse|Stromae","Papaoutai|Stromae","Formidable|Stromae","Santé|Stromae","Djadja|Aya Nakamura","Pookie|Aya Nakamura",
+    "La Vie en rose|Édith Piaf","Non, je ne regrette rien|Édith Piaf","Allumer le feu|Johnny Hallyday","Que je t'aime|Johnny Hallyday",
+    "Les Champs-Élysées|Joe Dassin","L'Été indien|Joe Dassin","Salut les amoureux|Joe Dassin","Alexandrie Alexandra|Claude François","Comme d'habitude|Claude François",
+    "La Bohème|Charles Aznavour","Ne me quitte pas|Jacques Brel","Foule sentimentale|Alain Souchon","Résiste|France Gall","Ella, elle l'a|France Gall",
+    "Il jouait du piano debout|France Gall","Aïcha|Khaled","Désenchantée|Mylène Farmer","Le Sud|Nino Ferrer","Les Lacs du Connemara|Michel Sardou",
+    "Quand la musique est bonne|Jean-Jacques Goldman","Envole-moi|Jean-Jacques Goldman","Balance ton quoi|Angèle","Basique|Orelsan","Dernière danse|Indila",
+    "Tourner dans le vide|Indila","Je veux|Zaz","Bella|Maître Gims","Sapés comme jamais|Maître Gims","Les Démons de minuit|Images",
+    "Joe le taxi|Vanessa Paradis","Mistral gagnant|Renaud","Je l'aime à mourir|Francis Cabrel","Ça plane pour moi|Plastic Bertrand","Les Sardines|Patrick Sébastien",
+    "La Danse des canards|J.J. Lionel","Le Bal masqué|La Compagnie créole","Tchikita|Jul","Je ne suis pas un héros|Daniel Balavoine","L'Aziza|Daniel Balavoine",
+    "Les Mots bleus|Christophe","L'Aventurier|Indochine","J'ai demandé à la lune|Indochine","Mon mec à moi|Patricia Kaas","Elle me dit|Mika",
+    "Le Pouvoir des fleurs|Laurent Voulzy","Tout le bonheur du monde|Sinsemilia","Femme Like U|K-Maro","Les Rois du monde|Roméo et Juliette (comédie musicale)","Belle|Notre-Dame de Paris (comédie musicale)",
+    "Petit Papa Noël|Tino Rossi","La Marseillaise|Hymne national","Bella Ciao|Chant populaire italien","Macarena|Los del Río","La Bamba|Ritchie Valens",
+    "Bohemian Rhapsody|Queen","We Will Rock You|Queen","Don't Stop Me Now|Queen","Thriller|Michael Jackson","Billie Jean|Michael Jackson",
+    "Shape of You|Ed Sheeran","Shake It Off|Taylor Swift","Umbrella|Rihanna","Single Ladies|Beyoncé","Get Lucky|Daft Punk",
+    "One More Time|Daft Punk","Rolling in the Deep|Adele","Someone Like You|Adele","Imagine|John Lennon","Let It Be|The Beatles",
+    "Yellow Submarine|The Beatles","Hey Jude|The Beatles","Smells Like Teen Spirit|Nirvana","Seven Nation Army|The White Stripes","I Will Survive|Gloria Gaynor",
+    "Dancing Queen|ABBA","Mamma Mia|ABBA","Gimme! Gimme! Gimme!|ABBA","Africa|Toto","Wake Me Up|Avicii",
+    "Happy|Pharrell Williams","Uptown Funk|Mark Ronson et Bruno Mars","Despacito|Luis Fonsi et Daddy Yankee","Gangnam Style|PSY","Waka Waka|Shakira",
+    "Hips Don't Lie|Shakira","My Heart Will Go On|Céline Dion","Pour que tu m'aimes encore|Céline Dion","Baby|Justin Bieber","Blinding Lights|The Weeknd",
+    "Bad Guy|Billie Eilish","Toxic|Britney Spears","…Baby One More Time|Britney Spears","Wannabe|Spice Girls","Livin' la Vida Loca|Ricky Martin",
+    "Sweet Dreams|Eurythmics","Like a Prayer|Madonna","Stayin' Alive|Bee Gees","Y.M.C.A.|Village People","Daddy Cool|Boney M.",
+    "Rasputin|Boney M.","Take On Me|a-ha","Never Gonna Give You Up|Rick Astley","Eye of the Tiger|Survivor","The Final Countdown|Europe",
+    "Mambo No. 5|Lou Bega","Barbie Girl|Aqua","Libérée, délivrée|La Reine des neiges","Hakuna Matata|Le Roi lion","Il en faut peu pour être heureux|Le Livre de la jungle",
+    "Sous l'océan|La Petite Sirène","Ce rêve bleu|Aladdin","Je voudrais déjà être roi|Le Roi lion","Vive le vent|Chant de Noël","Pokémon, attrapez-les tous !|Générique de Pokémon"
+  ];
+
+  /* ---------------- QUI A DIT ÇA ? : citation | qui | d'où ---------------- */
+  var CITATIONS=[
+    "Non… je suis ton père.|Dark Vador|Star Wars : L'Empire contre-attaque",
+    "Vers l'infini et au-delà !|Buzz l'Éclair|Toy Story",
+    "Il y a un serpent dans ma botte !|Woody|Toy Story",
+    "Mon précieux…|Gollum|Le Seigneur des anneaux",
+    "Vous ne passerez pas !|Gandalf|Le Seigneur des anneaux",
+    "I'll be back.|Terminator|Terminator",
+    "Hasta la vista, baby.|Terminator|Terminator 2",
+    "Bond. James Bond.|James Bond|James Bond",
+    "La vie, c'est comme une boîte de chocolats : on ne sait jamais sur quoi on va tomber.|Forrest Gump|Forrest Gump",
+    "Que la Force soit avec toi.|Les Jedi|Star Wars",
+    "Je sens que je vais conclure.|Jean-Claude Dusse|Les Bronzés",
+    "Oublie que t'as aucune chance, vas-y fonce ! On sait jamais !|Jean-Claude Dusse|Les Bronzés font du ski",
+    "Il s'appelle Juste Leblanc.|François Pignon|Le Dîner de cons",
+    "Okayyy !|Jacquouille la Fripouille|Les Visiteurs",
+    "Que trépasse si je faiblis !|Godefroy de Montmirail|Les Visiteurs",
+    "J'aime me beurrer la biscotte.|Hubert Bonisseur de La Bath|OSS 117 : Le Caire, nid d'espions",
+    "Vous savez, moi je ne crois pas qu'il y ait de bonne ou de mauvaise situation.|Otis|Astérix et Obélix : Mission Cléopâtre",
+    "C'est pas faux.|Perceval|Kaamelott",
+    "Le gras, c'est la vie.|Karadoc|Kaamelott",
+    "Je t'ai cassé !|Brice|Brice de Nice",
+    "Quand un étranger vient vivre dans le Nord, il braille deux fois : quand il arrive et quand il repart.|Antoine Bailleul|Bienvenue chez les Ch'tis",
+    "Jusqu'ici tout va bien…|Hubert|La Haine",
+    "Je suis le roi du monde !|Jack|Titanic",
+    "Je ne lâcherai jamais, Jack.|Rose|Titanic",
+    "Rappelle-toi qui tu es.|Mufasa|Le Roi lion",
+    "Hakuna matata, mais quelle phrase magnifique !|Timon et Pumbaa|Le Roi lion",
+    "Les ogres, c'est comme les oignons : ils ont des couches.|Shrek|Shrek",
+    "Tu es un sorcier, Harry.|Hagrid|Harry Potter à l'école des sorciers",
+    "Un grand pouvoir implique de grandes responsabilités.|Oncle Ben|Spider-Man",
+    "Je vais lui faire une offre qu'il ne pourra pas refuser.|Vito Corleone|Le Parrain",
+    "Je suis Iron Man.|Tony Stark|Iron Man",
+    "Je s'appelle Groot.|Groot|Les Gardiens de la Galaxie",
+    "Avengers… rassemblement !|Captain America|Avengers : Endgame",
+    "E.T. téléphone maison.|E.T.|E.T. l'extra-terrestre",
+    "Nom de Zeus !|Doc Brown|Retour vers le futur",
+    "Les cons, ça ose tout. C'est même à ça qu'on les reconnaît.|Fernand Naudin|Les Tontons flingueurs",
+    "Multipass !|Leeloo|Le Cinquième Élément",
+    "Continue de nager !|Dory|Le Monde de Nemo",
+    "Pourquoi tant de sérieux ?|Le Joker|The Dark Knight",
+    "Tu prends la pilule bleue, l'histoire s'arrête là.|Morpheus|Matrix",
+    "Wilson !|Chuck Noland|Seul au monde",
+    "Tu me parles à moi ?|Travis Bickle|Taxi Driver",
+    "Ils sont fous, ces Romains !|Obélix|Astérix",
+    "Mille millions de mille sabords !|Le capitaine Haddock|Tintin",
+    "M'enfin !|Gaston Lagaffe|Gaston",
+    "Pô juste !|Titeuf|Titeuf",
+    "Quoi de neuf, docteur ?|Bugs Bunny|Looney Tunes",
+    "D'oh !|Homer Simpson|Les Simpson",
+    "Bazinga !|Sheldon Cooper|The Big Bang Theory",
+    "L'hiver vient.|Les Stark|Game of Thrones",
+    "How you doin' ?|Joey Tribbiani|Friends",
+    "Élémentaire, mon cher Watson.|Sherlock Holmes|Sherlock Holmes",
+    "Je pense, donc je suis.|René Descartes|Discours de la méthode",
+    "Veni, vidi, vici. (Je suis venu, j'ai vu, j'ai vaincu.)|Jules César|Rome antique",
+    "C'est un petit pas pour l'homme, mais un bond de géant pour l'humanité.|Neil Armstrong|Premier pas sur la Lune, 1969",
+    "I have a dream.|Martin Luther King|Discours de Washington, 1963",
+    "Ich bin ein Berliner.|John F. Kennedy|Discours de Berlin, 1963",
+    "Je vous ai compris !|Charles de Gaulle|Discours d'Alger, 1958",
+    "Tout ce que je sais, c'est que je ne sais rien.|Socrate|Grèce antique",
+    "Le cœur a ses raisons que la raison ne connaît point.|Blaise Pascal|Pensées",
+    "On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.|Le renard|Le Petit Prince",
+    "Être ou ne pas être, telle est la question.|Hamlet|Hamlet de Shakespeare",
+    "Rien ne se perd, rien ne se crée, tout se transforme.|Antoine Lavoisier|Chimiste du XVIIIe siècle",
+    "Il faut cultiver notre jardin.|Candide|Candide de Voltaire",
+    "Va, je ne te hais point.|Chimène|Le Cid de Corneille",
+    "Vous êtes le maillon faible. Au revoir !|Laurence Boccolini|Le Maillon faible",
+    "C'est mon dernier mot, Jean-Pierre !|Les candidats|Qui veut gagner des millions ?",
+    "Top ! Je suis…|Julien Lepers|Questions pour un champion",
+    "Allô ? Non mais allô, quoi !|Nabilla|Les Anges de la téléréalité",
+    "Parce que je le vaux bien.|La publicité L'Oréal|Slogan publicitaire",
+    "Red Bull donne des ailes.|La publicité Red Bull|Slogan publicitaire",
+    "Carglass répare, Carglass remplace.|La publicité Carglass|Slogan publicitaire",
+    "Quand c'est trop, c'est Tropico !|La publicité Tropico|Slogan publicitaire",
+    "Just do it.|La publicité Nike|Slogan publicitaire"
+  ];
+
+  /* ---------------- VRAI OU FAUX : V/F | affirmation | explication ---------------- */
+  var VRAIFAUX=[
+    "F|Les taureaux sont énervés par la couleur rouge.|Ils voient mal le rouge : c'est le mouvement de la cape qui les excite.",
+    "F|Le Petit Prince a été écrit par Victor Hugo.|Par Antoine de Saint-Exupéry, en 1943.",
+    "F|Le Brésil a gagné quatre Coupes du monde de football.|Il en a gagné cinq : 1958, 1962, 1970, 1994 et 2002.",
+    "F|La Lune produit sa propre lumière.|Elle renvoie simplement la lumière du Soleil.",
+    "F|L'Everest se trouve en Inde.|Il est à la frontière entre le Népal et la Chine.",
+    "F|L'Amazone se jette dans l'océan Pacifique.|Elle se jette dans l'océan Atlantique.",
+    "F|Les manchots savent voler.|Ils ne volent pas, mais nagent très vite.",
+    "F|En 1998, la France a gagné la finale de la Coupe du monde contre l'Italie.|C'était contre le Brésil, 3 à 0.",
+    "F|Le cœur est du côté droit de la poitrine.|Il est au centre, légèrement penché vers la gauche.",
+    "F|Les araignées sont des insectes.|Ce sont des arachnides : huit pattes, contre six pour les insectes.",
+    "F|Le dauphin est un poisson.|C'est un mammifère : il respire de l'air et allaite ses petits.",
+    "F|La tour de Pise a été construite penchée exprès.|Le sol trop meuble s'est affaissé pendant la construction.",
+    "F|La statue de la Liberté a toujours été verte.|Elle était couleur cuivre : le vert vient de l'oxydation.",
+    "F|Christophe Colomb pensait que la Terre était plate.|Les savants de l'époque savaient qu'elle était ronde ; il s'était trompé sur sa taille.",
+    "F|La tomate vient d'Italie à l'origine.|Elle vient d'Amérique du Sud et n'est arrivée en Europe qu'au XVIe siècle.",
+    "F|Le chocolat blanc contient du cacao en poudre.|Il ne contient que du beurre de cacao, du sucre et du lait.",
+    "F|Le panda géant est une sorte de raton laveur.|C'est un ours.",
+    "F|Les cochons se roulent dans la boue parce qu'ils sont sales.|Ils ne transpirent presque pas : la boue les rafraîchit et les protège du soleil.",
+    "F|Une année sur Mars dure aussi 365 jours.|Elle dure environ 687 jours terrestres.",
+    "V|La pieuvre a trois cœurs.|Deux cœurs pompent le sang vers les branchies, le troisième vers le reste du corps.",
+    "V|Le miel ne se périme pratiquement jamais.|On a retrouvé du miel encore comestible dans des tombes égyptiennes.",
+    "V|Les bananes sont très légèrement radioactives.|Elles contiennent du potassium 40, sans aucun danger.",
+    "F|La Grande Muraille de Chine se voit à l'œil nu depuis la Lune.|Elle est bien trop étroite : même depuis l'orbite terrestre, c'est très difficile.",
+    "F|Les poissons rouges n'ont que trois secondes de mémoire.|Ils se souviennent de choses pendant des mois.",
+    "V|La tour Eiffel est un peu plus haute en été qu'en hiver.|Le métal se dilate avec la chaleur : elle gagne une quinzaine de centimètres.",
+    "F|Napoléon était très petit.|Il mesurait environ 1,69 m, la moyenne de son époque. La légende vient en partie de la propagande anglaise.",
+    "F|Les autruches enfouissent leur tête dans le sable quand elles ont peur.|Elles baissent la tête pour retourner leurs œufs ou se faire discrètes, mais ne l'enfouissent pas.",
+    "V|Les koalas ont des empreintes digitales très proches de celles des humains.|Au point qu'on pourrait les confondre au microscope.",
+    "F|La foudre ne frappe jamais deux fois au même endroit.|L'Empire State Building est frappé plus de vingt fois par an.",
+    "V|L'Australie est plus large que la Lune.|L'Australie fait environ 4 000 km d'est en ouest, la Lune environ 3 500 km de diamètre.",
+    "V|Il y a plus d'arbres sur Terre que d'étoiles dans notre galaxie.|Environ 3 000 milliards d'arbres, contre quelques centaines de milliards d'étoiles.",
+    "F|Les flamants roses naissent roses.|Ils naissent gris-blanc : le rose vient des crevettes et des algues qu'ils mangent.",
+    "F|Les chauves-souris sont aveugles.|Elles voient, et beaucoup utilisent en plus l'écholocation.",
+    "F|Notre sang est bleu dans les veines.|Il est toujours rouge, plus foncé quand il manque d'oxygène. Les veines paraissent bleues à travers la peau.",
+    "F|On n'utilise que 10 % de son cerveau.|On utilise toutes les zones du cerveau, pas forcément en même temps.",
+    "V|Les dauphins dorment avec un œil ouvert.|Une moitié de leur cerveau dort pendant que l'autre reste en alerte.",
+    "V|Sur Vénus, un jour dure plus longtemps qu'une année.|Vénus tourne sur elle-même en 243 jours terrestres, et autour du Soleil en 225.",
+    "V|La France est le pays qui a le plus de fuseaux horaires.|Grâce à l'outre-mer, elle en compte douze (treize avec la terre Adélie).",
+    "F|Le croissant a été inventé en France.|Il descend d'une viennoiserie autrichienne, le kipferl.",
+    "V|Une girafe a le même nombre de vertèbres dans le cou qu'un humain.|Sept, comme presque tous les mammifères : elles sont juste énormes.",
+    "F|Le Coca-Cola était vert à l'origine.|Il a toujours été brun caramel.",
+    "V|Les premières carottes cultivées étaient violettes ou jaunes.|La carotte orange s'est imposée plus tard, notamment grâce aux Hollandais.",
+    "F|L'anglais est la langue maternelle la plus parlée au monde.|C'est le chinois mandarin. L'anglais est la plus parlée en comptant ceux qui l'ont apprise.",
+    "V|Le Canada possède plus de la moitié des lacs de la planète.|On estime qu'environ 60 % des lacs du monde s'y trouvent.",
+    "V|La Joconde n'a pas de sourcils.|Ils ont peut-être disparu au fil des restaurations, ou n'ont jamais été peints.",
+    "V|Les éléphants ne peuvent pas sauter.|Leurs pattes ne quittent jamais toutes le sol en même temps.",
+    "V|Un crocodile ne peut pas tirer la langue.|Elle est attachée au fond de sa bouche.",
+    "V|Le diamant est la matière naturelle la plus dure.|Il ne peut être rayé que par un autre diamant.",
+    "F|L'Everest est la plus haute montagne de la Terre en partant de sa base.|C'est le Mauna Kea, à Hawaï : plus de 10 000 m depuis le fond de l'océan. L'Everest a le sommet le plus haut.",
+    "F|Le Sahara est le plus grand désert du monde.|C'est l'Antarctique : un désert, c'est une zone où il ne pleut presque pas, même s'il fait froid.",
+    "V|Pour un botaniste, la tomate est un fruit.|Elle contient les graines de la plante, comme tous les fruits.",
+    "V|La banane est une baie, mais pas la fraise.|En botanique, la fraise est un « faux-fruit » : les vrais fruits sont les petits grains.",
+    "F|Les cacahuètes poussent dans les arbres.|Elles poussent sous terre, comme les pommes de terre.",
+    "F|Les pingouins vivent en Antarctique.|Ce sont les manchots. Les pingouins vivent dans l'hémisphère Nord et savent voler.",
+    "V|Le mot « oiseau » contient les cinq voyelles a, e, i, o et u.|O-I-S-E-A-U : six lettres, et toutes les voyelles (sauf le y) y sont.",
+    "V|Un bébé a plus d'os qu'un adulte.|Environ 300 à la naissance contre 206 : certains se soudent en grandissant.",
+    "V|Le cœur humain bat environ 100 000 fois par jour.|Soit plus de 2,5 milliards de fois dans une vie.",
+    "F|Les cheveux et les ongles continuent de pousser après la mort.|C'est la peau qui se rétracte et donne cette impression.",
+    "F|Un chewing-gum avalé reste sept ans dans l'estomac.|Il est évacué en quelques jours, comme le reste.",
+    "V|La première projection publique payante de cinéma a eu lieu à Paris.|Les frères Lumière, le 28 décembre 1895.",
+    "V|La tour Eiffel devait être démontée après vingt ans.|Elle a été sauvée parce qu'elle servait d'antenne radio.",
+    "V|La statue de la Liberté a été offerte par la France aux États-Unis.|Sa structure intérieure a été conçue par Gustave Eiffel.",
+    "V|Le jeu à l'origine du Monopoly a été inventé pour critiquer les propriétaires.|Lizzie Magie l'avait créé pour dénoncer l'accaparement des terres.",
+    "F|Les Vikings portaient des casques à cornes.|Aucun casque à cornes viking n'a été retrouvé : c'est une invention du XIXe siècle.",
+    "F|Albert Einstein était nul en maths à l'école.|Il excellait en maths. La rumeur vient d'un malentendu sur ses notes.",
+    "V|Le nom « Lego » vient du danois « leg godt », qui veut dire « joue bien ».|La marque a été fondée au Danemark.",
+    "V|La marque Nike porte le nom d'une déesse grecque.|Niké est la déesse de la victoire.",
+    "V|Mario s'appelait « Jumpman » dans son premier jeu.|C'était dans Donkey Kong, en 1981.",
+    "V|Pac-Man devait s'appeler « Puck-Man ».|Le nom a été changé pour éviter que des petits malins ne transforment le P en une autre lettre.",
+    "V|Bob l'éponge habite dans un ananas.|Un ananas sous la mer, à Bikini Bottom.",
+    "V|Walt Disney voulait d'abord appeler Mickey « Mortimer ».|C'est sa femme Lillian qui a préféré Mickey.",
+    "V|Homer Simpson travaille dans une centrale nucléaire.|Il est inspecteur de la sécurité, au secteur 7G.",
+    "V|Le premier Harry Potter a été refusé par plusieurs éditeurs.|Une douzaine d'éditeurs l'ont rejeté avant Bloomsbury.",
+    "V|Le Titanic a coulé lors de son tout premier voyage.|En avril 1912, quatre jours après son départ.",
+    "V|La France est le pays le plus visité au monde.|Elle est en tête du classement depuis des années.",
+    "V|Le Vatican est le plus petit pays du monde.|Moins de 0,5 km², à l'intérieur de Rome.",
+    "F|Le Mont-Saint-Michel est en Bretagne.|Il est en Normandie, juste à côté de la frontière bretonne.",
+    "F|Paris est la ville la plus peuplée d'Europe.|Istanbul, Moscou et Londres sont plus peuplées.",
+    "V|Le Brésil est le seul pays d'Amérique du Sud dont la langue officielle est le portugais.|Ses voisins parlent surtout espagnol.",
+    "V|Le Japon compte des milliers d'îles.|Plus de 14 000 selon le dernier recensement officiel.",
+    "V|La Suisse a quatre langues nationales.|L'allemand, le français, l'italien et le romanche.",
+    "V|Il n'y a pas de moustiques en Islande.|Le climat et les cycles de gel les empêchent de s'installer.",
+    "V|Le Nutella a été inventé en Italie.|Par la famille Ferrero, dans le Piémont.",
+    "V|La baguette est inscrite au patrimoine culturel immatériel de l'UNESCO.|Le savoir-faire de la baguette y est entré en 2022.",
+    "V|Le Rubik's Cube a été inventé par un Hongrois.|Ernő Rubik, professeur d'architecture, en 1974.",
+    "V|Les Jeux olympiques modernes ont été relancés par un Français.|Pierre de Coubertin, en 1896 à Athènes.",
+    "F|Un match de rugby dure 90 minutes.|Il dure 80 minutes : deux mi-temps de 40.",
+    "V|Le record du monde du 100 mètres est sous les 9,6 secondes.|9,58 secondes, par Usain Bolt en 2009.",
+    "V|Le Tour de France a été créé en 1903.|C'est l'une des plus vieilles courses cyclistes du monde.",
+    "V|Un marathon fait 42,195 km.|Distance fixée aux JO de Londres en 1908.",
+    "V|Les requins existaient avant les arbres.|Les requins ont environ 450 millions d'années, les premiers arbres environ 385 millions.",
+    "V|Un chat dort en moyenne 12 à 16 heures par jour.|Presque les deux tiers de sa vie.",
+    "F|Les chiens voient en noir et blanc.|Ils voient des couleurs, surtout le bleu et le jaune.",
+    "V|Un paresseux peut retenir sa respiration plus longtemps qu'un dauphin.|Jusqu'à 40 minutes, en ralentissant son cœur.",
+    "V|La peau d'un zèbre est noire.|Sous ses poils rayés, sa peau est sombre.",
+    "F|Le cri du canard ne fait pas d'écho.|C'est une légende : il fait de l'écho comme tous les sons.",
+    "V|Le requin-baleine est le plus grand poisson du monde.|Il peut dépasser 12 mètres et ne mange que du plancton.",
+    "V|La baleine bleue est le plus gros animal ayant jamais existé.|Plus gros que tous les dinosaures connus.",
+    "V|Chaque langue humaine a une empreinte unique.|Comme les empreintes digitales.",
+    "V|Les abeilles peuvent reconnaître des visages humains.|Des chercheurs l'ont montré en les entraînant avec des photos.",
+    "V|La sueur de l'hippopotame est rougeâtre.|Ce liquide le protège du soleil et des microbes.",
+    "V|Le camembert vient de Normandie.|Il porte le nom d'un village de l'Orne.",
+    "F|La Joconde est exposée à Florence.|Elle est au musée du Louvre, à Paris.",
+    "F|Le hamburger vient d'Allemagne, de la ville de Hambourg, où on le mange depuis toujours.|Le nom vient bien de Hambourg, mais le hamburger tel qu'on le connaît est né aux États-Unis.",
+    "V|Les escargots ont des dents.|Des milliers de minuscules dents sur une sorte de langue râpeuse.",
+    "V|Les étoiles de mer n'ont pas de cerveau.|Leur système nerveux est réparti dans leurs bras."
+  ];
+
+  /* ---------------- L'HISTOIRE À LA CHAÎNE ---------------- */
+  var HIST_DEBUTS=["Ce matin-là, en ouvrant mon frigo, j'ai trouvé un petit mot qui disait : « Ne mange surtout pas le yaourt. »","Le chauffeur du bus s'est arrêté au milieu de la route et a annoncé : « Changement de programme. »","Ma grand-mère m'a appelé à trois heures du matin pour me dire qu'elle avait gagné quelque chose.","Le jour de mon mariage, le témoin est arrivé déguisé en dinosaure.","En rentrant de vacances, on a découvert que quelqu'un avait vécu chez nous pendant notre absence.","Mon chat a disparu pendant une semaine, puis il est revenu avec un collier en or.","Le prof a fermé la porte à clé et a dit : « Personne ne sort tant que le coupable ne s'est pas dénoncé. »","À la caisse du supermarché, la caissière m'a regardé et a chuchoté : « Ils vous cherchent. »","Pendant la nuit, toutes les voitures de la ville ont été repeintes en rose.","Je me suis réveillé dans un pays dont je ne parlais pas la langue, avec un chameau attaché à ma valise.","Le GPS a dit : « Dans 200 mètres, faites demi-tour… et ne vous retournez pas. »","Mon voisin a frappé à ma porte avec un gâteau et une pelle.","Ce soir-là, au restaurant, le serveur nous a apporté un plat que personne n'avait commandé.","L'équipe de foot du village s'est qualifiée pour la Coupe du monde, à la surprise générale.","En creusant dans le jardin, papa a trouvé un vieux coffre avec mon prénom gravé dessus.","Le jour de la rentrée, le nouveau professeur était un robot.","Un matin, les animaux du zoo se sont mis à parler.","Au milieu du concert, le chanteur s'est arrêté et m'a désigné du doigt.","On était perdus en pleine forêt quand on a vu une lumière clignoter au loin.","Le téléphone a sonné : c'était moi, avec dix ans de plus.","Ma colocataire est rentrée avec un pingouin sous le bras.","Le jour où j'ai gagné au loto, j'ai perdu le ticket dans le bus.","Pendant l'entretien d'embauche, le patron a sorti un jeu de cartes.","Sur l'aire d'autoroute, un inconnu nous a demandé de garder sa valise cinq minutes.","Quand j'ai ouvert le colis, il était vide… à part une carte au trésor.","Le maire a annoncé que, désormais, il serait interdit de sourire le lundi.","En pleine nuit, le bus s'est arrêté devant un château qui n'était sur aucune carte.","Ma tante a décidé de faire le tour du monde en trottinette.","Le facteur m'a remis une lettre datée de 1952, adressée à mon nom.","Au camping, la tente des voisins a commencé à chanter."];
+  var HIST_MOTS=["parapluie","licorne","saucisson","astronaute","grand-mère","volcan","perruque","trampoline","pingouin","moustache","baguette","fantôme","karaoké","tracteur","bisou","fromage","hélicoptère","pyjama","dentiste","crocodile","pirate","raclette","sirène","trottinette","cactus","chaussette","ninja","momie","banane","château","police","tatouage","dinosaure","magicien","camping-car","escargot","wifi","selfie","boulangerie","fusée","sorcière","boule à facettes","clown","pizza","robot","moustique","guitare","prison","Père Noël","chewing-gum","lama","influenceur","casserole","tempête","mariage","perroquet","sous-marin","patin à glace","zombie","cornichon","piscine","rap","marathon","pharaon","cow-boy","bouée canard","hamster","trésor","éclair","ascenseur","lasagnes","yoga","dragon","poubelle","Tour Eiffel","pétanque","chevalier","coiffeur","accordéon","carte bleue","coupe du monde","sumo","croissant","laser","ours polaire","boomerang","tutu","miroir","vélo","Las Vegas","biberon","cascade","crêpe","bowling","horoscope","nain de jardin","tornade","talons aiguilles","taupe","jacuzzi"];
 
   var GAMES=[
     {id:"ouinon",name:"Oui ou Non",em:"🔥",gc:"#ff4d8d",tg:"Réponds par oui ou non, et ne craque pas.",
@@ -1363,7 +1639,19 @@
     {id:"devine",name:"Devine qui",em:"🕵️",gc:"#2ec4b6",tg:"Trouve le personnage secret, en oui ou non.",type:"devine",cat:"quiz",
      rules:["Le téléphone choisit un personnage secret pour le <b>maître du jeu</b> : célébrité, héros de BD, de jeu vidéo, personnage historique…","Chacun pose une question à tour de rôle. Réponse <b>oui</b> : la même personne rejoue. Réponse <b>non</b> : on passe au suivant.","Ça bloque ? Des <b>indices</b> se débloquent à 5, 7 et 9 minutes. Trouver sans indice rapporte 3 points, puis 2, puis 1."]},
     {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : cite tout ce que tu peux.",type:"liste",cat:"quiz",
-     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'arbitre coche chaque bonne réponse : 1 point, et 2 points pour les réponses <b>⭐ difficiles</b>. Une réponse juste qui manque à la liste ? Bouton « Autre réponse valable »."]}
+     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'arbitre coche chaque bonne réponse : 1 point, et 2 points pour les réponses <b>⭐ difficiles</b>. Une réponse juste qui manque à la liste ? Bouton « Autre réponse valable »."]},
+    {id:"petitbac",name:"Le Petit Bac",em:"🔤",gc:"#5b8cff",tg:"Une lettre, cinq catégories, un chrono.",type:"bac",cat:"quiz",
+     rules:["Le téléphone tire une <b>lettre</b> et <b>cinq catégories</b> (un pays, un métier, une excuse pour être en retard…).","Au top, chacun cherche un mot par catégorie qui commence par la lettre : sur papier, sur son téléphone ou à l'oral.","Fin du chrono ou « Stop ! » : on lit ses réponses. <b>1 point</b> par réponse valable, <b>2 points</b> si personne d'autre ne l'a trouvée."]},
+    {id:"taboo",name:"Le Mot interdit",em:"🚫",gc:"#ff6b6b",tg:"Fais deviner le mot sans dire les mots interdits.",type:"taboo",cat:"quiz",
+     rules:["On joue en <b>équipes</b>. Une personne fait deviner un maximum de mots à son équipe avant la fin du chrono.","Interdit de dire le mot, ni les <b>trois mots interdits</b> affichés en dessous. Un adversaire surveille l'écran.","Mot trouvé : <b>+1</b>. Mot interdit prononcé : <b>−1</b>. On peut passer un mot trop dur, mais le temps tourne."]},
+    {id:"fredonne",name:"Blind test fredonné",em:"🎵",gc:"#e056fd",tg:"Fredonne la chanson, sans une seule parole.",type:"fredonne",cat:"quiz",
+     rules:["Le téléphone montre une <b>chanson connue</b> à une seule personne.","Elle la <b>fredonne</b> (« mmm », « lalala », en sifflant), sans prononcer une seule parole, pendant 30 secondes.","Le premier qui trouve le titre marque <b>1 point</b>, et celle ou celui qui a fredonné aussi."]},
+    {id:"quiadit",name:"Qui a dit ça ?",em:"💬",gc:"#00b894",tg:"Répliques cultes : trouve qui les a dites.",type:"quiadit",cat:"quiz",partie:15,
+     rules:["Quelqu'un lit à voix haute une <b>réplique culte</b> : film, série, dessin animé, personnage historique, pub ou télé.","Les autres crient <b>qui l'a dite</b> ou de quel film elle vient.","On révèle la réponse, et on donne <b>1 point</b> à qui a trouvé."]},
+    {id:"vraifaux",name:"Vrai ou faux ?",em:"✅",gc:"#fdcb6e",tg:"Des anecdotes étonnantes : tu y crois ou pas ?",type:"vraifaux",cat:"quiz",partie:15,
+     rules:["Le téléphone affiche une <b>affirmation étonnante</b>.","À trois, tout le monde vote : <b>pouce en l'air</b> pour vrai, <b>pouce en bas</b> pour faux.","On révèle la réponse avec l'explication : <b>1 point</b> pour chaque personne qui avait bon."]},
+    {id:"histoire",name:"L'Histoire à la chaîne",em:"📖",gc:"#a29bfe",tg:"Chacun continue l'histoire avec un mot imposé.",type:"histoire",cat:"quiz",
+     rules:["Le téléphone donne le <b>début d'une histoire</b>.","À tour de rôle, chacun la continue en une ou deux phrases, en casant le <b>mot imposé</b> qui s'affiche pour lui.","Pas de points : le but, c'est que l'histoire parte n'importe où. On peut changer de mot ou démarrer une nouvelle histoire."]}
   ];
   function game(id){for(var i=0;i<GAMES.length;i++)if(GAMES[i].id===id)return GAMES[i];}
 
@@ -1520,13 +1808,17 @@
         '<div class="ambiance"><div class="lbl">Chrono</div><div class="seg" id="ldur">'+
         [45,60,90].map(function(n){return '<button data-n="'+n+'"'+(lDur===n?' class="on"':'')+'>'+n+' s</button>';}).join("")+'</div></div>';
     }
+    function segOpts(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
+    if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
+    if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
+    if((G.id==="fredonne"||G.id==="quiadit"||G.id==="vraifaux")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     el("s-intro").innerHTML=
       '<div class="em">'+G.em+'</div>'+
       '<h2>'+G.name+'</h2>'+
       '<p class="tg">'+t(G.tg)+'</p>'+
       '<div class="rules">'+rules+'</div>'+
       amb+opts+
-      (G.cat==="quiz"?'<p class="modeline">🏆 Jeu à points · sans pénalité'+(players.length>=2&&G.id==="devine"?' · '+players.length+' joueurs':'')+'</p>':
+      (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+'</p>':
       '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
     if(G.id==="ouinon"){
@@ -1548,6 +1840,12 @@
         });
       });
     }
+    [["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+      var box=el(o[0]);if(!box)return;
+      Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
+        b.addEventListener("click",function(){o[1](+b.getAttribute("data-n"));Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
+      });
+    });
     if(G.id==="liste"){
       ["lteams","ldur"].forEach(function(sid){
         Array.prototype.forEach.call(el(sid).querySelectorAll("button"),function(b){
@@ -1591,8 +1889,14 @@
       case"dilemme":deck=shuffle(DILEMME);showProg=true;break;
       case"devine":deck=[];showProg=false;break;
       case"liste":deck=freshFirst("liste",shuffle(LISTES),LISTES.length);showProg=false;break;
+      case"bac":deck=[];showProg=false;break;
+      case"taboo":deck=freshAll("taboo",TABOO);tPos=0;showProg=false;break;
+      case"fredonne":deck=freshAll("fredonne",CHANSONS);fPos=0;showProg=false;break;
+      case"quiadit":deck=shuffle(CITATIONS);showProg=true;break;
+      case"vraifaux":deck=shuffle(VRAIFAUX);showProg=true;break;
+      case"histoire":deck=freshAll("histoire",HIST_DEBUTS);showProg=false;break;
     }
-    qScores={};finalHTML="";
+    qScores={};finalHTML="";padHist=[];
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
     show("play");
     renderRound();
@@ -1634,6 +1938,12 @@
     if(G.type==="dilemme")return renderDilemme(P);
     if(G.type==="devine")return renderDevine(P);
     if(G.type==="liste")return renderListe(P);
+    if(G.type==="bac")return renderBac(P);
+    if(G.type==="taboo")return renderTaboo(P);
+    if(G.type==="fredonne")return renderFredonne(P);
+    if(G.type==="quiadit")return renderQuiadit(P);
+    if(G.type==="vraifaux")return renderVraifaux(P);
+    if(G.type==="histoire")return renderHistoire(P);
   }
 
   function bannerHTML(g,who){return '<div class="banner"><span class="em">'+g.em+'</span><div><div class="lbl">'+g.vic+'</div><div class="name">'+esc(who)+'</div></div></div>';}
@@ -2196,6 +2506,218 @@
       el("lquit").addEventListener("click",quitQuiz);
     }
     hand();
+  }
+
+  /* ---------------- QUIZ : pavé de points ---------------- */
+  var padHist=[];
+  function padHTML(lbl){
+    if(players.length<2)return "";
+    return '<div class="panel pad"><div class="plbl">'+(lbl||"Qui a marqué ? Touche pour +1")+'</div><div class="chips pick">'+
+      players.map(function(p,i){return '<button class="pchip" data-i="'+i+'">'+esc(p)+' <span class="pp">'+(qScores[p]||0)+'</span></button>';}).join("")+
+      '</div><button class="linkbtn" id="padundo">Annuler le dernier point</button></div>';
+  }
+  function wirePad(P){
+    var bs=P.querySelectorAll(".pad .pchip");
+    function refresh(){Array.prototype.forEach.call(bs,function(b){b.querySelector(".pp").textContent=qScores[players[+b.getAttribute("data-i")]]||0;});}
+    Array.prototype.forEach.call(bs,function(b){
+      b.addEventListener("click",function(){var p=players[+b.getAttribute("data-i")];addPts(p,1);padHist.push(p);refresh();b.classList.add("on");setTimeout(function(){b.classList.remove("on");},250);});
+    });
+    var u=el("padundo");
+    if(u)u.addEventListener("click",function(){var p=padHist.pop();if(p){addPts(p,-1);refresh();}});
+  }
+  function nextOrEnd(){if(idx+1>=deck.length){quitQuiz();return;}idx++;renderRound();}
+  function freshAll(id,arr){return freshFirst(id,shuffle(arr),arr.length);}
+
+  /* ---------------- PETIT BAC ---------------- */
+  var bDur=90, bLast=[];
+  function renderBac(P){
+    var L,cats;
+    function draw(){
+      var pool=BAC_LETTRES.filter(function(x){return bLast.indexOf(x)<0;});
+      L=pool[Math.floor(Math.random()*pool.length)];
+      bLast.push(L);if(bLast.length>6)bLast.shift();
+      cats=shuffle(BAC_CATS).slice(0,5);
+    }
+    function catsHTML(){return '<ol class="bcats">'+cats.map(function(c){return '<li>'+c+'</li>';}).join("")+'</ol>';}
+    function ready(){
+      clearT();
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Manche '+(idx+1)+'</div>'+
+        '<div class="bigletter">'+L+'</div>'+catsHTML()+
+        '<p class="instr">Trouvez un mot qui commence par <b>'+L+'</b> pour chaque catégorie. Sur papier, sur son téléphone, ou à l\'oral : le premier qui trouve marque.</p></div>'+
+        '<div class="foot"><button class="btn" id="bgo">▶️ Top chrono ('+bDur+' s)</button><button class="btn ghost sm" id="bother">🔄 Autre tirage</button><button class="linkbtn" id="bquit">Terminer la partie</button></div>';
+      el("bgo").addEventListener("click",run);
+      el("bother").addEventListener("click",function(){draw();ready();});
+      el("bquit").addEventListener("click",quitQuiz);
+    }
+    function run(){
+      P.innerHTML='<div class="body"><div class="brow2"><div class="bigletter sm">'+L+'</div>'+ringHTML()+'</div>'+catsHTML()+'</div>'+
+        '<div class="foot"><button class="btn" id="bstop">✋ Stop ! J\'ai tout rempli</button></div>';
+      runTimer(bDur,function(){try{say("Stop ! Stylos levés !");}catch(e){}correct(true);});
+      el("bstop").addEventListener("click",function(){clearT();correct(false);});
+    }
+    function correct(zero){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(zero?'Temps écoulé':'Stop !')+'</div>'+
+        '<h2 class="qtext">Correction</h2>'+catsHTML()+
+        '<p class="instr">Chacun lit ses réponses avec la lettre <b>'+L+'</b>. Réponse valable : <b>1 point</b>. Réponse que personne d\'autre n\'a trouvée : <b>2 points</b> (touche deux fois).</p>'+
+        padHTML("Points de la manche · touche pour +1")+'</div>'+
+        '<div class="foot"><button class="btn" id="bnext">Manche suivante →</button><button class="linkbtn" id="bquit">Terminer la partie</button></div>';
+      wirePad(P);
+      el("bnext").addEventListener("click",function(){idx++;renderRound();});
+      el("bquit").addEventListener("click",quitQuiz);
+    }
+    draw();ready();
+  }
+
+  /* ---------------- LE MOT INTERDIT ---------------- */
+  var tTeams=2, tDur=60, tPos=0;
+  function renderTaboo(P){
+    var team=teamName(idx%tTeams), pts=0, found=0, left=tDur, running=false, card;
+    function pick(){card=deck[tPos%deck.length].split("|");tPos++;}
+    function hand(){
+      clearT();
+      P.innerHTML='<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Au tour de</div><div class="name">'+team+'</div></div></div>'+
+        '<div class="body"><div class="chip"><span class="dot"></span>Manche '+(idx+1)+' · '+tDur+' s</div>'+
+        '<h2 class="qtext">Qui fait deviner ?</h2>'+
+        '<p class="instr">Une personne de '+team+' prend le téléphone et fait deviner un maximum de mots à son équipe, <b>sans dire le mot ni les mots interdits</b>. Un adversaire regarde l\'écran par-dessus son épaule pour surveiller.</p></div>'+
+        '<div class="foot"><button class="btn" id="tgo2">▶️ C\'est parti</button><button class="linkbtn" id="tquit">Terminer la partie</button></div>';
+      el("tgo2").addEventListener("click",run);
+      el("tquit").addEventListener("click",quitQuiz);
+    }
+    function paintCard(){
+      el("tword").textContent=card[0];
+      el("tban").innerHTML=card.slice(1).map(function(w){return '<span>'+esc(w)+'</span>';}).join("");
+    }
+    function paint(){
+      el("ltime").textContent=left;
+      el("lscore").textContent=pts+" pt"+(Math.abs(pts)>1?"s":"");
+      el("lbar").style.width=(100*left/tDur)+"%";
+      el("ltime").parentNode.classList.toggle("hurry",left<=10);
+    }
+    function run(){
+      running=true;pick();
+      P.innerHTML='<div class="lhead"><div class="lcat">'+team+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
+        '<div class="body"><div class="tcard"><div class="tword" id="tword"></div><div class="tlbl">Interdit de dire</div><div class="tban" id="tban"></div></div></div>'+
+        '<div class="foot"><div class="row2"><button class="btn yes" id="tok">✅ Trouvé</button><button class="btn ghost" id="tpass">⏭ Passer</button></div><button class="btn no sm" id="tbad">🚫 Mot interdit dit (−1)</button></div>';
+      paintCard();paint();
+      el("tok").addEventListener("click",function(){pts++;found++;pick();paintCard();paint();});
+      el("tpass").addEventListener("click",function(){pick();paintCard();});
+      el("tbad").addEventListener("click",function(){pts--;pick();paintCard();paint();});
+      clearT();
+      timer=setInterval(function(){left--;if(left<=0){left=0;paint();done();return;}paint();},1000);
+    }
+    function done(){
+      if(!running)return;running=false;clearT();
+      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      try{say("Temps écoulé !");}catch(e){}
+      addPts(team,pts);
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Temps écoulé</div>'+
+        '<h2 class="qtext">'+team+' : '+pts+' point'+(Math.abs(pts)>1?'s':'')+'</h2>'+
+        '<p class="instr">'+found+' mot'+(found>1?'s':'')+' trouvé'+(found>1?'s':'')+'. Le dernier mot était « '+esc(card[0])+' ».</p>'+boardHTML()+'</div>'+
+        '<div class="foot"><button class="btn" id="tnext">Au tour de '+teamName((idx+1)%tTeams)+' →</button><button class="linkbtn" id="tquit">Terminer la partie</button></div>';
+      el("tnext").addEventListener("click",function(){idx++;renderRound();});
+      el("tquit").addEventListener("click",quitQuiz);
+    }
+    hand();
+  }
+
+  /* ---------------- BLIND TEST FREDONNÉ ---------------- */
+  var fPos=0;
+  function renderFredonne(P){
+    var named=players.length>=2, who=named?vics[idx%vics.length]:"la personne qui fredonne", song;
+    function pick(){song=deck[fPos%deck.length].split("|");fPos++;}
+    function hand(){
+      clearT();
+      P.innerHTML='<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Au micro (sans paroles)</div><div class="name">'+esc(who)+'</div></div></div>'+
+        '<div class="body"><div class="chip"><span class="dot"></span>Manche '+(idx+1)+'</div>'+
+        '<h2 class="qtext">'+(named?'Passe le téléphone à '+esc(who)+'.':'Passe le téléphone à celle ou celui qui fredonne.')+'</h2>'+
+        '<p class="instr">Les autres, ne regardez pas l\'écran.</p></div>'+
+        '<div class="foot"><button class="btn" id="fsee">Voir la chanson</button><button class="linkbtn" id="fquit">Terminer la partie</button></div>';
+      el("fsee").addEventListener("click",secret);
+      el("fquit").addEventListener("click",quitQuiz);
+    }
+    function songHTML(){return '<h2 class="qtext">'+esc(song[0])+'</h2><p class="instr">'+esc(song[1])+'</p>';}
+    function secret(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Chanson secrète</div>'+songHTML()+
+        '<p class="instr"><b>Fredonne-la</b> : « mmm », « lalala » ou en sifflant, mais <b>sans aucune parole</b>. Les autres doivent trouver le titre.</p></div>'+
+        '<div class="foot"><button class="btn" id="fgo">▶️ Je fredonne (30 s)</button><button class="linkbtn" id="fother">Je ne la connais pas → une autre</button></div>';
+      el("fgo").addEventListener("click",hum);
+      el("fother").addEventListener("click",function(){pick();secret();});
+    }
+    function hum(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+esc(who)+' fredonne</div>'+ringHTML()+
+        '<p class="instr">Le premier qui crie le bon titre marque un point. Téléphone caché !</p></div>'+
+        '<div class="foot"><button class="btn found" id="fok">🎉 Trouvé !</button><button class="btn ghost" id="fno">😶 Personne n\'a trouvé</button></div>';
+      runTimer(30,function(){el("fno").textContent="⏰ Temps écoulé → révéler";});
+      el("fok").addEventListener("click",function(){clearT();found();});
+      el("fno").addEventListener("click",function(){clearT();result(null);});
+    }
+    function found(){
+      if(!named){result("");return;}
+      var others=players.filter(function(p){return p!==who;});
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Bravo !</div>'+songHTML()+'<h2 class="qtext sm">Qui a trouvé ?</h2>'+
+        '<div class="chips pick">'+others.map(function(g,i){return '<button class="pchip" data-i="'+i+'">'+esc(g)+'</button>';}).join("")+'</div></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".pick button"),function(b){
+        b.addEventListener("click",function(){var w=others[+b.getAttribute("data-i")];addPts(w,1);addPts(who,1);result(w);});
+      });
+    }
+    function result(w){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(w===null?'Personne n\'a trouvé':'Trouvé !')+'</div>'+songHTML()+
+        (w?'<p class="instr"><b>'+esc(w)+'</b> et <b>'+esc(who)+'</b> marquent chacun 1 point.</p>':'')+boardHTML()+'</div>'+
+        '<div class="foot"><button class="btn" id="fnext">Chanson suivante →</button><button class="linkbtn" id="fquit">Terminer la partie</button></div>';
+      el("fnext").addEventListener("click",function(){idx++;renderRound();});
+      el("fquit").addEventListener("click",quitQuiz);
+    }
+    pick();hand();
+  }
+
+  /* ---------------- QUI A DIT ÇA ? ---------------- */
+  function renderQuiadit(P){
+    var q=deck[idx].split("|");
+    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Qui a dit ça ?</div>'+
+      '<h2 class="qtext quote">« '+esc(q[0])+' »</h2>'+
+      '<p class="instr" id="qhelp">Lis la réplique à voix haute. Les autres crient le personnage, la personne ou le film.</p>'+
+      '<div id="qans" hidden><div class="answer"><div class="aw">'+esc(q[1])+'</div><div class="as">'+esc(q[2])+'</div></div>'+padHTML()+'</div></div>'+
+      '<div class="foot"><button class="btn" id="qshow">Révéler la réponse</button><button class="btn" id="qnext" hidden>Suivante →</button><button class="linkbtn" id="qquit">Terminer la partie</button></div>';
+    el("qshow").addEventListener("click",function(){el("qans").hidden=false;el("qhelp").hidden=true;el("qshow").hidden=true;el("qnext").hidden=false;});
+    wirePad(P);
+    el("qnext").addEventListener("click",nextOrEnd);
+    el("qquit").addEventListener("click",quitQuiz);
+  }
+
+  /* ---------------- VRAI OU FAUX ---------------- */
+  function renderVraifaux(P){
+    var q=deck[idx].split("|"),vrai=q[0]==="V";
+    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Vrai ou faux ?</div>'+
+      '<h2 class="qtext">'+esc(q[1])+'</h2>'+
+      '<p class="instr" id="vhelp">À trois, tout le monde vote : <b>pouce en l\'air</b> = vrai, <b>pouce en bas</b> = faux.</p>'+
+      '<div id="vans" hidden><div class="answer '+(vrai?'ok':'ko')+'"><div class="aw">'+(vrai?'✅ VRAI':'❌ FAUX')+'</div><div class="as">'+esc(q[2])+'</div></div>'+padHTML("Qui avait bon ? Touche pour +1")+'</div></div>'+
+      '<div class="foot"><button class="btn" id="vshow">Révéler</button><button class="btn" id="vnext" hidden>Suivante →</button><button class="linkbtn" id="vquit">Terminer la partie</button></div>';
+    el("vshow").addEventListener("click",function(){el("vans").hidden=false;el("vhelp").hidden=true;el("vshow").hidden=true;el("vnext").hidden=false;});
+    wirePad(P);
+    el("vnext").addEventListener("click",nextOrEnd);
+    el("vquit").addEventListener("click",quitQuiz);
+  }
+
+  /* ---------------- L'HISTOIRE À LA CHAÎNE ---------------- */
+  var hPos=0, hWords=[], hwPos=0;
+  function renderHistoire(P){
+    var named=players.length>=2, turn=idx, start=deck[idx%deck.length];
+    if(!hWords.length)hWords=shuffle(HIST_MOTS);
+    function word(){var w=hWords[hwPos%hWords.length];hwPos++;if(hwPos%hWords.length===0)hWords=shuffle(HIST_MOTS);return w;}
+    var cur=word();
+    function teller(){return named?players[turn%players.length]:"La personne suivante";}
+    function paint(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Histoire '+(idx+1)+'</div>'+
+        '<p class="hstart">'+esc(start)+'</p>'+
+        '<div class="hturn"><div class="lbl">Au tour de</div><div class="hname">'+esc(teller())+'</div><div class="lbl">Ton mot imposé</div><div class="hword">'+esc(cur)+'</div></div>'+
+        '<p class="instr">Continue l\'histoire en une ou deux phrases, en y casant ce mot. Hésitation de plus de cinq secondes : la table peut te huer.</p></div>'+
+        '<div class="foot"><button class="btn" id="hnext">Phrase dite → au suivant</button><div class="row2"><button class="btn ghost sm" id="hother">🔄 Autre mot</button><button class="btn ghost sm" id="hnew">📖 Nouvelle histoire</button></div><button class="linkbtn" id="hquit">Terminer la partie</button></div>';
+      el("hnext").addEventListener("click",function(){turn++;cur=word();paint();});
+      el("hother").addEventListener("click",function(){cur=word();paint();});
+      el("hnew").addEventListener("click",function(){idx++;renderRound();});
+      el("hquit").addEventListener("click",quitQuiz);
+    }
+    paint();
   }
 
   /* ---------------- FIN ---------------- */
