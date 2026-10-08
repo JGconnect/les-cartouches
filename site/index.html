@@ -106,6 +106,7 @@
   .row3 .btn{padding:13px 8px;font-size:15px}
   .chips.pick .pchip.on{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 30%, var(--surface-2));color:var(--ink)}
   .pad{gap:10px}.pad .pp{color:var(--ga);font-variant-numeric:tabular-nums;margin-left:4px}
+  #qlvl{grid-template-columns:repeat(2,1fr)}
   .bigletter{font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:var(--ga);text-align:center}
   .bigletter.sm{font-size:72px}
   .brow2{display:flex;align-items:center;justify-content:center;gap:22px}.brow2 .ring{width:130px;height:130px;margin:0}.brow2 .ring .num{font-size:44px}
@@ -1423,80 +1424,116 @@
 
   /* ---------------- QUI A DIT ÇA ? : citation | qui | d'où ---------------- */
   var CITATIONS=[
-    "Non… je suis ton père.|Dark Vador|Star Wars : L'Empire contre-attaque",
-    "Vers l'infini et au-delà !|Buzz l'Éclair|Toy Story",
-    "Il y a un serpent dans ma botte !|Woody|Toy Story",
-    "Mon précieux…|Gollum|Le Seigneur des anneaux",
-    "Vous ne passerez pas !|Gandalf|Le Seigneur des anneaux",
-    "I'll be back.|Terminator|Terminator",
-    "Hasta la vista, baby.|Terminator|Terminator 2",
-    "Bond. James Bond.|James Bond|James Bond",
-    "La vie, c'est comme une boîte de chocolats : on ne sait jamais sur quoi on va tomber.|Forrest Gump|Forrest Gump",
-    "Que la Force soit avec toi.|Les Jedi|Star Wars",
-    "Je sens que je vais conclure.|Jean-Claude Dusse|Les Bronzés",
-    "Oublie que t'as aucune chance, vas-y fonce ! On sait jamais !|Jean-Claude Dusse|Les Bronzés font du ski",
-    "Il s'appelle Juste Leblanc.|François Pignon|Le Dîner de cons",
-    "Okayyy !|Jacquouille la Fripouille|Les Visiteurs",
-    "Que trépasse si je faiblis !|Godefroy de Montmirail|Les Visiteurs",
-    "J'aime me beurrer la biscotte.|Hubert Bonisseur de La Bath|OSS 117 : Le Caire, nid d'espions",
-    "Vous savez, moi je ne crois pas qu'il y ait de bonne ou de mauvaise situation.|Otis|Astérix et Obélix : Mission Cléopâtre",
-    "C'est pas faux.|Perceval|Kaamelott",
-    "Le gras, c'est la vie.|Karadoc|Kaamelott",
-    "Je t'ai cassé !|Brice|Brice de Nice",
-    "Quand un étranger vient vivre dans le Nord, il braille deux fois : quand il arrive et quand il repart.|Antoine Bailleul|Bienvenue chez les Ch'tis",
-    "Jusqu'ici tout va bien…|Hubert|La Haine",
-    "Je suis le roi du monde !|Jack|Titanic",
-    "Je ne lâcherai jamais, Jack.|Rose|Titanic",
-    "Rappelle-toi qui tu es.|Mufasa|Le Roi lion",
-    "Hakuna matata, mais quelle phrase magnifique !|Timon et Pumbaa|Le Roi lion",
-    "Les ogres, c'est comme les oignons : ils ont des couches.|Shrek|Shrek",
-    "Tu es un sorcier, Harry.|Hagrid|Harry Potter à l'école des sorciers",
-    "Un grand pouvoir implique de grandes responsabilités.|Oncle Ben|Spider-Man",
-    "Je vais lui faire une offre qu'il ne pourra pas refuser.|Vito Corleone|Le Parrain",
-    "Je suis Iron Man.|Tony Stark|Iron Man",
-    "Je s'appelle Groot.|Groot|Les Gardiens de la Galaxie",
-    "Avengers… rassemblement !|Captain America|Avengers : Endgame",
-    "E.T. téléphone maison.|E.T.|E.T. l'extra-terrestre",
-    "Nom de Zeus !|Doc Brown|Retour vers le futur",
-    "Les cons, ça ose tout. C'est même à ça qu'on les reconnaît.|Fernand Naudin|Les Tontons flingueurs",
-    "Multipass !|Leeloo|Le Cinquième Élément",
-    "Continue de nager !|Dory|Le Monde de Nemo",
-    "Pourquoi tant de sérieux ?|Le Joker|The Dark Knight",
-    "Tu prends la pilule bleue, l'histoire s'arrête là.|Morpheus|Matrix",
-    "Wilson !|Chuck Noland|Seul au monde",
-    "Tu me parles à moi ?|Travis Bickle|Taxi Driver",
-    "Ils sont fous, ces Romains !|Obélix|Astérix",
-    "Mille millions de mille sabords !|Le capitaine Haddock|Tintin",
-    "M'enfin !|Gaston Lagaffe|Gaston",
-    "Pô juste !|Titeuf|Titeuf",
-    "Quoi de neuf, docteur ?|Bugs Bunny|Looney Tunes",
-    "D'oh !|Homer Simpson|Les Simpson",
-    "Bazinga !|Sheldon Cooper|The Big Bang Theory",
-    "L'hiver vient.|Les Stark|Game of Thrones",
-    "How you doin' ?|Joey Tribbiani|Friends",
-    "Élémentaire, mon cher Watson.|Sherlock Holmes|Sherlock Holmes",
-    "Je pense, donc je suis.|René Descartes|Discours de la méthode",
-    "Veni, vidi, vici. (Je suis venu, j'ai vu, j'ai vaincu.)|Jules César|Rome antique",
-    "C'est un petit pas pour l'homme, mais un bond de géant pour l'humanité.|Neil Armstrong|Premier pas sur la Lune, 1969",
-    "I have a dream.|Martin Luther King|Discours de Washington, 1963",
-    "Ich bin ein Berliner.|John F. Kennedy|Discours de Berlin, 1963",
-    "Je vous ai compris !|Charles de Gaulle|Discours d'Alger, 1958",
-    "Tout ce que je sais, c'est que je ne sais rien.|Socrate|Grèce antique",
-    "Le cœur a ses raisons que la raison ne connaît point.|Blaise Pascal|Pensées",
-    "On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.|Le renard|Le Petit Prince",
-    "Être ou ne pas être, telle est la question.|Hamlet|Hamlet de Shakespeare",
-    "Rien ne se perd, rien ne se crée, tout se transforme.|Antoine Lavoisier|Chimiste du XVIIIe siècle",
-    "Il faut cultiver notre jardin.|Candide|Candide de Voltaire",
-    "Va, je ne te hais point.|Chimène|Le Cid de Corneille",
-    "Vous êtes le maillon faible. Au revoir !|Laurence Boccolini|Le Maillon faible",
-    "C'est mon dernier mot, Jean-Pierre !|Les candidats|Qui veut gagner des millions ?",
-    "Top ! Je suis…|Julien Lepers|Questions pour un champion",
-    "Allô ? Non mais allô, quoi !|Nabilla|Les Anges de la téléréalité",
-    "Parce que je le vaux bien.|La publicité L'Oréal|Slogan publicitaire",
-    "Red Bull donne des ailes.|La publicité Red Bull|Slogan publicitaire",
-    "Carglass répare, Carglass remplace.|La publicité Carglass|Slogan publicitaire",
-    "Quand c'est trop, c'est Tropico !|La publicité Tropico|Slogan publicitaire",
-    "Just do it.|La publicité Nike|Slogan publicitaire"
+    "f|Non… je suis ton père.|Dark Vador|Star Wars : L'Empire contre-attaque",
+    "f|Vers l'infini et au-delà !|Buzz l'Éclair|Toy Story",
+    "f|Il y a un serpent dans ma botte !|Woody|Toy Story",
+    "f|Mon précieux…|Gollum|Le Seigneur des anneaux",
+    "f|Vous ne passerez pas !|Gandalf|Le Seigneur des anneaux",
+    "f|I'll be back.|Terminator|Terminator",
+    "m|Hasta la vista, baby.|Terminator|Terminator 2",
+    "f|Bond. James Bond.|James Bond|James Bond",
+    "f|La vie, c'est comme une boîte de chocolats : on ne sait jamais sur quoi on va tomber.|Forrest Gump|Forrest Gump",
+    "f|Que la Force soit avec toi.|Les Jedi|Star Wars",
+    "m|Je sens que je vais conclure.|Jean-Claude Dusse|Les Bronzés",
+    "m|Oublie que t'as aucune chance, vas-y fonce ! On sait jamais !|Jean-Claude Dusse|Les Bronzés font du ski",
+    "m|Il s'appelle Juste Leblanc.|François Pignon|Le Dîner de cons",
+    "f|Okayyy !|Jacquouille la Fripouille|Les Visiteurs",
+    "m|Que trépasse si je faiblis !|Godefroy de Montmirail|Les Visiteurs",
+    "m|J'aime me beurrer la biscotte.|Hubert Bonisseur de La Bath|OSS 117 : Le Caire, nid d'espions",
+    "m|Vous savez, moi je ne crois pas qu'il y ait de bonne ou de mauvaise situation.|Otis|Astérix et Obélix : Mission Cléopâtre",
+    "m|C'est pas faux.|Perceval|Kaamelott",
+    "m|Le gras, c'est la vie.|Karadoc|Kaamelott",
+    "f|Je t'ai cassé !|Brice|Brice de Nice",
+    "m|Quand un étranger vient vivre dans le Nord, il braille deux fois : quand il arrive et quand il repart.|Antoine Bailleul|Bienvenue chez les Ch'tis",
+    "m|Jusqu'ici tout va bien…|Hubert|La Haine",
+    "f|Je suis le roi du monde !|Jack|Titanic",
+    "m|Je ne lâcherai jamais, Jack.|Rose|Titanic",
+    "m|Rappelle-toi qui tu es.|Mufasa|Le Roi lion",
+    "f|Hakuna matata, mais quelle phrase magnifique !|Timon et Pumbaa|Le Roi lion",
+    "f|Les ogres, c'est comme les oignons : ils ont des couches.|Shrek|Shrek",
+    "f|Tu es un sorcier, Harry.|Hagrid|Harry Potter à l'école des sorciers",
+    "m|Un grand pouvoir implique de grandes responsabilités.|Oncle Ben|Spider-Man",
+    "m|Je vais lui faire une offre qu'il ne pourra pas refuser.|Vito Corleone|Le Parrain",
+    "f|Je suis Iron Man.|Tony Stark|Iron Man",
+    "f|Je s'appelle Groot.|Groot|Les Gardiens de la Galaxie",
+    "m|Avengers… rassemblement !|Captain America|Avengers : Endgame",
+    "f|E.T. téléphone maison.|E.T.|E.T. l'extra-terrestre",
+    "m|Nom de Zeus !|Doc Brown|Retour vers le futur",
+    "d|Les cons, ça ose tout. C'est même à ça qu'on les reconnaît.|Fernand Naudin|Les Tontons flingueurs",
+    "m|Multipass !|Leeloo|Le Cinquième Élément",
+    "f|Continue de nager !|Dory|Le Monde de Nemo",
+    "m|Pourquoi tant de sérieux ?|Le Joker|The Dark Knight",
+    "m|Tu prends la pilule bleue, l'histoire s'arrête là.|Morpheus|Matrix",
+    "m|Wilson !|Chuck Noland|Seul au monde",
+    "d|Tu me parles à moi ?|Travis Bickle|Taxi Driver",
+    "f|Ils sont fous, ces Romains !|Obélix|Astérix",
+    "f|Mille millions de mille sabords !|Le capitaine Haddock|Tintin",
+    "m|M'enfin !|Gaston Lagaffe|Gaston",
+    "m|Pô juste !|Titeuf|Titeuf",
+    "f|Quoi de neuf, docteur ?|Bugs Bunny|Looney Tunes",
+    "f|D'oh !|Homer Simpson|Les Simpson",
+    "m|Bazinga !|Sheldon Cooper|The Big Bang Theory",
+    "m|L'hiver vient.|Les Stark|Game of Thrones",
+    "m|How you doin' ?|Joey Tribbiani|Friends",
+    "f|Élémentaire, mon cher Watson.|Sherlock Holmes|Sherlock Holmes",
+    "m|Je pense, donc je suis.|René Descartes|Discours de la méthode",
+    "m|Veni, vidi, vici. (Je suis venu, j'ai vu, j'ai vaincu.)|Jules César|Rome antique",
+    "f|C'est un petit pas pour l'homme, mais un bond de géant pour l'humanité.|Neil Armstrong|Premier pas sur la Lune, 1969",
+    "f|I have a dream.|Martin Luther King|Discours de Washington, 1963",
+    "d|Ich bin ein Berliner.|John F. Kennedy|Discours de Berlin, 1963",
+    "m|Je vous ai compris !|Charles de Gaulle|Discours d'Alger, 1958",
+    "d|Tout ce que je sais, c'est que je ne sais rien.|Socrate|Grèce antique",
+    "d|Le cœur a ses raisons que la raison ne connaît point.|Blaise Pascal|Pensées",
+    "m|On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.|Le renard|Le Petit Prince",
+    "m|Être ou ne pas être, telle est la question.|Hamlet|Hamlet de Shakespeare",
+    "d|Rien ne se perd, rien ne se crée, tout se transforme.|Antoine Lavoisier|Chimiste du XVIIIe siècle",
+    "d|Il faut cultiver notre jardin.|Candide|Candide de Voltaire",
+    "d|Va, je ne te hais point.|Chimène|Le Cid de Corneille",
+    "f|Vous êtes le maillon faible. Au revoir !|Laurence Boccolini|Le Maillon faible",
+    "f|C'est mon dernier mot, Jean-Pierre !|Les candidats|Qui veut gagner des millions ?",
+    "m|Top ! Je suis…|Julien Lepers|Questions pour un champion",
+    "f|Allô ? Non mais allô, quoi !|Nabilla|Les Anges de la téléréalité",
+    "f|Parce que je le vaux bien.|La publicité L'Oréal|Slogan publicitaire",
+    "f|Red Bull donne des ailes.|La publicité Red Bull|Slogan publicitaire",
+    "m|Carglass répare, Carglass remplace.|La publicité Carglass|Slogan publicitaire",
+    "m|Quand c'est trop, c'est Tropico !|La publicité Tropico|Slogan publicitaire",
+    "f|Just do it.|La publicité Nike|Slogan publicitaire",
+    "d|Moi, j'ai dit bizarre ? Comme c'est bizarre…|Louis Jouvet|Drôle de drame (1937)",
+    "d|Atmosphère ! Atmosphère ! Est-ce que j'ai une gueule d'atmosphère ?|Raymonde (Arletty)|Hôtel du Nord (1938)",
+    "d|T'as d'beaux yeux, tu sais.|Jean (Jean Gabin)|Le Quai des brumes (1938)",
+    "d|Tu vois, le monde se divise en deux catégories : ceux qui ont un pistolet chargé et ceux qui creusent.|Blondin|Le Bon, la Brute et le Truand",
+    "d|Rosebud…|Charles Foster Kane|Citizen Kane",
+    "d|Après tout, demain est un autre jour.|Scarlett O'Hara|Autant en emporte le vent",
+    "d|Il n'y a pas de cuillère.|Un enfant médium|Matrix",
+    "d|Il va nous falloir un plus gros bateau.|Le chef Brody|Les Dents de la mer",
+    "d|J'adore l'odeur du napalm au petit matin.|Le lieutenant-colonel Kilgore|Apocalypse Now",
+    "d|Bonjour, je m'appelle Inigo Montoya. Tu as tué mon père. Prépare-toi à mourir.|Inigo Montoya|Princess Bride",
+    "d|Mais oui, mais c'est bien sûr !|Le commissaire Bourrel|Les Cinq Dernières Minutes (série télé)",
+    "d|Paris vaut bien une messe.|Henri IV (attribuée)|Roi de France",
+    "d|Après moi, le déluge.|Louis XV (attribuée)|Roi de France",
+    "d|Et pourtant, elle tourne.|Galilée (attribuée)|Savant italien",
+    "d|Rodrigue, as-tu du cœur ?|Don Diègue|Le Cid de Corneille",
+    "d|Ô rage ! Ô désespoir ! Ô vieillesse ennemie !|Don Diègue|Le Cid de Corneille",
+    "d|Mais qu'allait-il faire dans cette galère ?|Géronte|Les Fourberies de Scapin de Molière",
+    "d|Le petit chat est mort.|Agnès|L'École des femmes de Molière",
+    "d|Il faut manger pour vivre, et non pas vivre pour manger.|Valère|L'Avare de Molière",
+    "d|L'enfer, c'est les autres.|Jean-Paul Sartre|Huis clos",
+    "d|On ne naît pas femme : on le devient.|Simone de Beauvoir|Le Deuxième Sexe",
+    "d|J'accuse… !|Émile Zola|Lettre ouverte sur l'affaire Dreyfus, 1898",
+    "d|Demain, dès l'aube, à l'heure où blanchit la campagne…|Victor Hugo|Les Contemplations",
+    "m|Ici, c'est Sparte !|Léonidas|300",
+    "m|La première règle du Fight Club est : il est interdit de parler du Fight Club.|Tyler Durden|Fight Club",
+    "m|Houston, on a un problème.|L'astronaute Jim Lovell|Apollo 13",
+    "m|Je vois des gens qui sont morts.|Cole|Sixième Sens",
+    "m|Je suis le danger.|Walter White|Breaking Bad",
+    "m|Tu ne sais rien, Jon Snow.|Ygritte|Game of Thrones",
+    "m|L'État, c'est moi.|Louis XIV (attribuée)|Roi de France",
+    "m|Eurêka !|Archimède|Savant grec de l'Antiquité",
+    "m|La raison du plus fort est toujours la meilleure.|Jean de La Fontaine|Le Loup et l'Agneau",
+    "m|Rien ne sert de courir ; il faut partir à point.|Jean de La Fontaine|Le Lièvre et la Tortue",
+    "m|Un jour mon prince viendra…|Blanche-Neige|Blanche-Neige et les Sept Nains",
+    "f|Miroir, mon beau miroir, dis-moi qui est la plus belle ?|La Reine|Blanche-Neige et les Sept Nains",
+    "f|Par Toutatis !|Les Gaulois|Astérix"
   ];
 
   /* ---------------- VRAI OU FAUX : V/F | affirmation | explication ---------------- */
@@ -1648,8 +1685,8 @@
      rules:["On joue en <b>équipes</b>. Une personne fait deviner un maximum de mots à son équipe avant la fin du chrono.","Interdit de dire le mot, ni les <b>trois mots interdits</b> affichés en dessous. Un adversaire surveille l'écran.","Mot trouvé : <b>+1</b>. Mot interdit prononcé : <b>−1</b>. On peut passer un mot trop dur, mais le temps tourne."]},
     {id:"fredonne",name:"Blind test fredonné",em:"🎵",gc:"#e056fd",tg:"Fredonne la chanson, sans une seule parole.",type:"fredonne",cat:"quiz",
      rules:["Le téléphone montre une <b>chanson connue</b> à une seule personne.","Elle la <b>fredonne</b> (« mmm », « lalala », en sifflant), sans prononcer une seule parole, pendant 30 secondes.","Le premier qui trouve le titre marque <b>1 point</b>, et celle ou celui qui a fredonné aussi."]},
-    {id:"quiadit",name:"Qui a dit ça ?",em:"💬",gc:"#00b894",tg:"Répliques cultes : trouve qui les a dites.",type:"quiadit",cat:"quiz",partie:15,
-     rules:["Quelqu'un lit à voix haute une <b>réplique culte</b> : film, série, dessin animé, personnage historique, pub ou télé.","Les autres crient <b>qui l'a dite</b> ou de quel film elle vient.","On révèle la réponse, et on donne <b>1 point</b> à qui a trouvé."]},
+    {id:"quiadit",name:"Qui a dit ça ?",em:"💬",gc:"#00b894",tg:"Répliques cultes : trouve qui les a dites.",type:"quiadit",cat:"quiz",
+     rules:["Quelqu'un lit à voix haute une <b>réplique culte</b> : film, série, dessin animé, personnage historique, pub, théâtre ou télé.","Les autres crient <b>qui l'a dite</b> ou d'où elle vient.","Trois niveaux : <b>facile</b> (1 point), <b>moyen</b> (2 points), <b>difficile</b> (3 points). En mode « Progressif », la partie monte en difficulté."]},
     {id:"vraifaux",name:"Vrai ou faux ?",em:"✅",gc:"#fdcb6e",tg:"Des anecdotes étonnantes : tu y crois ou pas ?",type:"vraifaux",cat:"quiz",partie:15,
      rules:["Le téléphone affiche une <b>affirmation étonnante</b>.","À trois, tout le monde vote : <b>pouce en l'air</b> pour vrai, <b>pouce en bas</b> pour faux.","On révèle la réponse avec l'explication : <b>1 point</b> pour chaque personne qui avait bon."]},
     {id:"histoire",name:"L'Histoire à la chaîne",em:"📖",gc:"#a29bfe",tg:"Chacun continue l'histoire avec un mot imposé.",type:"histoire",cat:"quiz",
@@ -1811,9 +1848,10 @@
         [45,60,90].map(function(n){return '<button data-n="'+n+'"'+(lDur===n?' class="on"':'')+'>'+n+' s</button>';}).join("")+'</div></div>';
     }
     function segOpts(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
+    if(G.id==="quiadit")opts=segOpts("qlvl","Difficulté",["f","m","d","mix"],qLvl,function(n){return {f:'🟢 Facile<span class="s">1 point</span>',m:'🟠 Moyen<span class="s">2 points</span>',d:'🔴 Difficile<span class="s">3 points</span>',mix:'📈 Progressif<span class="s">les trois</span>'}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
     if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
-    if((G.id==="fredonne"||G.id==="quiadit"||G.id==="vraifaux")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
+    if((G.id==="fredonne"||G.id==="vraifaux")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     el("s-intro").innerHTML=
       '<div class="em">'+G.em+'</div>'+
       '<h2>'+G.name+'</h2>'+
@@ -1842,10 +1880,10 @@
         });
       });
     }
-    [["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+    [["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
-        b.addEventListener("click",function(){o[1](+b.getAttribute("data-n"));Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
+        b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
       });
     });
     if(G.id==="liste"){
@@ -1894,7 +1932,11 @@
       case"bac":deck=[];showProg=false;break;
       case"taboo":deck=freshAll("taboo",TABOO);tPos=0;showProg=false;break;
       case"fredonne":deck=freshAll("fredonne",CHANSONS);fPos=0;showProg=false;break;
-      case"quiadit":deck=shuffle(CITATIONS);showProg=true;break;
+      case"quiadit":
+        var byL=function(l){return CITATIONS.filter(function(c){return c.charAt(0)===l;});};
+        if(qLvl==="mix")deck=freshFirst("quiadit_f",shuffle(byL("f")),5).concat(freshFirst("quiadit_m",shuffle(byL("m")),5),freshFirst("quiadit_d",shuffle(byL("d")),5));
+        else deck=freshFirst("quiadit_"+qLvl,shuffle(byL(qLvl)),15);
+        showProg=true;break;
       case"vraifaux":deck=shuffle(VRAIFAUX);showProg=true;break;
       case"histoire":deck=freshAll("histoire",HIST_DEBUTS);showProg=false;break;
     }
@@ -2521,14 +2563,15 @@
       players.map(function(p,i){return '<button class="pchip" data-i="'+i+'">'+esc(p)+' <span class="pp">'+(qScores[p]||0)+'</span></button>';}).join("")+
       '</div><button class="linkbtn" id="padundo">Annuler le dernier point</button></div>';
   }
-  function wirePad(P){
+  function wirePad(P,step){
+    step=step||1;
     var bs=P.querySelectorAll(".pad .pchip");
     function refresh(){Array.prototype.forEach.call(bs,function(b){b.querySelector(".pp").textContent=qScores[players[+b.getAttribute("data-i")]]||0;});}
     Array.prototype.forEach.call(bs,function(b){
-      b.addEventListener("click",function(){var p=players[+b.getAttribute("data-i")];addPts(p,1);padHist.push(p);refresh();b.classList.add("on");setTimeout(function(){b.classList.remove("on");},250);});
+      b.addEventListener("click",function(){var p=players[+b.getAttribute("data-i")];addPts(p,step);padHist.push([p,step]);refresh();b.classList.add("on");setTimeout(function(){b.classList.remove("on");},250);});
     });
     var u=el("padundo");
-    if(u)u.addEventListener("click",function(){var p=padHist.pop();if(p){addPts(p,-1);refresh();}});
+    if(u)u.addEventListener("click",function(){var h=padHist.pop();if(h){addPts(h[0],-h[1]);refresh();}});
   }
   function nextOrEnd(){if(idx+1>=deck.length){quitQuiz();return;}idx++;renderRound();}
   function freshAll(id,arr){return freshFirst(id,shuffle(arr),arr.length);}
@@ -2676,15 +2719,16 @@
   }
 
   /* ---------------- QUI A DIT ÇA ? ---------------- */
+  var qLvl="mix", QLV={f:["🟢 Facile",1],m:["🟠 Moyen",2],d:["🔴 Difficile",3]};
   function renderQuiadit(P){
-    var q=deck[idx].split("|");
-    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Qui a dit ça ?</div>'+
+    var q=deck[idx].split("|"),lv=QLV[q.shift()];
+    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+lv[0]+' · '+lv[1]+' point'+(lv[1]>1?'s':'')+'</div>'+
       '<h2 class="qtext quote">« '+esc(q[0])+' »</h2>'+
       '<p class="instr" id="qhelp">Lis la réplique à voix haute. Les autres crient le personnage, la personne ou le film.</p>'+
-      '<div id="qans" hidden><div class="answer"><div class="aw">'+esc(q[1])+'</div><div class="as">'+esc(q[2])+'</div></div>'+padHTML()+'</div></div>'+
+      '<div id="qans" hidden><div class="answer"><div class="aw">'+esc(q[1])+'</div><div class="as">'+esc(q[2])+'</div></div>'+padHTML("Qui a trouvé ? Touche pour +"+lv[1])+'</div></div>'+
       '<div class="foot"><button class="btn" id="qshow">Révéler la réponse</button><button class="btn" id="qnext" hidden>Suivante →</button><button class="linkbtn" id="qquit">Terminer la partie</button></div>';
     el("qshow").addEventListener("click",function(){el("qans").hidden=false;el("qhelp").hidden=true;el("qshow").hidden=true;el("qnext").hidden=false;});
-    wirePad(P);
+    wirePad(P,lv[1]);
     el("qnext").addEventListener("click",nextOrEnd);
     el("qquit").addEventListener("click",quitQuiz);
   }
