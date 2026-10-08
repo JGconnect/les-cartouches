@@ -1660,7 +1660,7 @@
      rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b>. En mode <b>survivant</b> (au choix), tu es éliminé·e et le dernier debout gagne."]},
     {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Vrai ou bluff ? La table décide.",
      type:"menteur",vic:"Au tour de",partie:10,
-     rules:["Le téléphone affiche une phrase « J'ai déjà… ». La personne désignée la lit <b>comme si elle parlait d'elle</b>.","Elle affirme que c'est <b>vrai</b> ou <b>faux</b> pour elle… en disant la vérité <b>ou en mentant</b>. Elle peut raconter une histoire pour convaincre.","La table vote : vérité ou mensonge ? <b>La table a deviné</b> → elle {boit}. <b>La table s'est trompée</b> → toute la table {boit}."]},
+     rules:["Le téléphone montre en secret à la personne désignée une phrase « J'ai déjà… » et une <b>consigne cachée</b> : 🤫 <b>dire la vérité</b> ou 🤥 <b>mentir</b>.","Elle lit la phrase à voix haute et dit si c'est vrai ou faux <b>pour elle</b>, en suivant la consigne. Si elle doit mentir, elle dit le contraire de la réalité et invente une histoire crédible.","La table vote : vérité ou mensonge ? On révèle la consigne. <b>La table a deviné</b> → la personne {boit}. <b>La table s'est trompée</b> → toute la table {boit}."]},
     {id:"coupable",name:"Le Coupable",em:"👉",gc:"#3ddc97",tg:"« Qui est le plus susceptible de… »",
      type:"deck",partie:10,instr:"À trois, tout le monde pointe une personne. Le plus <span class='g'>désigné {boit}</span>.",
      rules:["Le téléphone pose une question sur le groupe.","Au top, chacun pointe la personne la plus concernée.","La personne la plus désignée {boit}. Égalité ? Tout le monde y passe."]},
@@ -2209,20 +2209,46 @@
   }
 
   function renderMenteur(P){
-    P.innerHTML=bannerHTML(G,cur)+
-      '<div class="body">'+
-        '<div class="chip"><span class="dot"></span>Vrai ou bluff</div>'+
-        '<h2 class="qtext">'+deck[idx]+'</h2>'+
-        '<p class="instr">Lis la phrase et dis si c\'est <b>vrai ou faux pour toi</b>… en mentant ou pas. Raconte, convaincs. Puis la table vote : <b>vérité ou mensonge ?</b></p>'+
-      '</div>'+
-      '<div class="foot">'+
-        '<button class="btn drink" id="caught">La table a deviné → '+I()+'</button>'+
-        '<button class="btn" id="bluff">La table s\'est trompée → la table '+I()+'</button>'+
-        (idx>0?'<button class="linkbtn" id="prev">← Précédent</button>':'')+
-      '</div>';
-    el("caught").addEventListener("click",function(){penalty(cur,advance);});
-    el("bluff").addEventListener("click",function(){penalty("toute la table",advance);});
-    var pv=el("prev");if(pv)pv.addEventListener("click",goBack);
+    var lie=Math.random()<0.5, phrase=deck[idx];
+    function hand(){
+      P.innerHTML=bannerHTML(G,cur)+
+        '<div class="body"><div class="chip"><span class="dot"></span>Vrai ou bluff</div>'+
+        '<h2 class="qtext">Passe le téléphone à '+esc(cur)+'.</h2>'+
+        '<p class="instr">Les autres, ne regardez pas l\'écran : une <b>consigne secrète</b> va s\'afficher.</p></div>'+
+        '<div class="foot"><button class="btn" id="msee">Voir ma phrase et ma consigne</button>'+
+        (idx>0?'<button class="linkbtn" id="prev">← Précédent</button>':'')+'</div>';
+      el("msee").addEventListener("click",secret);
+      var pv=el("prev");if(pv)pv.addEventListener("click",goBack);
+    }
+    function secret(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Rien que pour toi</div>'+
+        '<h2 class="qtext">'+phrase+'</h2>'+
+        '<div class="answer '+(lie?'ko':'ok')+'"><div class="aw">'+(lie?'🤥 Tu MENS':'🤫 Tu dis la VÉRITÉ')+'</div>'+
+        '<div class="as">'+(lie?'Dis le <b>contraire</b> de ce qui est vrai pour toi. Si tu ne l\'as jamais fait, affirme que si et invente une histoire crédible. Si tu l\'as fait, jure que non.':'Dis honnêtement si c\'est vrai ou faux pour toi, et raconte si tu veux : la vérité aussi doit être convaincante.')+'</div></div></div>'+
+        '<div class="foot"><button class="btn" id="mgo">C\'est mémorisé → je cache l\'écran</button></div>';
+      el("mgo").addEventListener("click",vote);
+    }
+    function vote(){
+      P.innerHTML=bannerHTML(G,cur)+
+        '<div class="body"><div class="chip"><span class="dot"></span>Vrai ou bluff</div>'+
+        '<h2 class="qtext">'+phrase+'</h2>'+
+        '<p class="instr">'+esc(cur)+' lit la phrase, dit si c\'est vrai ou faux pour elle ou lui, et raconte. La table pose des questions, puis vote à trois : <b>vérité ou mensonge ?</b></p></div>'+
+        '<div class="foot"><button class="btn" id="mreveal">La table a voté → révéler la consigne</button></div>';
+      el("mreveal").addEventListener("click",reveal);
+    }
+    function reveal(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Révélation</div>'+
+        '<h2 class="qtext">'+phrase+'</h2>'+
+        '<div class="answer '+(lie?'ko':'ok')+'"><div class="aw">'+(lie?'🤥 C\'était un MENSONGE':'🤫 C\'était la VÉRITÉ')+'</div>'+
+        '<div class="as">'+esc(cur)+(lie?' devait mentir.':' devait dire la vérité.')+' La table avait-elle vu juste ?</div></div></div>'+
+        '<div class="foot">'+
+          '<button class="btn drink" id="caught">La table a deviné → '+esc(cur)+' '+I()+'</button>'+
+          '<button class="btn" id="bluff">La table s\'est fait avoir → la table '+I()+'</button>'+
+        '</div>';
+      el("caught").addEventListener("click",function(){penalty(cur,advance);});
+      el("bluff").addEventListener("click",function(){penalty("toute la table",advance);});
+    }
+    hand();
   }
 
   function renderCoupable(P){
