@@ -66,6 +66,43 @@
   .hub h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,13vw,64px);line-height:.92;margin:6px 0 4px;letter-spacing:-.02em;text-align:center;text-wrap:balance}
   .hub .sub{color:var(--ink-soft);font-size:15px;text-align:center;margin:0 auto 12px;max-width:32ch;line-height:1.5}
   .games{display:grid;gap:12px;margin-top:6px}
+  .sect{margin:22px 4px 2px}
+  .sect .sh{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.01em}
+  .sect .ss{font-size:13px;color:var(--ink-faint);margin-top:2px;line-height:1.4}
+  .chips.cats{justify-content:center}
+  .chips.cats .pchip,.chips.pick .pchip{cursor:pointer;color:var(--ink-soft);font-family:var(--body);padding:8px 14px}
+  .chips.cats .pchip.on{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 22%, var(--surface-2));color:var(--ink)}
+  .chips.pick{justify-content:center}
+  .chips.pick .pchip{font-size:16px;padding:12px 18px}
+  .hints{display:grid;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .hints p{margin:0;font-size:14.5px;line-height:1.4;color:var(--ink)}
+  .hints b{color:var(--ga);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-right:6px}
+  .hints[hidden]{display:none}
+  .dname{font-size:clamp(32px,9vw,48px)}
+  .dstats{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink-soft);font-size:14px;padding:0 6px}
+  .peek{background:var(--surface-2);border:1px dashed var(--ga);border-radius:14px;padding:10px 14px;font-size:15px}
+  .peek[hidden]{display:none}
+  .btn.yes{background:#2bb673}.btn.no{background:#e5484d}
+  .btn.found{background:linear-gradient(135deg,var(--ga),#7c6cff)}
+  .board{gap:8px;text-align:left}
+  .brow{display:flex;align-items:center;gap:10px;font-size:15px}
+  .brow .bk{width:26px;text-align:center}.brow .bn{flex:1;font-weight:600}.brow .bp{font-variant-numeric:tabular-nums;color:var(--ga);font-weight:700}
+  .lhead{position:sticky;top:0;z-index:2;background:var(--bg);padding:6px 0 10px;display:grid;gap:8px}
+  .lcat{font-family:var(--display);font-weight:800;font-size:20px;line-height:1.15;text-align:center;text-wrap:balance}
+  .lnums{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-weight:700;font-size:17px}
+  .lnums .lt{color:var(--ga)}.lnums .lt.hurry{color:var(--trash)}
+  .lbarw{height:6px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+  .lbar{height:100%;background:var(--ga);transition:width 1s linear}
+  .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
+  .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
+  .lchip.hard{border-style:dashed}
+  .lchip.on{background:var(--ga);border-color:var(--ga);color:#241500}
+  .lfoot{position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(6px + env(safe-area-inset-bottom,0px))}
+  .row3{display:grid;grid-template-columns:1.6fr .6fr 1fr;gap:8px}
+  .row3 .btn{padding:13px 8px;font-size:15px}
+  .missed{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;text-align:left}
+  .missed summary{cursor:pointer;font-weight:600;color:var(--ink-soft)}
+  .missed p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft)}
   .gcard{
     cursor:pointer;text-align:left;border:1px solid var(--line);background:var(--surface);
     border-radius:var(--radius);padding:16px 18px;display:flex;gap:15px;align-items:center;
@@ -1029,7 +1066,7 @@
     flushing=true;
     (function next(i){
       if(i>=todo.length){flushing=false;saveVotes();return;}
-      sendRemote(todo[i]).then(function(){todo[i].sent=true;next(i+1);},function(){flushing=false;saveVotes();});
+      sendRemote(todo[i]).then(function(){todo[i].sent=true;next(i+1);},function(){next(i+1);});
     })(0);
   }
   window.addEventListener("online",flush);
@@ -1078,6 +1115,226 @@
   function shutUp(){if(SPEAK){try{window.speechSynthesis.cancel();}catch(e){}}}
 
   /* ---------------- MÉTA DES JEUX ---------------- */
+  /* ---------------- DEVINE QUI : [nom, catégorie, indice 1 (vague), indice 2, indice 3 (presque donné)] ---------------- */
+  var DEV_CATS={celeb:"Célébrités",musique:"Musique",sport:"Sport",fiction:"Films & séries",anim:"Dessins animés",bd:"BD, comics & manga",jeux:"Jeux vidéo",histoire:"Histoire"};
+  var DEVINE=[
+    /* célébrités */
+    ["Omar Sy","celeb","Acteur français","Star de la série Netflix Lupin","A joué dans Intouchables avec François Cluzet"],
+    ["Jean Dujardin","celeb","Acteur français","A gagné l'Oscar du meilleur acteur pour The Artist","Joue OSS 117 et Brice de Nice"],
+    ["Louis de Funès","celeb","Acteur français disparu en 1983","Le roi des grimaces et des colères","Le Gendarme de Saint-Tropez, Rabbi Jacob, La Grande Vadrouille"],
+    ["Marion Cotillard","celeb","Actrice française","A gagné l'Oscar de la meilleure actrice","A incarné Édith Piaf dans La Môme"],
+    ["Audrey Tautou","celeb","Actrice française","A joué Coco Chanel au cinéma","Le Fabuleux Destin d'Amélie Poulain"],
+    ["Leonardo DiCaprio","celeb","Acteur américain","A longtemps attendu son Oscar, obtenu pour The Revenant","Jack dans Titanic"],
+    ["Brad Pitt","celeb","Acteur américain","Fight Club, Troie, Ocean's Eleven","Formait le couple « Brangelina »"],
+    ["Tom Cruise","celeb","Acteur américain","Fait lui-même ses cascades les plus folles","Mission : Impossible et Top Gun"],
+    ["Angelina Jolie","celeb","Actrice américaine","A incarné Lara Croft au cinéma","A joué Maléfique chez Disney"],
+    ["Will Smith","celeb","Acteur et rappeur américain","Men in Black, et le génie dans Aladdin en film","Le Prince de Bel-Air"],
+    ["Dwayne Johnson","celeb","Ancien catcheur devenu acteur","Son surnom est un caillou","Fast & Furious, Jumanji, la voix de Maui dans Vaiana"],
+    ["Keanu Reeves","celeb","Acteur d'Hollywood","Réputé pour sa gentillesse, prend le métro comme tout le monde","Neo dans Matrix, John Wick"],
+    ["Zendaya","celeb","Actrice et chanteuse américaine","A joué dans Dune et dans Spider-Man","Rue dans la série Euphoria"],
+    ["Charlie Chaplin","celeb","Star du cinéma muet","Moustache, chapeau melon et canne","Charlot"],
+    ["Marilyn Monroe","celeb","Icône d'Hollywood des années 50","Sa robe blanche soulevée par une bouche de métro","A chanté « Happy Birthday, Mister President » à Kennedy"],
+    ["Gad Elmaleh","celeb","Humoriste français","Spectacles « L'autre c'est moi » et « Papa est en haut »","A joué Chouchou au cinéma"],
+    ["Jamel Debbouze","celeb","Humoriste et acteur français","A créé le Jamel Comedy Club","Numérobis dans Astérix : Mission Cléopâtre"],
+    ["Nagui","celeb","Animateur télé","Taratata, Tout le monde veut prendre sa place","Présente N'oubliez pas les paroles"],
+    ["Michel Cymes","celeb","Médecin devenu animateur télé","Rend la médecine drôle à la télévision","Le Magazine de la santé"],
+    ["Thomas Pesquet","celeb","Français connu dans le monde entier","Est parti deux fois à bord de la Station spatiale internationale","Astronaute de l'Agence spatiale européenne"],
+    ["Squeezie","celeb","Créateur de contenu français","A commencé par des vidéos de jeux vidéo, une des chaînes YouTube les plus suivies de France","Organise le GP Explorer, une course automobile entre youtubeurs"],
+    ["Inoxtag","celeb","Youtubeur français","Est parti tourner un film en haute montagne","A gravi l'Everest dans le documentaire Kaizen"],
+    ["Kim Kardashian","celeb","Star américaine des réseaux sociaux","A lancé la marque de vêtements Skims","L'Incroyable Famille Kardashian"],
+    /* musique */
+    ["Stromae","musique","Chanteur belge","Formidable, Santé, Tous les mêmes","Papaoutai, Alors on danse"],
+    ["Aya Nakamura","musique","Chanteuse française la plus écoutée dans le monde","A chanté avec la Garde républicaine aux JO de Paris","Djadja, Pookie"],
+    ["Johnny Hallyday","musique","Chanteur français disparu en 2017","Surnommé « l'idole des jeunes »","Allumer le feu, Que je t'aime"],
+    ["Édith Piaf","musique","Chanteuse française disparue en 1963","Surnommée « la Môme »","La Vie en rose, Non, je ne regrette rien"],
+    ["Jean-Jacques Goldman","musique","Chanteur français très aimé, qui ne chante plus en public","Longtemps élu personnalité préférée des Français","Quand la musique est bonne, Envole-moi"],
+    ["Mylène Farmer","musique","Chanteuse française","Cheveux roux, univers mystérieux","Libertine, Désenchantée"],
+    ["Jul","musique","Rappeur marseillais","Sort des albums à un rythme record","Tchikita, et le projet Bande organisée"],
+    ["Orelsan","musique","Rappeur français de Caen","La série documentaire Montre jamais ça à personne","Basique, La terre est ronde"],
+    ["Angèle","musique","Chanteuse belge","Sœur du rappeur Roméo Elvis","Balance ton quoi, Tout oublier"],
+    ["Céline Dion","musique","Chanteuse québécoise","A chanté sur la tour Eiffel aux JO de Paris","My Heart Will Go On, la chanson de Titanic"],
+    ["Daft Punk","musique","Duo français de musique électronique","Toujours cachés sous des casques de robots","Get Lucky, One More Time"],
+    ["Michael Jackson","musique","Chanteur américain disparu en 2009","Le roi de la pop","Thriller, Billie Jean, le moonwalk"],
+    ["Beyoncé","musique","Chanteuse américaine","Ancienne membre des Destiny's Child","Crazy in Love, Single Ladies, mariée à Jay-Z"],
+    ["Taylor Swift","musique","Chanteuse américaine","Sa tournée The Eras Tour a battu tous les records","Shake It Off, ses fans sont les « Swifties »"],
+    ["Rihanna","musique","Chanteuse originaire de la Barbade","A fondé la marque de maquillage Fenty Beauty","Umbrella, Diamonds"],
+    ["Shakira","musique","Chanteuse colombienne","« Ses hanches ne mentent pas »","Waka Waka pour la Coupe du monde 2010"],
+    ["Ed Sheeran","musique","Chanteur britannique roux","Joue seul avec sa guitare et une pédale de boucle","Shape of You, Perfect"],
+    ["Freddie Mercury","musique","Chanteur britannique disparu en 1991","Moustache et débardeur blanc au concert Live Aid","Chanteur de Queen, Bohemian Rhapsody"],
+    ["Elvis Presley","musique","Chanteur américain","Le « King » du rock'n'roll","Love Me Tender, sa maison Graceland"],
+    ["Les Beatles","musique","Groupe britannique des années 60","Quatre garçons de Liverpool","Yellow Submarine, Hey Jude"],
+    ["Mozart","musique","Compositeur autrichien du XVIIIe siècle","Enfant prodige, il composait dès 5 ans","La Flûte enchantée, la Petite Musique de nuit"],
+    /* sport */
+    ["Kylian Mbappé","sport","Footballeur français","Champion du monde à 19 ans","Capitaine des Bleus, parti du PSG au Real Madrid"],
+    ["Zinédine Zidane","sport","Ancien footballeur et entraîneur français","Deux buts de la tête en finale de la Coupe du monde 1998","Le coup de boule de 2006, « Zizou »"],
+    ["Thierry Henry","sport","Ancien footballeur français","Meilleur buteur de l'histoire d'Arsenal","La main contre l'Irlande en 2009"],
+    ["Lionel Messi","sport","Footballeur argentin","Recordman des Ballons d'or","Champion du monde 2022, une légende du Barça"],
+    ["Cristiano Ronaldo","sport","Footballeur portugais","Sa célébration « Siuuu »","CR7"],
+    ["Usain Bolt","sport","Sprinteur jamaïcain","Détient le record du monde du 100 mètres","Sa pose de l'éclair"],
+    ["Teddy Riner","sport","Judoka français","Plusieurs fois champion olympique chez les poids lourds","A allumé la vasque des JO de Paris avec Marie-José Pérec"],
+    ["Léon Marchand","sport","Nageur français","Spécialiste du 4 nages, originaire de Toulouse","Quatre médailles d'or individuelles aux JO de Paris 2024"],
+    ["Antoine Dupont","sport","Rugbyman français","Champion olympique de rugby à 7 en 2024","Demi de mêlée du Stade toulousain et capitaine du XV de France"],
+    ["Victor Wembanyama","sport","Basketteur français","Mesure plus de 2,20 mètres","Joue aux San Antonio Spurs en NBA"],
+    ["Tony Parker","sport","Ancien basketteur français","Champion d'Europe avec la France en 2013","Quatre titres NBA avec les San Antonio Spurs"],
+    ["Michael Jordan","sport","Basketteur américain","A donné son nom à une marque de baskets","Les Chicago Bulls, numéro 23"],
+    ["Serena Williams","sport","Joueuse de tennis américaine","23 titres du Grand Chelem en simple","Sœur de Venus"],
+    ["Rafael Nadal","sport","Joueur de tennis espagnol","Le roi de la terre battue","14 fois vainqueur de Roland-Garros"],
+    ["Roger Federer","sport","Joueur de tennis suisse","Réputé pour son élégance","Huit fois vainqueur de Wimbledon"],
+    ["Muhammad Ali","sport","Boxeur américain","« Vole comme un papillon, pique comme une abeille »","Né sous le nom de Cassius Clay"],
+    ["Mike Tyson","sport","Boxeur américain","Plus jeune champion du monde des poids lourds","A mordu l'oreille d'un adversaire"],
+    ["Lewis Hamilton","sport","Pilote automobile britannique","Sept titres de champion du monde de Formule 1","Est passé de Mercedes à Ferrari"],
+    ["Simone Biles","sport","Gymnaste américaine","Plusieurs figures portent son nom","La gymnaste la plus titrée de l'histoire"],
+    ["Tiger Woods","sport","Golfeur américain","Quinze tournois majeurs","Toujours en polo rouge le dimanche"],
+    /* films & séries */
+    ["Harry Potter","fiction","Sorcier de fiction","Une cicatrice en forme d'éclair","Élève à Poudlard, ennemi de Voldemort"],
+    ["Hermione Granger","fiction","Sorcière de fiction","La meilleure élève de son école","Amie de Harry et Ron"],
+    ["Dark Vador","fiction","Méchant d'une saga spatiale","Respiration bruyante et casque noir","« Je suis ton père »"],
+    ["Yoda","fiction","Petit, vert et très vieux","Parle en inversant l'ordre des mots","Maître Jedi de Star Wars"],
+    ["Indiana Jones","fiction","Archéologue aventurier de cinéma","Chapeau, fouet, et peur des serpents","Joué par Harrison Ford"],
+    ["James Bond","fiction","Agent secret britannique","Vodka-martini « au shaker, pas à la cuillère »","Matricule 007"],
+    ["Sherlock Holmes","fiction","Détective britannique","Habite au 221B Baker Street","Son acolyte s'appelle Watson"],
+    ["Jack Sparrow","fiction","Pirate de cinéma","Toujours un peu ivre, capitaine du Black Pearl","Pirates des Caraïbes"],
+    ["Forrest Gump","fiction","Héros d'un film des années 90","Court à travers les États-Unis","« La vie, c'est comme une boîte de chocolats »"],
+    ["Rocky Balboa","fiction","Boxeur de cinéma","Monte en courant les marches de Philadelphie","Joué par Sylvester Stallone"],
+    ["Terminator","fiction","Robot venu du futur","« I'll be back »","Joué par Arnold Schwarzenegger"],
+    ["Gandalf","fiction","Magicien de fiction","Barbe blanche et bâton, il est gris puis blanc","« Vous ne passerez pas ! » dans Le Seigneur des anneaux"],
+    ["Walter White","fiction","Personnage de série américaine","Prof de chimie devenu fabricant de drogue","Breaking Bad, alias Heisenberg"],
+    ["Eleven","fiction","Héroïne de série Netflix","A des pouvoirs et adore les gaufres","Stranger Things"],
+    ["Daenerys Targaryen","fiction","Héroïne de série fantasy","La « mère des dragons »","Game of Thrones"],
+    ["Mercredi Addams","fiction","Personnage de la famille la plus lugubre","Tresses noires, ne sourit jamais","Sa danse dans la série Netflix est devenue virale"],
+    ["E.T.","fiction","Extraterrestre de cinéma","Son doigt s'allume, il veut « téléphoner maison »","Film de Spielberg, le vélo devant la lune"],
+    ["Le Professeur","fiction","Personnage de série espagnole","Le cerveau d'un immense braquage","La Casa de Papel"],
+    ["Joey Tribbiani","fiction","Personnage de sitcom culte","Acteur pas très malin qui adore manger","Friends, « How you doin' ? »"],
+    ["Mr Bean","fiction","Personnage comique britannique","Ne parle presque pas, son ours en peluche s'appelle Teddy","Roule en Mini, joué par Rowan Atkinson"],
+    /* dessins animés */
+    ["Simba","anim","Personnage Disney","Un lionceau qui doit devenir roi","Fils de Mufasa dans Le Roi lion"],
+    ["Shrek","anim","Ogre","Vit dans un marais avec un âne bavard","Il est vert et marié à Fiona"],
+    ["Bob l'éponge","anim","Vit au fond de l'océan","Cuisinier au Crabe Croustillant","Jaune et carré, ami de Patrick"],
+    ["Homer Simpson","anim","Père de famille d'une série animée","Adore les donuts et la bière Duff","Il est jaune et crie « D'oh ! »"],
+    ["Elsa","anim","Princesse Disney","Elle a des pouvoirs de glace","« Libérée, délivrée » dans La Reine des neiges"],
+    ["Woody","anim","Un jouet","Cowboy, shérif","Toy Story, ami de Buzz"],
+    ["Buzz l'Éclair","anim","Un jouet","Ranger de l'espace","« Vers l'infini et au-delà ! »"],
+    ["Mickey","anim","Personnage de dessin animé né en 1928","La mascotte de Disney","Une souris en short rouge, amoureuse de Minnie"],
+    ["Stitch","anim","Extraterrestre bleu","Expérience 626","Adopté par Lilo à Hawaï"],
+    ["Nemo","anim","Un poisson","Un poisson-clown avec une nageoire plus petite","Son père le cherche avec Dory"],
+    ["Scooby-Doo","anim","Un chien","Résout des mystères avec une bande d'amis","Adore les Scooby Snacks, meilleur ami de Sammy"],
+    ["Peppa Pig","anim","Personnage pour tout-petits","Adore sauter dans les flaques de boue","Une petite cochonne rose, sœur de George"],
+    ["Ariel","anim","Princesse Disney","Vit sous la mer, cheveux rouges","La Petite Sirène"],
+    ["Aladdin","anim","Personnage Disney","Jeune voleur des rues, avec un singe nommé Abu","Une lampe magique et un génie"],
+    ["Rémy","anim","Un rat","Rêve d'être chef cuisinier à Paris","Ratatouille"],
+    ["Totoro","anim","Créature d'un film d'animation japonais","Une grosse boule de poils grise de la forêt","Studio Ghibli, le Chatbus"],
+    ["Bugs Bunny","anim","Un lapin","« Quoi de neuf, docteur ? »","Looney Tunes, toujours une carotte à la main"],
+    ["Gru","anim","Un méchant qui se range","Chauve, long nez, accent bizarre","Moi, moche et méchant, et ses Minions"],
+    ["Vaiana","anim","Héroïne Disney","Fille de chef, elle part sur l'océan","Accompagnée du demi-dieu Maui"],
+    ["Picsou","anim","Un canard","Le plus riche du monde, il nage dans son or","L'oncle de Donald"],
+    /* BD, comics & manga */
+    ["Tintin","bd","Héros de BD belge","Un reporter qu'on ne voit jamais écrire d'article","Une houppe, le chien Milou, le capitaine Haddock"],
+    ["Astérix","bd","Héros de BD française","Un Gaulois petit et malin","La potion magique, son ami Obélix"],
+    ["Obélix","bd","Héros de BD française","Tombé dans la marmite quand il était petit","Livreur de menhirs, son chien Idéfix"],
+    ["Gaston Lagaffe","bd","Héros de BD belge","Employé de bureau paresseux et gaffeur","« M'enfin ! », un chat et une mouette rieuse"],
+    ["Lucky Luke","bd","Héros de BD","Un cowboy qui tire plus vite que son ombre","Son cheval Jolly Jumper, les Dalton"],
+    ["Titeuf","bd","Héros de BD suisse","Une mèche jaune sur la tête","« Pô juste ! »"],
+    ["Garfield","bd","Un chat de BD","Paresseux et déteste le lundi","Adore les lasagnes"],
+    ["Snoopy","bd","Un chien de BD","Dort sur le toit de sa niche","Le chien de Charlie Brown"],
+    ["Gargamel","bd","Méchant sorcier de BD","Vit avec son chat Azraël","Veut capturer les Schtroumpfs"],
+    ["Spider-Man","bd","Super-héros","Piqué par une araignée","Peter Parker"],
+    ["Batman","bd","Super-héros sans super-pouvoirs","Milliardaire de Gotham City","Bruce Wayne, l'homme chauve-souris"],
+    ["Superman","bd","Super-héros venu d'une autre planète","Sa faiblesse : la kryptonite","Clark Kent, cape rouge"],
+    ["Wonder Woman","bd","Super-héroïne","Une princesse amazone","Son lasso de vérité"],
+    ["Le Joker","bd","Méchant de BD","Sourire peint et cheveux verts","L'ennemi juré de Batman"],
+    ["Iron Man","bd","Super-héros Marvel","Milliardaire génial dans une armure","Tony Stark, joué par Robert Downey Jr."],
+    ["Hulk","bd","Super-héros Marvel","Devient géant quand il se met en colère","Il est vert, de son vrai nom Bruce Banner"],
+    ["Captain America","bd","Super-héros Marvel","Soldat de la Seconde Guerre mondiale","Un bouclier rond étoilé"],
+    ["Son Goku","bd","Héros de manga","Ses cheveux deviennent blonds quand il se transforme","Dragon Ball, le Kamehameha"],
+    ["Naruto","bd","Héros de manga","Un ninja en orange qui rêve de devenir Hokage","Un renard à neuf queues est enfermé en lui"],
+    ["Luffy","bd","Héros de manga","Son corps est élastique","One Piece, le chapeau de paille"],
+    /* jeux vidéo */
+    ["Mario","jeux","Personnage de jeu vidéo","Plombier moustachu à casquette rouge","Sauve la princesse Peach"],
+    ["Luigi","jeux","Personnage de jeu vidéo","Toujours dans l'ombre de son frère","Casquette verte, frère de Mario"],
+    ["Princesse Peach","jeux","Princesse de jeu vidéo","Se fait sans cesse enlever","Royaume Champignon, amie de Mario"],
+    ["Bowser","jeux","Méchant de jeu vidéo","Une tortue géante à carapace piquante","Enlève la princesse Peach"],
+    ["Yoshi","jeux","Petit dinosaure vert","Avale tout avec sa langue et pond des œufs","La monture de Mario"],
+    ["Donkey Kong","jeux","Un gorille","Lançait des tonneaux sur Mario","Cravate rouge, adore les bananes"],
+    ["Sonic","jeux","Un hérisson","Bleu, très rapide, ramasse des anneaux","La mascotte de Sega"],
+    ["Link","jeux","Héros de jeu vidéo","Bonnet vert, épée et bouclier","Héros de The Legend of Zelda (on croit souvent qu'il s'appelle Zelda)"],
+    ["Zelda","jeux","Princesse de jeu vidéo","Donne son nom à la série, mais n'en est pas l'héroïne","Princesse d'Hyrule, Link la protège"],
+    ["Pikachu","jeux","Créature de jeu vidéo","Jaune, joues rouges, électrique","Le Pokémon de Sacha"],
+    ["Pac-Man","jeux","Personnage de jeu d'arcade","Rond, jaune, avale des pac-gommes","Fuit des fantômes"],
+    ["Lara Croft","jeux","Héroïne de jeu vidéo","Archéologue aventurière","Tomb Raider"],
+    ["Kratos","jeux","Héros de jeu vidéo","Un guerrier en colère avec un tatouage rouge","God of War"],
+    ["Steve","jeux","Le héros par défaut d'un jeu de construction","Il est carré, tout en pixels","Minecraft"],
+    ["Kirby","jeux","Une boule rose","Aspire ses ennemis pour copier leurs pouvoirs","Nintendo, il vit à Dream Land"],
+    ["Rayman","jeux","Héros de jeu vidéo français","N'a ni bras ni jambes : ses mains et ses pieds flottent","Ubisoft, ennemi des Lapins Crétins"],
+    ["Crash Bandicoot","jeux","Un marsupial orange","Tourne sur lui-même comme une toupie","PlayStation, il casse des caisses"],
+    ["Spyro","jeux","Un petit dragon violet","Crache du feu et plane","PlayStation, années 90"],
+    ["Geralt de Riv","jeux","Chasseur de monstres","Cheveux blancs et deux épées","The Witcher"],
+    ["Ryu","jeux","Combattant de jeu vidéo","Kimono blanc et bandeau rouge","Street Fighter, « Hadoken ! »"],
+    /* histoire */
+    ["Napoléon","histoire","Personnage historique français","Empereur des Français","Le bicorne, exilé à Sainte-Hélène"],
+    ["Jeanne d'Arc","histoire","Héroïne française du Moyen Âge","Entendait des voix, a délivré Orléans","Brûlée à Rouen"],
+    ["Louis XIV","histoire","Roi de France","Le « Roi-Soleil »","A fait construire Versailles"],
+    ["Marie-Antoinette","histoire","Reine de France","Née en Autriche","Guillotinée, on lui prête « qu'ils mangent de la brioche »"],
+    ["Charlemagne","histoire","Empereur couronné en l'an 800","La « barbe fleurie »","On dit qu'il a « inventé l'école »"],
+    ["Vercingétorix","histoire","Chef gaulois","A battu César à Gergovie","S'est rendu à Alésia"],
+    ["Jules César","histoire","Général romain","A conquis la Gaule","Assassiné aux ides de mars : « Toi aussi, mon fils ! »"],
+    ["Cléopâtre","histoire","Reine de l'Antiquité","A aimé César puis Marc Antoine","Reine d'Égypte, mordue par un serpent selon la légende"],
+    ["Toutankhamon","histoire","Pharaon","Mort très jeune","Tombeau découvert en 1922, masque en or"],
+    ["Charles de Gaulle","histoire","Homme politique français","L'appel du 18 juin 1940","Premier président de la Ve République"],
+    ["Victor Hugo","histoire","Écrivain français","A vécu en exil à Guernesey","Les Misérables, Notre-Dame de Paris"],
+    ["Molière","histoire","Auteur de théâtre du XVIIe siècle","Mort peu après avoir joué Le Malade imaginaire","On appelle le français « la langue de » cet auteur"],
+    ["Léonard de Vinci","histoire","Génie de la Renaissance","Peintre et inventeur, il écrivait à l'envers","La Joconde"],
+    ["Christophe Colomb","histoire","Navigateur","Croyait arriver aux Indes","L'Amérique, 1492"],
+    ["Albert Einstein","histoire","Scientifique","Cheveux en bataille, photo en tirant la langue","E = mc²"],
+    ["Marie Curie","histoire","Scientifique","Seule personne à avoir reçu deux prix Nobel dans deux sciences différentes","Pionnière de la radioactivité"],
+    ["Louis Pasteur","histoire","Scientifique français","A mis au point le vaccin contre la rage","A donné son nom à la pasteurisation"],
+    ["Isaac Newton","histoire","Scientifique anglais","A découvert la gravitation universelle","Une pomme lui serait tombée sur la tête"],
+    ["Coco Chanel","histoire","Créatrice de mode française","La petite robe noire","Le parfum N°5"],
+    ["Pablo Picasso","histoire","Peintre espagnol","Un des inventeurs du cubisme","Guernica"],
+    ["Gandhi","histoire","Leader indien","Prônait la non-violence, la marche du sel","Père de l'indépendance de l'Inde"],
+    ["Martin Luther King","histoire","Militant américain","A lutté pour les droits civiques des Afro-Américains","« I have a dream »"],
+    ["Nelson Mandela","histoire","Président d'Afrique du Sud","A passé 27 ans en prison","Symbole de la lutte contre l'apartheid"],
+    ["Neil Armstrong","histoire","Américain du XXe siècle","Mission Apollo 11","Premier homme à marcher sur la Lune"],
+    ["Abraham Lincoln","histoire","Président américain","Haut-de-forme et barbe, assassiné au théâtre","A aboli l'esclavage"]
+  ];
+  /* ---------------- LA LISTE : c = catégorie, a = réponses (1 pt), h = réponses difficiles (2 pts) ---------------- */
+  var LISTES=[
+    {c:"Les ingrédients d'une ratatouille",a:"Tomate|Courgette|Aubergine|Poivron|Oignon|Ail|Huile d'olive|Sel|Poivre",h:"Thym|Laurier|Basilic|Herbes de Provence|Romarin|Persil|Sucre"},
+    {c:"Les ingrédients d'une pâte à crêpes",a:"Farine|Œufs|Lait|Sucre|Beurre|Sel",h:"Rhum|Fleur d'oranger|Vanille|Bière|Eau|Huile|Zeste de citron"},
+    {c:"Les ingrédients d'un tiramisu",a:"Mascarpone|Œufs|Sucre|Café|Biscuits cuillère (boudoirs)|Cacao",h:"Amaretto|Marsala|Crème liquide|Vanille|Sel"},
+    {c:"Les ingrédients d'une blanquette de veau",a:"Veau|Carottes|Oignon|Champignons|Crème|Beurre|Farine|Sel|Poivre",h:"Bouquet garni|Jaune d'œuf|Citron|Clou de girofle|Poireau|Bouillon|Vin blanc|Céleri"},
+    {c:"Les ingrédients d'un couscous",a:"Semoule|Pois chiches|Carottes|Courgettes|Navets|Oignon|Tomate|Merguez|Poulet|Agneau",h:"Ras el hanout|Harissa|Cumin|Raisins secs|Céleri|Chou|Potiron|Coriandre|Bœuf|Cannelle|Safran"},
+    {c:"Les ingrédients d'une mayonnaise",a:"Jaune d'œuf|Huile|Moutarde|Sel|Poivre",h:"Vinaigre|Jus de citron"},
+    {c:"Les personnages féminins de Disney et Pixar",a:"Blanche-Neige|Cendrillon|Aurore (la Belle au bois dormant)|Ariel|Belle|Jasmine|Pocahontas|Mulan|Tiana|Raiponce|Mérida|Elsa|Anna|Vaiana|Minnie|Daisy|Dory|Fée Clochette|Alice|Ursula|Maléfique|Cruella",h:"Esmeralda|Megara|Jane|Nala|Wendy|Mirabel|Asha|Kida|Mère Gothel|Lilo|Nani|Joie (Vice-Versa)|Tristesse (Vice-Versa)|Edna Mode|Elastigirl|Violette|Bo Peep|Jessie|Marie (Les Aristochats)|Lady (La Belle et le Clochard)|Duchesse|Raya|Mei (Alerte rouge)|Ember (Élémentaire)|Madame Samovar"},
+    {c:"Les méchants de Disney",a:"Ursula|Jafar|Scar|Cruella|Maléfique|Hadès|Capitaine Crochet|La Reine (Blanche-Neige)|Mère Gothel|Gaston|Shere Khan",h:"Frollo|Madame Mim|Médusa|Ratigan|Hans|Lady Trémaine|Yzma|Shan Yu|Docteur Facilier|Ratcliffe|Clayton|Le Roi Candy|Edgar (Les Aristochats)|Kaa|Le Prince Jean|Syndrome|Lotso|Le Grand Méchant Loup|Pat Hibulaire"},
+    {c:"Les films Pixar",a:"Toy Story|Monstres et Cie|Le Monde de Nemo|Les Indestructibles|Cars|Ratatouille|WALL-E|Là-haut|Rebelle|Vice-Versa|Coco|Le Monde de Dory",h:"1001 pattes|Monstres Academy|Le Voyage d'Arlo|En avant|Soul|Luca|Alerte rouge|Buzz l'Éclair|Élémentaire|Elio"},
+    {c:"Les marques de sport",a:"Nike|Adidas|Puma|Reebok|Asics|New Balance|Under Armour|Decathlon|Le Coq Sportif|Kappa|Umbro|Jordan|Fila",h:"Salomon|Mizuno|Hoka|Kipsta|Diadora|Columbia|The North Face|Quiksilver|Rossignol|Babolat|Head|Wilson|Patagonia|Lotto|Joma|Kalenji|Speedo|Arena|Millet|Errea|Macron|Hummel"},
+    {c:"Les marques de voitures",a:"Renault|Peugeot|Citroën|Volkswagen|BMW|Mercedes|Audi|Toyota|Ford|Fiat|Opel|Nissan|Kia|Hyundai|Tesla|Dacia|Ferrari|Porsche|Lamborghini|Volvo|Skoda|Seat|Honda|Mini|Jeep",h:"Mazda|Suzuki|Land Rover|Jaguar|Alfa Romeo|Maserati|Bugatti|Aston Martin|Bentley|Rolls-Royce|Lexus|Subaru|Mitsubishi|Cupra|DS|Alpine|Lancia|Chevrolet|Cadillac|Dodge|BYD|MG|McLaren|Lotus|Smart|Pagani|Koenigsegg"},
+    {c:"Les marques de sodas et boissons sucrées",a:"Coca-Cola|Pepsi|Fanta|Sprite|Orangina|Oasis|Schweppes|Lipton Ice Tea|7 Up|Red Bull|Monster|Dr Pepper",h:"Mountain Dew|Canada Dry|Gini|Tropico|Breizh Cola|Mirinda|Pschitt|Banga|Champomy|Fuze Tea|Lorina|Selecto|Pulco|Tang"},
+    {c:"Les pays de l'Union européenne",a:"France|Allemagne|Espagne|Italie|Portugal|Belgique|Pays-Bas|Luxembourg|Irlande|Grèce|Autriche|Suède|Danemark|Finlande|Pologne",h:"Tchéquie|Hongrie|Roumanie|Bulgarie|Croatie|Slovénie|Slovaquie|Estonie|Lettonie|Lituanie|Chypre|Malte"},
+    {c:"Les capitales européennes",a:"Paris|Berlin|Madrid|Rome|Lisbonne|Londres|Bruxelles|Amsterdam|Vienne|Athènes|Dublin|Varsovie|Prague|Budapest|Copenhague|Stockholm|Oslo|Helsinki|Moscou|Kiev",h:"Berne|Bucarest|Sofia|Belgrade|Zagreb|Ljubljana|Bratislava|Tallinn|Riga|Vilnius|Reykjavik|La Valette|Nicosie|Luxembourg|Tirana|Skopje|Podgorica|Sarajevo|Chisinau|Minsk|Andorre-la-Vieille|Monaco|Vaduz|Saint-Marin"},
+    {c:"Les pays d'Afrique",a:"Maroc|Algérie|Tunisie|Égypte|Sénégal|Côte d'Ivoire|Mali|Cameroun|Nigeria|Afrique du Sud|Madagascar|Kenya|Éthiopie|Ghana|Congo|RD Congo|Libye|Guinée|Gabon",h:"Angola|Bénin|Botswana|Burkina Faso|Burundi|Cap-Vert|Centrafrique|Comores|Djibouti|Érythrée|Eswatini|Gambie|Guinée-Bissau|Guinée équatoriale|Lesotho|Liberia|Malawi|Maurice|Mauritanie|Mozambique|Namibie|Niger|Ouganda|Rwanda|São Tomé-et-Príncipe|Seychelles|Sierra Leone|Somalie|Soudan|Soudan du Sud|Tanzanie|Tchad|Togo|Zambie|Zimbabwe"},
+    {c:"Les régions de France",a:"Bretagne|Normandie|Île-de-France|Hauts-de-France|Grand Est|Occitanie|Nouvelle-Aquitaine|Corse|Provence-Alpes-Côte d'Azur|Auvergne-Rhône-Alpes|Pays de la Loire",h:"Bourgogne-Franche-Comté|Centre-Val de Loire|Guadeloupe|Martinique|Guyane|La Réunion|Mayotte"},
+    {c:"Les fromages français",a:"Camembert|Brie|Roquefort|Comté|Emmental|Reblochon|Raclette|Munster|Beaufort|Cantal|Saint-Nectaire|Tomme de Savoie|Mont d'Or|Chèvre|Boursin|Coulommiers|Mimolette|Morbier|Bleu d'Auvergne|Saint-Marcellin",h:"Crottin de Chavignol|Maroilles|Livarot|Pont-l'Évêque|Époisses|Ossau-Iraty|Abondance|Neufchâtel|Chaource|Langres|Salers|Fourme d'Ambert|Rocamadour|Valençay|Sainte-Maure|Brocciu|Tomme des Pyrénées|Banon|Pélardon|Bleu de Gex|Selles-sur-Cher"},
+    {c:"Les fruits",a:"Pomme|Poire|Banane|Orange|Fraise|Cerise|Kiwi|Ananas|Mangue|Raisin|Pêche|Abricot|Prune|Citron|Melon|Pastèque|Framboise|Myrtille|Mûre|Figue|Clémentine|Mandarine|Pamplemousse|Noix de coco|Litchi",h:"Grenade|Fruit de la passion|Kaki|Goyave|Papaye|Groseille|Cassis|Nectarine|Coing|Mirabelle|Kumquat|Physalis|Ramboutan|Pitaya|Carambole|Nèfle|Datte|Avocat|Citron vert|Reine-claude|Brugnon|Airelle|Canneberge|Mangoustan|Durian|Fruit du jacquier"},
+    {c:"Les légumes",a:"Carotte|Poireau|Courgette|Aubergine|Poivron|Tomate|Haricot vert|Petit pois|Pomme de terre|Oignon|Chou|Chou-fleur|Brocoli|Épinard|Salade|Concombre|Radis|Navet|Betterave|Potiron|Citrouille|Maïs",h:"Artichaut|Asperge|Fenouil|Endive|Panais|Topinambour|Rutabaga|Blette|Salsifis|Patate douce|Chou de Bruxelles|Échalote|Butternut|Cresson|Mâche|Potimarron|Céleri|Courge|Chou kale|Okra (gombo)|Chou-rave|Cardon|Pâtisson|Roquette"},
+    {c:"Les animaux de la savane africaine",a:"Lion|Éléphant|Girafe|Zèbre|Hippopotame|Rhinocéros|Guépard|Léopard|Hyène|Gnou|Buffle|Antilope|Gazelle|Autruche|Crocodile",h:"Phacochère|Suricate|Lycaon|Impala|Babouin|Vautour|Marabout|Calao|Serval|Caracal|Oryx|Koudou|Springbok|Chacal|Pangolin|Oryctérope|Mangouste|Topi|Dik-dik|Secrétaire (oiseau)|Porc-épic"},
+    {c:"Les races de chiens",a:"Labrador|Golden retriever|Berger allemand|Berger australien|Caniche|Chihuahua|Bouledogue français|Beagle|Husky|Yorkshire|Teckel|Boxer|Dalmatien|Rottweiler|Doberman|Carlin|Jack Russell|Border collie|Cocker|Shih tzu|Bichon|Malinois|Saint-bernard",h:"Dogue allemand|Shiba inu|Akita|Basset hound|Lévrier|Bulldog anglais|Cavalier King Charles|Spitz|Terre-neuve|Bouvier bernois|Schnauzer|Pinscher|Braque|Épagneul breton|Setter|Chow-chow|Shar-pei|Whippet|Pékinois|Corgi|Samoyède|Malamute|Cane corso|Bull terrier|Staffordshire|Westie|Lhassa apso|Dogue de Bordeaux|Beauceron|Briard|Patou|Berger blanc suisse"},
+    {c:"Les instruments de musique",a:"Piano|Guitare|Violon|Batterie|Flûte|Trompette|Saxophone|Harpe|Violoncelle|Contrebasse|Accordéon|Clarinette|Trombone|Harmonica|Ukulélé|Synthétiseur|Orgue|Tambour|Triangle|Xylophone|Banjo|Basse",h:"Hautbois|Basson|Cor|Tuba|Alto|Cornemuse|Djembé|Sitar|Mandoline|Clavecin|Cithare|Thérémine|Didgeridoo|Balafon|Kora|Castagnettes|Timbales|Glockenspiel|Marimba|Vielle à roue|Cymbales|Bandonéon|Ocarina|Tabla|Steel drum|Bongo|Cajón|Luth|Piccolo|Euphonium"},
+    {c:"Les sports présents aux JO de Paris 2024",a:"Athlétisme|Natation|Gymnastique|Judo|Escrime|Boxe|Cyclisme|Tennis|Tennis de table|Badminton|Basket|Handball|Volley|Football|Rugby à 7|Équitation|Surf|Skateboard|Escalade|Breakdance|Golf|Beach-volley|Plongeon|Water-polo|BMX",h:"Aviron|Canoë-kayak|Hockey sur gazon|Tir à l'arc|Tir|Voile|Lutte|Haltérophilie|Taekwondo|Triathlon|Pentathlon moderne|Natation artistique|Basket 3x3|VTT|Nage en eau libre|Trampoline"},
+    {c:"Les joueurs de l'équipe de France championne du monde 2018",a:"Hugo Lloris|Raphaël Varane|Samuel Umtiti|Benjamin Pavard|Lucas Hernandez|N'Golo Kanté|Paul Pogba|Blaise Matuidi|Antoine Griezmann|Kylian Mbappé|Olivier Giroud|Ousmane Dembélé|Presnel Kimpembe|Nabil Fekir",h:"Steve Mandanda|Alphonse Areola|Benjamin Mendy|Adil Rami|Djibril Sidibé|Corentin Tolisso|Steven N'Zonzi|Thomas Lemar|Florian Thauvin"},
+    {c:"Les sept nains de Blanche-Neige",a:"Prof|Grincheux|Joyeux|Dormeur|Simplet|Timide|Atchoum",h:""},
+    {c:"Les personnages des Simpson",a:"Homer|Marge|Bart|Lisa|Maggie|Grand-père Abraham|Ned Flanders|Milhouse|Moe|Apu|Monsieur Burns|Smithers|Krusty|Barney|Chef Wiggum|Ralph|Nelson",h:"Patty|Selma|Principal Skinner|Edna Krapabelle|Otto|Lenny|Carl|Tahiti Bob|Martin|Le vendeur de BD|Willie|Docteur Hibbert|Troy McClure|Itchy et Scratchy|Rod et Todd|Maude Flanders|Kent Brockman|Petit Papa Noël|Boule de Neige|Disco Stu|Hans Taupeman|Jimbo|Professeur Frink"},
+    {c:"Les personnages de Friends",a:"Rachel|Monica|Phoebe|Joey|Chandler|Ross",h:"Gunther|Janice|Ben|Emma|Carol|Susan|Mike|Richard|Emily|Ursula|Jack Geller|Judy Geller|Frank Jr.|Mr Heckles|Tag|Paolo|Janine|Charlie|Julie|Kathy|Estelle|Eddie|Marcel (le singe)|Hugsy (le pingouin)|David|Mona"},
+    {c:"Les personnages de Harry Potter",a:"Harry|Ron|Hermione|Dumbledore|Voldemort|Rogue|Hagrid|Drago Malefoy|McGonagall|Sirius Black|Dobby|Neville|Luna|Ginny|Fred|George|Bellatrix|Lupin|Cedric Diggory",h:"Kreattur|Ombrage|Lockhart|Queudver|Fol Œil|Tonks|Cho Chang|Lucius Malefoy|Narcissa|Arthur Weasley|Molly Weasley|Percy|Bill|Charlie|Dudley|Pétunia|Vernon|Rusard|Madame Pomfresh|Slughorn|Quirrell|Trelawney|Flitwick|Chourave|Fleur Delacour|Viktor Krum|Lavande Brown|Seamus|Dean Thomas|Crabbe|Goyle|Grindelwald|Peeves|Nick Quasi-Sans-Tête|Hedwige|Buck|Croûtard|Pattenrond|Mimi Geignarde|Graup|Aragog|Fumseck|Kingsley"},
+    {c:"Les super-héros Marvel",a:"Spider-Man|Iron Man|Captain America|Thor|Hulk|Black Widow|Hawkeye|Black Panther|Doctor Strange|Wolverine|Deadpool|Ant-Man|Captain Marvel|Groot|Rocket|Star-Lord",h:"Vision|La Sorcière rouge|Gamora|Drax|Daredevil|Les Quatre Fantastiques|Professeur X|Tornade|Cyclope|Jean Grey|Malicia|Diablo|Shang-Chi|Falcon|Le Soldat de l'hiver|Moon Knight|She-Hulk|Miss Marvel|Silver Surfer|Luke Cage|Jessica Jones|Iron Fist|Ghost Rider|Blade|Gambit|Colossus|Mantis|Nebula|War Machine|Vif-Argent|La Guêpe|Nick Fury"},
+    {c:"Les Pokémon de la première génération",a:"Pikachu|Raichu|Salamèche|Reptincel|Dracaufeu|Bulbizarre|Herbizarre|Florizarre|Carapuce|Carabaffe|Tortank|Mewtwo|Mew|Évoli|Ronflex|Rondoudou|Psykokwak|Miaouss|Magicarpe|Léviator|Ectoplasma|Onix|Abra|Alakazam|Machoc|Racaillou|Goupix|Roucool|Rattata|Chenipan",h:"Papilusion|Aspicot|Smogo|Abo|Arbok|Taupiqueur|Tentacool|Ptéra|Lokhlass|Artikodin|Électhor|Sulfura|Minidraco|Dracolosse|Métamorph|Ponyta|Tadmorv|Kangourex|Insécateur|Lippoutou|Élektek|Magmar|Tauros|Staross|Stari|Hypotrempe|Amonita|Kabuto|Noadkoko|Noeunoeuf|Osselait|Excelangue|Saquedeneu|Mélofée|Grolem|Ramoloss|Magnéti|Canarticho|Doduo|Otaria|Kokiyas|Fantominus|Spectrum|Krabby|Voltorbe|Kicklee|Tygnon|Leveinard|Poissirène|Nidoran|Paras|Mimitoss|Férosinge|Caninos|Arcanin|Ptitard|Chétiflor|Soporifik|Rhinocorne|Nosferapti|Aquali|Voltali|Pyroli|Mystherbe|Mackogneur"},
+    {c:"Les jeux de société",a:"Monopoly|Uno|Scrabble|Cluedo|Trivial Pursuit|Puissance 4|Échecs|Dames|Jungle Speed|Dobble|Loups-garous|Time's Up|Dixit|Les Aventuriers du rail|Catan|Pictionary|Taboo|Mille Bornes|Qui est-ce ?|Jenga|Twister|Risk|Petits chevaux|Bataille navale|Blanc Manger Coco|Skyjo|Docteur Maboul|La Bonne Paye",h:"Carcassonne|7 Wonders|Codenames|Splendor|Azul|Kingdomino|Pandemic|Hanabi|Mysterium|Unlock|Perudo|Scotland Yard|Abalone|Othello|Mastermind|Stratego|Cortex|Cranium|Small World|King of Tokyo|Le Jeu de l'oie|Yams|Mölkky|Bazar Bizarre|Concept|Wingspan"},
+    {c:"Les planètes du système solaire",a:"Mercure|Vénus|Terre|Mars|Jupiter|Saturne|Uranus|Neptune",h:""},
+    {c:"Les couleurs de l'arc-en-ciel",a:"Rouge|Orange|Jaune|Vert|Bleu|Violet",h:"Indigo"},
+    {c:"Les signes du zodiaque",a:"Bélier|Taureau|Gémeaux|Cancer|Lion|Vierge|Balance|Scorpion|Sagittaire|Capricorne|Verseau|Poissons",h:""},
+    {c:"Les objets qu'on met dans une valise de vacances",a:"Brosse à dents|Dentifrice|Maillot de bain|Tee-shirts|Pantalon|Short|Chaussettes|Sous-vêtements|Pyjama|Chargeur|Lunettes de soleil|Crème solaire|Serviette|Shampoing|Gel douche|Déodorant|Chaussures|Pull|Veste",h:"Adaptateur de prise|Trousse à pharmacie|Passeport|Bouchons d'oreilles|Masque de nuit|Batterie externe|Casquette|Tongs|Livre|Coton-tiges|Brosse à cheveux|Rasoir|Parapluie|Coussin de voyage|Lessive"}
+  ];
+
   var GAMES=[
     {id:"ouinon",name:"Oui ou Non",em:"🔥",gc:"#ff4d8d",tg:"Réponds par oui ou non, et ne craque pas.",
      type:"grill",vic:"Sur le grill",relLbl:"Question piège",partie:12,
@@ -1102,7 +1359,11 @@
      rules:["Le téléphone lit un <b>chef d'accusation</b>. À trois, tout le monde <b>pointe la personne qui le mérite le plus</b> : c'est l'accusé·e.","L'accusé·e a <b>trente secondes</b> pour plaider non coupable, avec toute sa mauvaise foi.","La table rend son verdict. Coupable → l'accusé·e {boit}. Acquitté·e → ceux qui l'ont pointé·e {boivent}."]},
     {id:"dilemme",name:"Le Dilemme",em:"🤔",gc:"#c77dff",tg:"Deux options, aucune échappatoire.",
      type:"dilemme",vic:"Au choix de",partie:8,
-     rules:["Le téléphone pose un choix impossible entre deux options.","La personne désignée <b>tranche</b> et défend son choix devant la table.","Elle refuse de choisir ou botte en touche ? <b>{Pen}.</b> Puis le débat s'enflamme."]}
+     rules:["Le téléphone pose un choix impossible entre deux options.","La personne désignée <b>tranche</b> et défend son choix devant la table.","Elle refuse de choisir ou botte en touche ? <b>{Pen}.</b> Puis le débat s'enflamme."]},
+    {id:"devine",name:"Devine qui",em:"🕵️",gc:"#2ec4b6",tg:"Trouve le personnage secret, en oui ou non.",type:"devine",cat:"quiz",
+     rules:["Le téléphone choisit un personnage secret pour le <b>maître du jeu</b> : célébrité, héros de BD, de jeu vidéo, personnage historique…","Chacun pose une question à tour de rôle. Réponse <b>oui</b> : la même personne rejoue. Réponse <b>non</b> : on passe au suivant.","Ça bloque ? Des <b>indices</b> se débloquent à 5, 7 et 9 minutes. Trouver sans indice rapporte 3 points, puis 2, puis 1."]},
+    {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : cite tout ce que tu peux.",type:"liste",cat:"quiz",
+     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'arbitre coche chaque bonne réponse : 1 point, et 2 points pour les réponses <b>⭐ difficiles</b>. Une réponse juste qui manque à la liste ? Bouton « Autre réponse valable »."]}
   ];
   function game(id){for(var i=0;i<GAMES.length;i++)if(GAMES[i].id===id)return GAMES[i];}
 
@@ -1148,19 +1409,21 @@
 
   /* ---------------- HUB ---------------- */
   function buildHub(focus){
-    var cards=GAMES.map(function(g){
+    function card(g){
       return '<button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
         '<span class="em">'+g.em+'</span>'+
         '<span class="txt"><span class="nm">'+g.name+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
         '<span class="go">→</span></button>';
-    }).join("");
+    }
+    var soir=GAMES.filter(function(g){return g.cat!=="quiz";}).map(card).join("");
+    var quiz=GAMES.filter(function(g){return g.cat==="quiz";}).map(card).join("");
     var chips=players.map(function(p,i){
       return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer '+esc(p)+'">×</button></span>';
     }).join("");
     el("s-hub").innerHTML=
       '<div class="kicker">Jeux de soirée · sans matériel</div>'+
       '<h1>Les Cartouches</h1>'+
-      '<p class="sub">Huit jeux qui se jouent avec un téléphone et une bande de potes. Choisis ta cartouche.</p>'+
+      '<p class="sub">Des jeux qui se jouent avec un téléphone et une bande de potes. Choisis ta cartouche.</p>'+
       '<div class="setup">'+
         '<div class="panel">'+
           '<div class="plbl">Joueurs <span class="cnt">'+(players.length?players.length:"")+'</span></div>'+
@@ -1177,7 +1440,10 @@
           (mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
         '</div>'+
       '</div>'+
-      '<div class="games">'+cards+'</div>'+
+      '<div class="sect"><div class="sh">🔥 Soirée</div><div class="ss">On se balance des cartouches</div></div>'+
+      '<div class="games">'+soir+'</div>'+
+      '<div class="sect"><div class="sh">🧠 Quiz & devinettes</div><div class="ss">Pour le car, le train, les longues routes · à points, sans pénalité</div></div>'+
+      '<div class="games">'+quiz+'</div>'+
       feedbackHTML();
     wireFeedback();
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
@@ -1241,13 +1507,27 @@
       '<button data-lvl="epice"'+(ambiance==="epice"?' class="on"':'')+'><span class="d epice"></span>Épicé<span class="s">ça pique</span></button>'+
       '<button data-lvl="trash"'+(ambiance==="trash"?' class="on"':'')+'><span class="d trash"></span>Trash<span class="s">sans filtre</span></button>'+
       '</div></div>':'';
+    var opts="";
+    if(G.id==="devine"){
+      var cs=devCats||Object.keys(DEV_CATS);
+      opts='<div class="ambiance"><div class="lbl">Catégories de personnages</div><div class="chips cats" id="dcats">'+
+        Object.keys(DEV_CATS).map(function(k){return '<button class="pchip'+(cs.indexOf(k)>=0?' on':'')+'" data-k="'+k+'">'+DEV_CATS[k]+'</button>';}).join("")+
+        '</div></div>'+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le maître du jeu et compter les points.</p>':'');
+    }
+    if(G.id==="liste"){
+      opts='<div class="ambiance"><div class="lbl">Nombre d\'équipes</div><div class="seg" id="lteams">'+
+        [2,3,4].map(function(n){return '<button data-n="'+n+'"'+(lTeams===n?' class="on"':'')+'>'+n+' équipes</button>';}).join("")+'</div></div>'+
+        '<div class="ambiance"><div class="lbl">Chrono</div><div class="seg" id="ldur">'+
+        [45,60,90].map(function(n){return '<button data-n="'+n+'"'+(lDur===n?' class="on"':'')+'>'+n+' s</button>';}).join("")+'</div></div>';
+    }
     el("s-intro").innerHTML=
       '<div class="em">'+G.em+'</div>'+
       '<h2>'+G.name+'</h2>'+
       '<p class="tg">'+t(G.tg)+'</p>'+
       '<div class="rules">'+rules+'</div>'+
-      amb+
-      '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>'+
+      amb+opts+
+      (G.cat==="quiz"?'<p class="modeline">🏆 Jeu à points · sans pénalité'+(players.length>=2&&G.id==="devine"?' · '+players.length+' joueurs':'')+'</p>':
+      '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
     if(G.id==="ouinon"){
       Array.prototype.forEach.call(el("seg").querySelectorAll("button"),function(b){
@@ -1255,6 +1535,26 @@
           ambiance=b.getAttribute("data-lvl");
           Array.prototype.forEach.call(el("seg").querySelectorAll("button"),function(x){x.classList.remove("on");});
           b.classList.add("on");
+        });
+      });
+    }
+    if(G.id==="devine"){
+      Array.prototype.forEach.call(el("dcats").querySelectorAll("button"),function(b){
+        b.addEventListener("click",function(){
+          var k=b.getAttribute("data-k"),cs=(devCats||Object.keys(DEV_CATS)).slice(),i=cs.indexOf(k);
+          if(i>=0){if(cs.length>1)cs.splice(i,1);}else cs.push(k);
+          devCats=cs;
+          Array.prototype.forEach.call(el("dcats").querySelectorAll("button"),function(x){x.classList.toggle("on",cs.indexOf(x.getAttribute("data-k"))>=0);});
+        });
+      });
+    }
+    if(G.id==="liste"){
+      ["lteams","ldur"].forEach(function(sid){
+        Array.prototype.forEach.call(el(sid).querySelectorAll("button"),function(b){
+          b.addEventListener("click",function(){
+            var n=+b.getAttribute("data-n");if(sid==="lteams")lTeams=n;else lDur=n;
+            Array.prototype.forEach.call(el(sid).querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+          });
         });
       });
     }
@@ -1289,7 +1589,10 @@
       case"chrono":deck=shuffle(CHRONO);showProg=false;break;
       case"tribunal":deck=shuffle(TRIBUNAL);showProg=true;break;
       case"dilemme":deck=shuffle(DILEMME);showProg=true;break;
+      case"devine":deck=[];showProg=false;break;
+      case"liste":deck=freshFirst("liste",shuffle(LISTES),LISTES.length);showProg=false;break;
     }
+    qScores={};finalHTML="";
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
     show("play");
     renderRound();
@@ -1329,6 +1632,8 @@
     if(G.type==="chrono")return renderChrono(P);
     if(G.type==="tribunal")return renderTribunal(P);
     if(G.type==="dilemme")return renderDilemme(P);
+    if(G.type==="devine")return renderDevine(P);
+    if(G.type==="liste")return renderListe(P);
   }
 
   function bannerHTML(g,who){return '<div class="banner"><span class="em">'+g.em+'</span><div><div class="lbl">'+g.vic+'</div><div class="name">'+esc(who)+'</div></div></div>';}
@@ -1667,13 +1972,240 @@
     el("free").addEventListener("click",function(){clearT();penalty("les accusateurs",advance);});
   }
 
+  /* ---------------- QUIZ : outils communs ---------------- */
+  var qScores={}, finalHTML="";
+  function addPts(who,n){qScores[who]=(qScores[who]||0)+n;}
+  function boardHTML(){
+    var ks=Object.keys(qScores);
+    if(!ks.length)return "";
+    ks.sort(function(a,b){return qScores[b]-qScores[a];});
+    return '<div class="panel board"><div class="plbl">Classement</div>'+ks.map(function(k,i){
+      return '<div class="brow"><span class="bk">'+(i===0?'🏆':(i+1)+'.')+'</span><span class="bn">'+esc(k)+'</span><span class="bp">'+qScores[k]+' pt'+(qScores[k]>1?'s':'')+'</span></div>';
+    }).join("")+'</div>';
+  }
+  function mmss(s){var m=Math.floor(s/60),r=s%60;return m+":"+(r<10?"0":"")+r;}
+  function quitQuiz(){finalHTML=boardHTML();endGame();}
+
+  /* ---------------- DEVINE QUI ---------------- */
+  var devCats=null, HINT_AT=[300,420,540];
+  function devPool(){
+    var cats=devCats||Object.keys(DEV_CATS);
+    return DEVINE.filter(function(d){return cats.indexOf(d[1])>=0;});
+  }
+  function devNext(avoid){
+    var pool=devPool(),all=loadSeen(),seen=all.devine||[];
+    var un=pool.filter(function(d){return seen.indexOf(d[0])<0&&d[0]!==avoid;});
+    if(!un.length){seen=[];un=pool.filter(function(d){return d[0]!==avoid;});if(!un.length)un=pool;}
+    var d=un[Math.floor(Math.random()*un.length)];
+    seen.push(d[0]);all.devine=seen;saveSeen(all);
+    return d;
+  }
+  function renderDevine(P){
+    var named=players.length>=2;
+    var master=named?vics[idx%vics.length]:"le maître du jeu";
+    var guessers=[];
+    if(named){var mi=players.indexOf(master);for(var k=1;k<players.length;k++)guessers.push(players[(mi+k)%players.length]);}
+    var ch=devNext(), gi=0, nq=0, hints=0, secs=0, peek=false;
+    function asker(){return named?guessers[gi%guessers.length]:"La personne suivante";}
+
+    function hand(){
+      clearT();
+      P.innerHTML='<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Maître du jeu</div><div class="name">'+esc(master)+'</div></div></div>'+
+        '<div class="body"><div class="chip"><span class="dot"></span>Manche '+(idx+1)+'</div>'+
+        '<h2 class="qtext">'+(named?'Passe le téléphone à '+esc(master)+'.':'Passe le téléphone au maître du jeu.')+'</h2>'+
+        '<p class="instr">Les autres, <b>ne regardez pas l\'écran</b> : un personnage secret va s\'afficher.</p></div>'+
+        '<div class="foot"><button class="btn" id="dsee">'+(named?'Je suis '+esc(master)+', voir mon personnage':'Voir le personnage secret')+'</button>'+
+        '<button class="linkbtn" id="dquit">Terminer la partie</button></div>';
+      el("dsee").addEventListener("click",secret);
+      el("dquit").addEventListener("click",quitQuiz);
+    }
+    function charHTML(){
+      return '<div class="chip"><span class="dot"></span>'+DEV_CATS[ch[1]]+'</div>'+
+        '<h2 class="qtext dname">'+esc(ch[0])+'</h2>'+
+        '<div class="hints">'+[2,3,4].map(function(i,n){return '<p><b>Indice '+(n+1)+'</b> '+esc(ch[i])+'</p>';}).join("")+'</div>';
+    }
+    function secret(){
+      P.innerHTML='<div class="body">'+charHTML()+
+        '<p class="instr">Mémorise-le. Tu réponds aux questions par <b>oui</b> ou <b>non</b> (ou « je ne sais pas »). Les indices ne sont à lire que quand l\'appli te le dit.</p></div>'+
+        '<div class="foot"><button class="btn" id="dgo">C\'est mémorisé → lancer la manche</button>'+
+        '<button class="linkbtn" id="dother">Je ne connais pas ce personnage → un autre</button></div>';
+      el("dgo").addEventListener("click",play);
+      el("dother").addEventListener("click",function(){ch=devNext(ch[0]);secret();});
+    }
+    function hintBox(){
+      var h='';
+      for(var i=0;i<hints;i++)h+='<p><b>Indice '+(i+1)+'</b> '+esc(ch[2+i])+'</p>';
+      return h;
+    }
+    function paintTop(){
+      el("dtime").textContent=mmss(secs);
+      el("dnq").textContent=nq+" question"+(nq>1?"s":"");
+      var nxt=hints<3?HINT_AT[hints]:null;
+      el("dnext").textContent=nxt===null?"Tous les indices sont donnés":(secs>=nxt?"":"Indice "+(hints+1)+" dans "+mmss(nxt-secs));
+    }
+    function showHint(auto){
+      if(hints>=3)return;
+      hints++;
+      el("dhints").innerHTML=hintBox();el("dhints").hidden=false;
+      el("dmsg").innerHTML=(auto?'⏰ Ça bloque ! ':'')+'<b>'+esc(master)+'</b> lit l\'indice '+hints+' à voix haute.';
+      if(hints>=3)el("dhint").disabled=true;
+      paintTop();
+    }
+    function paintAsker(){el("dask").textContent=asker();}
+    function play(){
+      P.innerHTML='<div class="banner"><span class="em">❓</span><div><div class="lbl">Pose ta question</div><div class="name" id="dask"></div></div></div>'+
+        '<div class="dstats"><span id="dtime">0:00</span><span id="dnq">0 question</span></div>'+
+        '<div class="body">'+
+          '<p class="instr" id="dmsg">'+(named?'<b>'+esc(master)+'</b> garde le téléphone et répond. ':'')+'<b>Oui</b> : la même personne rejoue. <b>Non</b> : au suivant.</p>'+
+          '<div class="hints" id="dhints" hidden></div>'+
+          '<p class="hint" id="dnext"></p>'+
+          '<div class="peek" id="dpeek" hidden></div>'+
+        '</div>'+
+        '<div class="foot">'+
+          '<div class="row2"><button class="btn yes" id="dyes">✅ Oui</button><button class="btn no" id="dno">❌ Non</button></div>'+
+          '<button class="btn ghost sm" id="dunk">🤷 Je ne sais pas / ça dépend</button>'+
+          '<button class="btn found" id="dfound">🎉 Trouvé !</button>'+
+          '<div class="row2"><button class="btn ghost sm" id="dhint">💡 Indice</button><button class="btn ghost sm" id="dpeekb">👁 Revoir</button></div>'+
+          '<button class="linkbtn" id="dgive">On abandonne → révéler</button>'+
+        '</div>';
+      if(hints){el("dhints").innerHTML=hintBox();el("dhints").hidden=false;if(hints>=3)el("dhint").disabled=true;}
+      paintAsker();paintTop();
+      clearT();
+      timer=setInterval(function(){
+        secs++;
+        if(hints<3&&secs>=HINT_AT[hints])showHint(true);
+        paintTop();
+      },1000);
+      el("dyes").addEventListener("click",function(){nq++;paintTop();el("dmsg").innerHTML='<b>Oui !</b> '+esc(asker())+' repose une question.';});
+      el("dno").addEventListener("click",function(){nq++;gi++;paintAsker();paintTop();el("dmsg").innerHTML='<b>Non.</b> Au tour de '+esc(asker())+'.';});
+      el("dunk").addEventListener("click",function(){el("dmsg").innerHTML='Pas de réponse claire : '+esc(asker())+' reformule ou pose une autre question.';});
+      el("dhint").addEventListener("click",function(){showHint(false);});
+      el("dpeekb").addEventListener("click",function(){
+        peek=!peek;var b=el("dpeek");
+        b.hidden=!peek;b.innerHTML=peek?'<b>'+esc(ch[0])+'</b> · '+DEV_CATS[ch[1]]:'';
+        el("dpeekb").textContent=peek?"🙈 Cacher":"👁 Revoir";
+      });
+      el("dfound").addEventListener("click",found);
+      el("dgive").addEventListener("click",function(){clearT();if(named)addPts(master,2);result(null,0);});
+    }
+    function found(){
+      clearT();
+      var pts=Math.max(1,3-hints);
+      if(!named){result("",pts);return;}
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Bravo !</div>'+
+        '<h2 class="qtext">Qui a trouvé ?</h2><p class="instr">'+pts+' point'+(pts>1?'s':'')+' pour la bonne réponse ('+(hints?hints+' indice'+(hints>1?'s':'')+' donné'+(hints>1?'s':''):'sans indice')+').</p>'+
+        '<div class="chips pick">'+guessers.map(function(g,i){return '<button class="pchip" data-i="'+i+'">'+esc(g)+'</button>';}).join("")+'</div></div>'+
+        '<div class="foot"><button class="linkbtn" id="dback">← Fausse alerte, on reprend</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".pick button"),function(b){
+        b.addEventListener("click",function(){var w=guessers[+b.getAttribute("data-i")];addPts(w,pts);result(w,pts);});
+      });
+      el("dback").addEventListener("click",function(){resume();});
+    }
+    function resume(){
+      play();
+      el("dmsg").innerHTML='On reprend. Au tour de '+esc(asker())+'.';
+    }
+    function result(who,pts){
+      P.innerHTML='<div class="body">'+
+        '<div class="chip"><span class="dot"></span>'+(who===null?'Personne n\'a trouvé':'Trouvé !')+'</div>'+
+        '<p class="instr">Le personnage était</p><h2 class="qtext dname">'+esc(ch[0])+'</h2>'+
+        '<p class="instr">'+mmss(secs)+' · '+nq+' question'+(nq>1?'s':'')+' · '+hints+' indice'+(hints>1?'s':'')+'</p>'+
+        (who===null?(named?'<p class="instr"><b>'+esc(master)+'</b> gagne 2 points pour avoir tenu bon.</p>':''):(who?'<p class="instr"><b>'+esc(who)+'</b> marque '+pts+' point'+(pts>1?'s':'')+'.</p>':'<p class="instr">'+pts+' point'+(pts>1?'s':'')+' pour la table.</p>'))+
+        boardHTML()+
+      '</div>'+
+      '<div class="foot"><button class="btn" id="dnextr">Manche suivante →</button><button class="linkbtn" id="dquit">Terminer la partie</button></div>';
+      el("dnextr").addEventListener("click",function(){idx++;renderRound();});
+      el("dquit").addEventListener("click",quitQuiz);
+    }
+    hand();
+  }
+
+  /* ---------------- LA LISTE ---------------- */
+  var lTeams=2, lDur=60;
+  function teamName(i){return "Équipe "+(i+1);}
+  function renderListe(P){
+    var team=teamName(idx%lTeams);
+    var cat=deck[idx%deck.length];
+    var items=cat.a.split("|").map(function(x){return{t:x,p:1};}).concat(cat.h?cat.h.split("|").map(function(x){return{t:x,p:2};}):[]);
+    items.sort(function(a,b){return a.t.localeCompare(b.t,"fr");});
+    var got={},extra=0,left=lDur,running=false;
+    function score(){var s=extra;for(var k in got)if(got[k])s+=items[k].p;return s;}
+    function count(){var n=extra;for(var k in got)if(got[k])n++;return n;}
+
+    function hand(){
+      clearT();
+      P.innerHTML='<div class="banner"><span class="em">'+G.em+'</span><div><div class="lbl">Au tour de</div><div class="name">'+team+'</div></div></div>'+
+        '<div class="body"><div class="chip"><span class="dot"></span>Manche '+(idx+1)+'</div>'+
+        '<h2 class="qtext">Passe le téléphone à l\'arbitre.</h2>'+
+        '<p class="instr">Une personne d\'une <b>autre équipe</b>. Elle seule regarde l\'écran et coche les bonnes réponses.</p></div>'+
+        '<div class="foot"><button class="btn" id="lsee">Je suis l\'arbitre → voir la catégorie</button><button class="linkbtn" id="lquit">Terminer la partie</button></div>';
+      el("lsee").addEventListener("click",ready);
+      el("lquit").addEventListener("click",quitQuiz);
+    }
+    function ready(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+team+' · '+lDur+' secondes</div>'+
+        '<h2 class="qtext">'+esc(cat.c)+'</h2>'+
+        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. Les réponses <b>⭐ difficiles</b> valent 2 points.</p></div>'+
+        '<div class="foot"><button class="btn" id="lgo">▶️ Top chrono</button><button class="linkbtn" id="lother">Autre catégorie</button></div>';
+      el("lgo").addEventListener("click",run);
+      el("lother").addEventListener("click",function(){
+        var spare=LISTES.filter(function(x){return deck.indexOf(x)<0;});
+        var pool=spare.length?spare:LISTES.filter(function(x){return x!==cat;});
+        deck[idx%deck.length]=pool[Math.floor(Math.random()*pool.length)];
+        renderRound();
+      });
+    }
+    function paint(){
+      el("ltime").textContent=left;
+      el("lscore").textContent=score()+" pt"+(score()>1?"s":"");
+      el("lextra").textContent="➕ Autre réponse"+(extra?" ("+extra+")":"");
+      el("lbar").style.width=(100*left/lDur)+"%";
+      el("ltime").parentNode.classList.toggle("hurry",left<=10);
+    }
+    function run(){
+      running=true;
+      P.innerHTML='<div class="lhead"><div class="lcat">'+esc(cat.c)+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
+        '<div class="lgrid" id="lgrid">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        '<div class="foot lfoot"><div class="row3"><button class="btn ghost sm" id="lextra"></button><button class="btn ghost sm" id="lminus">➖</button><button class="btn sm" id="lstop">⏹ Stop</button></div></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".lchip"),function(b){
+        b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);paint();});
+      });
+      el("lextra").addEventListener("click",function(){extra++;paint();});
+      el("lminus").addEventListener("click",function(){if(extra>0){extra--;paint();}});
+      el("lstop").addEventListener("click",done);
+      paint();
+      clearT();
+      timer=setInterval(function(){left--;if(left<=0){left=0;paint();done();return;}paint();},1000);
+    }
+    function done(){
+      if(!running)return;running=false;clearT();
+      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      try{say("Temps écoulé !");}catch(e){}
+      var s=score(),n=count();
+      addPts(team,s);
+      var missed=items.filter(function(it,i){return !got[i];});
+      P.innerHTML='<div class="body">'+
+        '<div class="chip"><span class="dot"></span>Temps écoulé</div>'+
+        '<h2 class="qtext">'+team+' : '+s+' point'+(s>1?'s':'')+'</h2>'+
+        '<p class="instr">'+n+' réponse'+(n>1?'s':'')+' trouvée'+(n>1?'s':'')+' sur « '+esc(cat.c)+' ».</p>'+
+        (missed.length?'<details class="missed"><summary>Voir les '+missed.length+' réponses oubliées</summary><p>'+missed.map(function(it){return (it.p>1?'⭐ ':'')+esc(it.t);}).join(" · ")+'</p></details>':'<p class="instr"><b>Liste complète, chapeau !</b></p>')+
+        boardHTML()+
+      '</div>'+
+      '<div class="foot"><button class="btn" id="lnext">Au tour de '+teamName((idx+1)%lTeams)+' →</button><button class="linkbtn" id="lquit">Terminer la partie</button></div>';
+      el("lnext").addEventListener("click",function(){idx++;renderRound();});
+      el("lquit").addEventListener("click",quitQuiz);
+    }
+    hand();
+  }
+
   /* ---------------- FIN ---------------- */
   function endGame(){
     clearT();showProg=false;el("progress").hidden=true;
     el("s-end").innerHTML=
       '<div class="em">'+G.em+'</div>'+
       '<h2 class="big">Partie terminée.</h2>'+
-      '<p>Fin de cette partie de « '+G.name+' ». Une nouvelle donne pioche d\'autres cartes.</p>'+
+      '<p>Fin de cette partie de « '+G.name+' ». '+(G.cat==="quiz"?'Une nouvelle partie remet les scores à zéro.':'Une nouvelle donne pioche d\'autres cartes.')+'</p>'+
+      finalHTML+
       '<div class="panel rate">'+
         '<div class="plbl">Ce jeu vous a plu ?</div>'+
         '<div class="row2"><button class="vbtn" data-v="1">👍 On a aimé</button><button class="vbtn" data-v="-1">👎 Bof</button></div>'+
