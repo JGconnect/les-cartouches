@@ -98,6 +98,7 @@
   .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
   .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
   .lchip.hard{border-style:dashed}
+  .lchip.miss{opacity:.6;border-style:dashed}
   .lchip.pop{animation:lpop .45s ease}
   @keyframes lpop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
   .heard{margin:0;text-align:center;font-size:13px;color:var(--ink-faint);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2628,19 +2629,22 @@
       try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
       micStop();
       try{say("Temps écoulé !");}catch(e){}
-      var s=score(),n=count();
-      addPts(team,s);
-      var missed=items.filter(function(it,i){return !got[i];});
+      function sumHTML(){var s=score(),n=count();return team+' : '+s+' point'+(s>1?'s':'')+' · '+n+' / '+items.length;}
       P.innerHTML='<div class="body">'+
-        '<div class="chip"><span class="dot"></span>Temps écoulé</div>'+
-        '<h2 class="qtext">'+team+' : '+s+' point'+(s>1?'s':'')+'</h2>'+
-        '<p class="instr">'+n+' réponse'+(n>1?'s':'')+' trouvée'+(n>1?'s':'')+' sur '+items.length+' : « '+esc(cat.c)+' ».</p>'+
-        (missed.length?'<details class="missed"><summary>Voir '+(missed.length>1?'les '+missed.length+' réponses manquées':'la réponse manquée')+'</summary><p>'+missed.map(function(it){return (it.p>1?'⭐ ':'')+esc(it.t);}).join(" · ")+'</p></details>':'<p class="instr"><b>Liste complète, chapeau !</b></p>')+
-        boardHTML()+
+        '<div class="chip"><span class="dot"></span>Temps écoulé · vérification</div>'+
+        '<h2 class="qtext sm" id="lsum">'+sumHTML()+'</h2>'+
+        '<p class="instr">Une réponse <b>oubliée</b> ou <b>mal entendue</b> ? L\'arbitre la touche pour la cocher (ou la décocher). Les réponses en pointillé n\'ont pas été trouvées.</p>'+
+        '<div class="lgrid ten" id="lfix">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+(got[i]?' on':' miss')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        (Object.keys(qScores).length?'<p class="hint">Classement avant cette manche :</p>'+boardHTML():'')+
       '</div>'+
-      '<div class="foot"><button class="btn" id="lnext">Au tour de '+teamName((idx+1)%lTeams)+' →</button><button class="linkbtn" id="lquit">Terminer la partie</button></div>';
-      el("lnext").addEventListener("click",function(){idx++;renderRound();});
-      el("lquit").addEventListener("click",quitQuiz);
+      '<div class="foot"><button class="btn" id="lnext">Valider → au tour de '+teamName((idx+1)%lTeams)+'</button><button class="linkbtn" id="lquit">Valider et terminer la partie</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll("#lfix .lchip"),function(b){
+        b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);b.classList.toggle("miss",!got[i]);el("lsum").textContent=sumHTML();});
+      });
+      var saved=false;
+      function commit(){if(!saved){saved=true;addPts(team,score());}}
+      el("lnext").addEventListener("click",function(){commit();idx++;renderRound();});
+      el("lquit").addEventListener("click",function(){commit();quitQuiz();});
     }
     hand();
   }
