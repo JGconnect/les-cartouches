@@ -98,6 +98,8 @@
   .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
   .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
   .lchip.hard{border-style:dashed}
+  .lgrid.ten{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:center}
+  .lgrid.ten .lchip{border-radius:16px;padding:16px 10px;font-size:16px;line-height:1.2}
   .lchip.on{background:var(--ga);border-color:var(--ga);color:#241500}
   .lfoot{position:sticky;bottom:0;z-index:2;background:var(--bg);padding:10px 0 calc(6px + env(safe-area-inset-bottom,0px))}
   .row3{display:grid;grid-template-columns:1.6fr .6fr 1fr;gap:8px}
@@ -1638,8 +1640,8 @@
      rules:["Le téléphone pose un choix impossible entre deux options.","La personne désignée <b>tranche</b> et défend son choix devant la table.","Elle refuse de choisir ou botte en touche ? <b>{Pen}.</b> Puis le débat s'enflamme."]},
     {id:"devine",name:"Devine qui",em:"🕵️",gc:"#2ec4b6",tg:"Trouve le personnage secret, en oui ou non.",type:"devine",cat:"quiz",
      rules:["Le téléphone choisit un personnage secret pour le <b>maître du jeu</b> : célébrité, héros de BD, de jeu vidéo, personnage historique…","Chacun pose une question à tour de rôle. Réponse <b>oui</b> : la même personne rejoue. Réponse <b>non</b> : on passe au suivant.","Ça bloque ? Des <b>indices</b> se débloquent à 5, 7 et 9 minutes. Trouver sans indice rapporte 3 points, puis 2, puis 1."]},
-    {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : cite tout ce que tu peux.",type:"liste",cat:"quiz",
-     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'arbitre coche chaque bonne réponse : 1 point, et 2 points pour les réponses <b>⭐ difficiles</b>. Une réponse juste qui manque à la liste ? Bouton « Autre réponse valable »."]},
+    {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : trouve les 10 réponses cachées.",type:"liste",cat:"quiz",
+     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'appli cache <b>10 réponses</b> (dont 3 ⭐ difficiles). L'arbitre coche celles que l'équipe cite : 1 point chacune, 2 points pour les ⭐. Une réponse juste mais absente des 10 ne compte pas."]},
     {id:"petitbac",name:"Le Petit Bac",em:"🔤",gc:"#5b8cff",tg:"Une lettre, cinq catégories, un chrono.",type:"bac",cat:"quiz",
      rules:["Le téléphone tire une <b>lettre</b> et <b>cinq catégories</b> (un pays, un métier, une excuse pour être en retard…).","Au top, chacun cherche un mot par catégorie qui commence par la lettre : sur papier, sur son téléphone ou à l'oral.","Fin du chrono ou « Stop ! » : on lit ses réponses. <b>1 point</b> par réponse valable, <b>2 points</b> si personne d'autre ne l'a trouvée."]},
     {id:"taboo",name:"Le Mot interdit",em:"🚫",gc:"#ff6b6b",tg:"Fais deviner le mot sans dire les mots interdits.",type:"taboo",cat:"quiz",
@@ -2436,7 +2438,12 @@
   function renderListe(P){
     var team=teamName(idx%lTeams);
     var cat=deck[idx%deck.length];
-    var items=cat.a.split("|").map(function(x){return{t:x,p:1};}).concat(cat.h?cat.h.split("|").map(function(x){return{t:x,p:2};}):[]);
+    /* 10 réponses maximum : 7 classiques + 3 difficiles (complété si une liste est plus courte) */
+    /* les classiques sont tirées parmi les 12 premières de la liste (les plus évidentes), pour que les réponses qui viennent en premier comptent */
+    var aa=cat.a.split("|"),ea=shuffle(aa.slice(0,12)).concat(shuffle(aa.slice(12))),eh=shuffle(cat.h?cat.h.split("|"):[]);
+    var nh=Math.min(3,eh.length),na=Math.min(10-nh,ea.length);
+    if(na+nh<10)nh=Math.min(eh.length,10-na);
+    var items=ea.slice(0,na).map(function(x){return{t:x,p:1};}).concat(eh.slice(0,nh).map(function(x){return{t:x,p:2};}));
     items.sort(function(a,b){return a.t.localeCompare(b.t,"fr");});
     var got={},extra=0,left=lDur,running=false;
     function score(){var s=extra;for(var k in got)if(got[k])s+=items[k].p;return s;}
@@ -2455,7 +2462,7 @@
     function ready(){
       P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+team+' · '+lDur+' secondes</div>'+
         '<h2 class="qtext">'+esc(cat.c)+'</h2>'+
-        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. Les réponses <b>⭐ difficiles</b> valent 2 points.</p></div>'+
+        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. L\'appli en cache <b>'+items.length+'</b> : tu coches celles qui sont dites. Les <b>⭐ difficiles</b> valent 2 points.</p></div>'+
         '<div class="foot"><button class="btn" id="lgo">▶️ Top chrono</button><button class="linkbtn" id="lother">Autre catégorie</button></div>';
       el("lgo").addEventListener("click",run);
       el("lother").addEventListener("click",function(){
@@ -2468,20 +2475,18 @@
     function paint(){
       el("ltime").textContent=left;
       el("lscore").textContent=score()+" pt"+(score()>1?"s":"");
-      el("lextra").textContent="➕ Autre réponse"+(extra?" ("+extra+")":"");
+      el("lfound").textContent=count()+" / "+items.length;
       el("lbar").style.width=(100*left/lDur)+"%";
       el("ltime").parentNode.classList.toggle("hurry",left<=10);
     }
     function run(){
       running=true;
-      P.innerHTML='<div class="lhead"><div class="lcat">'+esc(cat.c)+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
-        '<div class="lgrid" id="lgrid">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
-        '<div class="foot lfoot"><div class="row3"><button class="btn ghost sm" id="lextra"></button><button class="btn ghost sm" id="lminus">➖</button><button class="btn sm" id="lstop">⏹ Stop</button></div></div>';
+      P.innerHTML='<div class="lhead"><div class="lcat">'+esc(cat.c)+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lfound"></span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
+        '<div class="lgrid ten" id="lgrid">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        '<div class="foot lfoot"><button class="btn sm" id="lstop">⏹ Stop</button></div>';
       Array.prototype.forEach.call(P.querySelectorAll(".lchip"),function(b){
-        b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);paint();});
+        b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);paint();if(count()>=items.length)setTimeout(done,600);});
       });
-      el("lextra").addEventListener("click",function(){extra++;paint();});
-      el("lminus").addEventListener("click",function(){if(extra>0){extra--;paint();}});
       el("lstop").addEventListener("click",done);
       paint();
       clearT();
@@ -2497,8 +2502,8 @@
       P.innerHTML='<div class="body">'+
         '<div class="chip"><span class="dot"></span>Temps écoulé</div>'+
         '<h2 class="qtext">'+team+' : '+s+' point'+(s>1?'s':'')+'</h2>'+
-        '<p class="instr">'+n+' réponse'+(n>1?'s':'')+' trouvée'+(n>1?'s':'')+' sur « '+esc(cat.c)+' ».</p>'+
-        (missed.length?'<details class="missed"><summary>Voir les '+missed.length+' réponses oubliées</summary><p>'+missed.map(function(it){return (it.p>1?'⭐ ':'')+esc(it.t);}).join(" · ")+'</p></details>':'<p class="instr"><b>Liste complète, chapeau !</b></p>')+
+        '<p class="instr">'+n+' réponse'+(n>1?'s':'')+' trouvée'+(n>1?'s':'')+' sur '+items.length+' : « '+esc(cat.c)+' ».</p>'+
+        (missed.length?'<details class="missed"><summary>Voir '+(missed.length>1?'les '+missed.length+' réponses manquées':'la réponse manquée')+'</summary><p>'+missed.map(function(it){return (it.p>1?'⭐ ':'')+esc(it.t);}).join(" · ")+'</p></details>':'<p class="instr"><b>Liste complète, chapeau !</b></p>')+
         boardHTML()+
       '</div>'+
       '<div class="foot"><button class="btn" id="lnext">Au tour de '+teamName((idx+1)%lTeams)+' →</button><button class="linkbtn" id="lquit">Terminer la partie</button></div>';
