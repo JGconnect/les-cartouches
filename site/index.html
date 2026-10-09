@@ -99,6 +99,14 @@
   .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
   .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
   .lchip.hard{border-style:dashed}
+  .disc{font-size:64px;line-height:1;margin:6px auto}
+  .disc.spin{animation:dspin 2.4s linear infinite}
+  @keyframes dspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .songcard{display:flex;gap:14px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+  .songcard img{width:64px;height:64px;border-radius:10px;flex:none;object-fit:cover}
+  .songcard .st{font-family:var(--display);font-weight:800;font-size:18px;line-height:1.15}
+  .songcard .sa{font-size:14px;color:var(--ink-soft);margin-top:3px}
+  .credit{margin:0;font-size:11.5px;color:var(--ink-faint)}
   .lbonus{display:grid;gap:8px;text-align:center}.lbonus[hidden]{display:none}
   .lbonus .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
   .lbx{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -117,7 +125,7 @@
   .row3 .btn{padding:13px 8px;font-size:15px}
   .chips.pick .pchip.on{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 30%, var(--surface-2));color:var(--ink)}
   .pad{gap:10px}.pad .pp{color:var(--ga);font-variant-numeric:tabular-nums;margin-left:4px}
-  #qlvl{grid-template-columns:repeat(2,1fr)}
+  #qlvl,#btcat{grid-template-columns:repeat(2,1fr)}
   .bigletter{font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:var(--ga);text-align:center}
   .bigletter.sm{font-size:72px}
   .brow2{display:flex;align-items:center;justify-content:center;gap:22px}.brow2 .ring{width:130px;height:130px;margin:0}.brow2 .ring .num{font-size:44px}
@@ -1701,6 +1709,10 @@
      rules:["Quelqu'un lit à voix haute une <b>réplique culte</b> : film, série, dessin animé, personnage historique, pub, théâtre ou télé.","Les autres crient <b>qui l'a dite</b> ou d'où elle vient.","Trois niveaux : <b>facile</b> (1 point), <b>moyen</b> (2 points), <b>difficile</b> (3 points). En mode « Progressif », la partie monte en difficulté."]},
     {id:"vraifaux",name:"Vrai ou faux ?",em:"✅",gc:"#fdcb6e",tg:"Des anecdotes étonnantes : tu y crois ou pas ?",type:"vraifaux",cat:"quiz",partie:15,
      rules:["Le téléphone affiche une <b>affirmation étonnante</b>.","À trois, tout le monde vote : <b>pouce en l'air</b> pour vrai, <b>pouce en bas</b> pour faux.","On révèle la réponse avec l'explication : <b>1 point</b> pour chaque personne qui avait bon."]},
+    {id:"blindtest",name:"Blind test",em:"🎧",gc:"#ff5e78",tg:"De vrais extraits : musique, films, séries.",type:"blindtest",cat:"quiz",
+     rules:["Le téléphone joue un <b>vrai extrait</b> de 30 secondes : chanson, musique de film ou générique de série. Monte le son !","Le premier qui reconnaît crie la réponse : <b>1 point</b> pour le titre, <b>1 point de plus</b> pour l'artiste (ou le compositeur).","Choisis la catégorie avant de lancer. Il faut une <b>connexion internet</b> : les extraits viennent de Deezer (ou d'Apple Music)."]},
+    {id:"paroles",name:"N'oubliez pas les paroles",em:"🎤",gc:"#f9a826",tg:"La musique s'arrête : continue les paroles !",type:"paroles",cat:"quiz",
+     rules:["Le téléphone joue une chanson connue… et <b>coupe la musique d'un coup</b>, au hasard.","La personne au micro doit <b>continuer les paroles</b> toute seule, sans musique.","On relance la musique là où elle s'était arrêtée pour <b>vérifier</b>. Réussi : <b>2 points</b>. Il faut une connexion internet."]},
     {id:"histoire",name:"L'Histoire à la chaîne",em:"📖",gc:"#a29bfe",tg:"Chacun continue l'histoire avec un mot imposé.",type:"histoire",cat:"quiz",
      rules:["Le téléphone donne le <b>début d'une histoire</b>.","À tour de rôle, chacun la continue en une ou deux phrases, en casant le <b>mot imposé</b> qui s'affiche pour lui.","Pas de points : le but, c'est que l'histoire parte n'importe où. On peut changer de mot ou démarrer une nouvelle histoire."]}
   ];
@@ -1718,7 +1730,7 @@
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}}
   function show(name){
-    clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();
+    clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();if(typeof stopAudio==="function")stopAudio();
     for(var k in screens)screens[k].hidden=(k!==name);
     el("back").classList.toggle("show",name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
@@ -1862,6 +1874,8 @@
     }
     function segOpts(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
     if(G.id==="quiadit")opts=segOpts("qlvl","Difficulté",["f","m","d","mix"],qLvl,function(n){return {f:'🟢 Facile<span class="s">1 point</span>',m:'🟠 Moyen<span class="s">2 points</span>',d:'🔴 Difficile<span class="s">3 points</span>',mix:'📈 Progressif<span class="s">les trois</span>'}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
+    if(G.id==="blindtest")opts=segOpts("btcat","Catégorie",["musique","films","series","mix"],btCat,function(n){return {musique:"🎵 Musique",films:"🎬 Films",series:"📺 Séries",mix:"🎲 Mélange"}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
+    if(G.id==="paroles"&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le micro et compter les points.</p>';
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
     if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
     if((G.id==="fredonne"||G.id==="vraifaux")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
@@ -1893,7 +1907,7 @@
         });
       });
     }
-    [["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+    [["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -1952,6 +1966,8 @@
         showProg=true;break;
       case"vraifaux":deck=shuffle(VRAIFAUX);showProg=true;break;
       case"histoire":deck=freshAll("histoire",HIST_DEBUTS);showProg=false;break;
+      case"blindtest":deck=freshFirst("bt_"+btCat,shuffle(btPool(btCat)),btPool(btCat).length);aPos=0;showProg=false;break;
+      case"paroles":deck=freshFirst("paroles",shuffle(btPool("musique")),btPool("musique").length);aPos=0;showProg=false;break;
     }
     qScores={};finalHTML="";padHist=[];
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
@@ -2001,6 +2017,8 @@
     if(G.type==="quiadit")return renderQuiadit(P);
     if(G.type==="vraifaux")return renderVraifaux(P);
     if(G.type==="histoire")return renderHistoire(P);
+    if(G.type==="blindtest")return renderBlindtest(P);
+    if(G.type==="paroles")return renderParoles(P);
   }
 
   function bannerHTML(g,who){return '<div class="banner"><span class="em">'+g.em+'</span><div><div class="lbl">'+g.vic+'</div><div class="name">'+esc(who)+'</div></div></div>';}
@@ -2869,6 +2887,209 @@
     wirePad(P);
     el("vnext").addEventListener("click",nextOrEnd);
     el("vquit").addEventListener("click",quitQuiz);
+  }
+
+  var BT_FILMS=[
+    "Star Wars Main Title John Williams|Star Wars",
+    "Imperial March John Williams|Star Wars (la Marche impériale)",
+    "Jurassic Park Theme John Williams|Jurassic Park",
+    "Raiders March John Williams|Indiana Jones",
+    "Hedwig's Theme John Williams|Harry Potter",
+    "He's a Pirate Klaus Badelt|Pirates des Caraïbes",
+    "Jaws Main Title John Williams|Les Dents de la mer",
+    "Back to the Future Alan Silvestri|Retour vers le futur",
+    "The Avengers Alan Silvestri|Avengers",
+    "Superman Theme John Williams|Superman",
+    "Comptine d'un autre été Yann Tiersen|Le Fabuleux Destin d'Amélie Poulain",
+    "Una Mattina Ludovico Einaudi|Intouchables",
+    "The Good the Bad and the Ugly Ennio Morricone|Le Bon, la Brute et le Truand",
+    "Once Upon a Time in the West Ennio Morricone|Il était une fois dans l'Ouest",
+    "Mission Impossible Theme Lalo Schifrin|Mission : Impossible",
+    "James Bond Theme Monty Norman|James Bond",
+    "Skyfall Adele|Skyfall (James Bond)",
+    "Ghostbusters Ray Parker Jr|SOS Fantômes",
+    "Eye of the Tiger Survivor|Rocky III",
+    "Gonna Fly Now Bill Conti|Rocky",
+    "Stayin' Alive Bee Gees|La Fièvre du samedi soir",
+    "My Heart Will Go On Celine Dion|Titanic",
+    "Let It Go Idina Menzel|La Reine des neiges",
+    "Circle of Life Lion King|Le Roi lion",
+    "Time Hans Zimmer Inception|Inception",
+    "Lux Aeterna Clint Mansell|Requiem for a Dream",
+    "Axel F Harold Faltermeyer|Le Flic de Beverly Hills",
+    "Concerning Hobbits Howard Shore|Le Seigneur des anneaux",
+    "The Pink Panther Theme Henry Mancini|La Panthère rose",
+    "Time of My Life Bill Medley Jennifer Warnes|Dirty Dancing",
+    "Reality Richard Sanderson|La Boum",
+    "Vois sur ton chemin Les Choristes|Les Choristes",
+    "Shallow Lady Gaga Bradley Cooper|A Star Is Born",
+    "Married Life Michael Giacchino|Là-haut"
+  ];
+  var BT_SERIES=[
+    "Game of Thrones Main Title Ramin Djawadi|Game of Thrones",
+    "I'll Be There for You The Rembrandts|Friends",
+    "The Simpsons Main Title Theme Danny Elfman|Les Simpson",
+    "Stranger Things Kyle Dixon Michael Stein|Stranger Things",
+    "Bella Ciao Manu Pilas|La Casa de Papel",
+    "The X-Files Mark Snow|X-Files",
+    "Breaking Bad Main Title Dave Porter|Breaking Bad",
+    "Twin Peaks Theme Angelo Badalamenti|Twin Peaks",
+    "Red Right Hand Nick Cave|Peaky Blinders",
+    "The History of Everything Barenaked Ladies|The Big Bang Theory",
+    "Hey Beautiful The Solids|How I Met Your Mother",
+    "Way Back Then Jung Jae-il|Squid Game",
+    "The Crown Main Title Hans Zimmer|The Crown",
+    "Tuyo Rodrigo Amarante|Narcos",
+    "Prison Break Main Title Ramin Djawadi|Prison Break",
+    "The Office Theme Jay Ferguson|The Office",
+    "Sherlock Opening Titles David Arnold Michael Price|Sherlock",
+    "Doctor Who Theme Ron Grainer|Doctor Who",
+    "Downton Abbey Suite John Lunn|Downton Abbey",
+    "Cha-La Head-Cha-La Hironobu Kageyama|Dragon Ball Z",
+    "Capitaine Flam Jean-Jacques Debout|Capitaine Flam",
+    "Scooby-Doo Where Are You|Scooby-Doo",
+    "Pokémon générique français|Pokémon",
+    "Wednesday Danny Elfman|Mercredi"
+  ];
+  var btCat="mix";
+  function btPool(c){
+    var mus=CHANSONS.map(function(x){return {q:songQuery(x),a:null,k:"🎵 Musique"};});
+    var fil=BT_FILMS.map(function(x){var p=x.split("|");return {q:p[0],a:p[1],k:"🎬 Film"};});
+    var ser=BT_SERIES.map(function(x){var p=x.split("|");return {q:p[0],a:p[1],k:"📺 Série"};});
+    return c==="musique"?mus:c==="films"?fil:c==="series"?ser:mus.concat(fil,ser);
+  }
+  /* ---------------- EXTRAITS MUSICAUX (aperçus officiels de 30 s : Deezer, sinon Apple) ---------------- */
+  var bAudio=null, jsonpN=0, aTimer=null;
+  function stopAudio(){if(aTimer){clearInterval(aTimer);aTimer=null;}if(bAudio){try{bAudio.pause();}catch(e){}}}
+  function jsonp(url,cbName,done){
+    var name="__cart_cb"+(++jsonpN),sc=document.createElement("script"),fin=false;
+    var to=setTimeout(function(){if(fin)return;fin=true;cleanup();done(null);},7000);
+    function cleanup(){try{delete window[name];}catch(e){window[name]=undefined;}if(sc.parentNode)sc.parentNode.removeChild(sc);}
+    window[name]=function(d){if(fin)return;fin=true;clearTimeout(to);cleanup();done(d);};
+    sc.onerror=function(){if(fin)return;fin=true;clearTimeout(to);cleanup();done(null);};
+    sc.src=url+(url.indexOf("?")<0?"?":"&")+cbName+"="+name;
+    document.head.appendChild(sc);
+  }
+  function songQuery(s){var p=s.split("|"),art=p[1]||"";if(/^(Chant|Hymne|Générique|Roméo|Notre-Dame|La Reine|Le Roi|Le Livre|La Petite|Aladdin)/.test(art))art="";return (p[0].replace(/[…!?]/g," ")+" "+art).trim();}
+  function fetchPreview(item,cb){
+    var q=encodeURIComponent(item.q);
+    jsonp("https://api.deezer.com/search?q="+q+"&limit=5&output=jsonp","callback",function(d){
+      var t=d&&d.data&&d.data.filter(function(x){return x.preview;})[0];
+      if(t)return cb({url:t.preview,title:t.title,artist:t.artist&&t.artist.name,cover:t.album&&t.album.cover_medium,src:"Deezer"});
+      jsonp("https://itunes.apple.com/search?term="+q+"&media=music&entity=song&limit=5&country=fr","callback",function(d2){
+        var r=d2&&d2.results&&d2.results.filter(function(x){return x.previewUrl;})[0];
+        if(r)return cb({url:r.previewUrl,title:r.trackName,artist:r.artistName,cover:r.artworkUrl100,src:"Apple Music"});
+        cb(null);
+      });
+    });
+  }
+  function getAudio(){if(!bAudio){bAudio=new Audio();bAudio.preload="auto";}return bAudio;}
+  function songCardHTML(t){return (t.a?'<div class="answer"><div class="as">'+t.k+'</div><div class="aw">'+esc(t.a)+'</div></div>':'')+'<div class="songcard">'+(t.cover?'<img src="'+esc(t.cover)+'" alt="">':'')+'<div><div class="st">'+esc(t.title)+'</div><div class="sa">'+esc(t.artist||"")+'</div></div></div>';}
+  function loadingHTML(msg){return '<div class="body"><div class="chip"><span class="dot"></span>Chargement</div><h2 class="qtext sm">'+msg+'</h2><p class="instr">Il faut une connexion internet pour les extraits.</p></div>';}
+  function audioFailHTML(){return '<div class="body"><div class="chip"><span class="dot"></span>Pas d\'extrait</div><h2 class="qtext sm">Impossible de charger la musique.</h2><p class="instr">Vérifie la connexion internet, puis réessaie.</p></div>'+
+    '<div class="foot"><button class="btn" id="aretry">🔄 Réessayer avec une autre chanson</button><button class="linkbtn" id="aquit">Terminer la partie</button></div>';}
+  var aPos=0;
+  function nextSong(){var s=deck[aPos%deck.length];aPos++;return s;}
+
+  /* ---------------- BLIND TEST ---------------- */
+  function renderBlindtest(P){
+    var track=null;
+    function load(){
+      stopAudio();P.innerHTML=loadingHTML("On cherche le prochain extrait…");
+      var cur0=nextSong();
+      fetchPreview(cur0,function(t){
+        if(!t){P.innerHTML=audioFailHTML();el("aretry").addEventListener("click",load);el("aquit").addEventListener("click",quitQuiz);return;}
+        t.a=cur0.a;t.k=cur0.k;track=t;var a=getAudio();a.src=t.url;try{a.load();}catch(e){}
+        ready();
+      });
+    }
+    function cur0k(){return track.k||"🎵 Musique";}
+    function ready(){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Extrait '+(idx+1)+'</div>'+
+        '<div class="disc" id="disc">🎧</div>'+
+        '<p class="instr"><b>'+cur0k()+'</b> · Monte le son. '+(track.a?'Dès que tu reconnais, crie <b>le titre du film ou de la série</b> (1 point, 2 si tu trouves aussi le compositeur ou l\'interprète).':'Dès que tu reconnais, crie le <b>titre</b> (1 point) et l\'<b>artiste</b> (1 point de plus).')+'</p></div>'+
+        '<div class="foot"><button class="btn" id="bplay">▶️ Lancer l\'extrait</button><button class="linkbtn" id="bskip">Passer cette chanson</button></div>';
+      el("bplay").addEventListener("click",play);
+      el("bskip").addEventListener("click",load);
+    }
+    function play(){
+      var a=getAudio();a.currentTime=0;
+      var p=a.play();if(p&&p.catch)p.catch(function(){});
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Écoutez !</div>'+
+        '<div class="disc spin">🎧</div><div class="lbarw"><div class="lbar" id="abar"></div></div>'+
+        '<p class="instr">Quelqu\'un a trouvé ? Touche « Stop ».</p></div>'+
+        '<div class="foot"><button class="btn found" id="bstop">✋ Stop, on a une réponse !</button><button class="btn ghost sm" id="breveal">Personne ne trouve → révéler</button></div>';
+      aTimer=setInterval(function(){var d=a.duration||30;el("abar").style.width=Math.min(100,100*a.currentTime/d)+"%";if(a.ended){stopAudio();reveal(false);}},250);
+      el("bstop").addEventListener("click",function(){stopAudio();reveal(true);});
+      el("breveal").addEventListener("click",function(){stopAudio();reveal(false);});
+    }
+    function reveal(someone){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(someone?'Alors, c\'était…':'C\'était…')+'</div>'+songCardHTML(track)+
+        padHTML(track.a?"Qui a trouvé ? +1 le titre, +1 le bonus":"Qui a trouvé ? +1 le titre, +1 l'artiste")+'<p class="credit">Extrait fourni par '+track.src+'</p></div>'+
+        '<div class="foot"><button class="btn ghost sm" id="bagain">🔁 Réécouter</button><button class="btn" id="bnext">Extrait suivant →</button><button class="linkbtn" id="bquit">Terminer la partie</button></div>';
+      wirePad(P);
+      el("bagain").addEventListener("click",function(){var a=getAudio();if(a.paused){a.play();el("bagain").textContent="⏸ Pause";}else{a.pause();el("bagain").textContent="🔁 Réécouter";}});
+      el("bnext").addEventListener("click",function(){stopAudio();idx++;renderRound();});
+      el("bquit").addEventListener("click",function(){stopAudio();quitQuiz();});
+    }
+    load();
+  }
+
+  /* ---------------- N'OUBLIEZ PAS LES PAROLES (version maison) ---------------- */
+  function renderParoles(P){
+    var named=players.length>=2, singer=named?vics[idx%vics.length]:"la personne au micro", track=null, cut=0;
+    function newCut(){var d=(getAudio().duration&&isFinite(getAudio().duration))?getAudio().duration:30;cut=Math.round((10+Math.random()*Math.max(4,d-20))*10)/10;}
+    function load(){
+      stopAudio();P.innerHTML=loadingHTML("On cherche la chanson de "+esc(singer)+"…");
+      fetchPreview(nextSong(),function(t){
+        if(!t){P.innerHTML=audioFailHTML();el("aretry").addEventListener("click",load);el("aquit").addEventListener("click",quitQuiz);return;}
+        track=t;var a=getAudio();a.src=t.url;try{a.load();}catch(e){}
+        newCut();ready();
+      });
+    }
+    function ready(){
+      P.innerHTML='<div class="banner"><span class="em">🎤</span><div><div class="lbl">Au micro</div><div class="name">'+esc(singer)+'</div></div></div>'+
+        '<div class="body">'+songCardHTML(track)+
+        '<p class="instr">La musique va <b>s\'arrêter d\'un coup</b>. '+esc(singer)+' doit continuer à chanter les paroles, seul·e, sans musique. Ensuite, on relance pour vérifier.</p></div>'+
+        '<div class="foot"><button class="btn" id="pplay">▶️ Lancer la musique</button><button class="linkbtn" id="pskip">Je ne connais pas cette chanson → une autre</button></div>';
+      el("pplay").addEventListener("click",listen);
+      el("pskip").addEventListener("click",load);
+    }
+    function listen(){
+      var a=getAudio();a.currentTime=0;var p=a.play();if(p&&p.catch)p.catch(function(){});
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Écoute bien…</div>'+songCardHTML(track)+'<div class="disc spin">🎵</div><div class="lbarw"><div class="lbar" id="abar"></div></div></div>'+
+        '<div class="foot"><p class="instr">La musique va s\'arrêter toute seule.</p></div>';
+      aTimer=setInterval(function(){
+        el("abar").style.width=Math.min(100,100*a.currentTime/cut)+"%";
+        if(a.currentTime>=cut||a.ended){stopAudio();sing();}
+      },100);
+    }
+    function sing(){
+      P.innerHTML='<div class="banner"><span class="em">🎤</span><div><div class="lbl">À toi de chanter</div><div class="name">'+esc(singer)+'</div></div></div>'+
+        '<div class="body"><div class="disc">🤫</div><h2 class="qtext sm">Continue les paroles !</h2><p class="instr">Une ou deux phrases, sans la musique. Puis on vérifie.</p></div>'+
+        '<div class="foot"><button class="btn" id="pcheck">▶️ Vérifier (la musique reprend)</button><button class="btn ghost sm" id="precut">Pas de paroles à cet endroit → couper ailleurs</button></div>';
+      el("pcheck").addEventListener("click",check);
+      el("precut").addEventListener("click",function(){newCut();listen();});
+    }
+    function check(){
+      var a=getAudio();a.currentTime=cut;var p=a.play();if(p&&p.catch)p.catch(function(){});
+      var end=cut+9;
+      aTimer=setInterval(function(){if(a.currentTime>=end||a.ended){stopAudio();}},150);
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Vérification</div>'+songCardHTML(track)+'<div class="disc spin">🎵</div>'+
+        '<p class="instr">C\'étaient bien ces paroles-là ?</p><p class="credit">Extrait fourni par '+track.src+'</p></div>'+
+        '<div class="foot"><div class="row2"><button class="btn yes" id="pok">✅ Réussi</button><button class="btn no" id="pko">❌ Raté</button></div><button class="btn ghost sm" id="pagain">🔁 Réécouter ce passage</button></div>';
+      el("pagain").addEventListener("click",function(){stopAudio();check();});
+      el("pok").addEventListener("click",function(){stopAudio();if(named)addPts(singer,2);result(true);});
+      el("pko").addEventListener("click",function(){stopAudio();result(false);});
+    }
+    function result(ok){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(ok?'Bravo !':'Raté…')+'</div>'+songCardHTML(track)+
+        (named?'<p class="instr">'+(ok?'<b>'+esc(singer)+'</b> marque 2 points.':'Pas de point cette fois.')+'</p>':'')+boardHTML()+'</div>'+
+        '<div class="foot"><button class="btn" id="pnext">Chanson suivante →</button><button class="linkbtn" id="pquit">Terminer la partie</button></div>';
+      el("pnext").addEventListener("click",function(){idx++;renderRound();});
+      el("pquit").addEventListener("click",quitQuiz);
+    }
+    load();
   }
 
   /* ---------------- L'HISTOIRE À LA CHAÎNE ---------------- */

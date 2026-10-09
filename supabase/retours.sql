@@ -25,7 +25,7 @@ create table if not exists public.retours (
   constraint retours_jeu_valide check (jeu in (
     'ouinon','ninon','menteur','coupable',
     'cascade','chrono','tribunal','dilemme',
-    'devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire'
+    'devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire','blindtest','paroles'
   )),
   -- Pouce en haut (1) ou pouce en bas (-1) uniquement
   constraint retours_vote_valide check (vote in (-1, 1)),
@@ -56,7 +56,7 @@ create policy "insertion publique des avis"
   with check (
     jeu in ('ouinon','ninon','menteur','coupable',
             'cascade','chrono','tribunal','dilemme',
-            'devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire')
+            'devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire','blindtest','paroles')
     and vote in (-1, 1)
     and (commentaire is null or char_length(commentaire) <= 200)
     and mode in ('gages','alcool')
@@ -85,9 +85,9 @@ order by score desc, total_avis desc;
 -- ---------------------------------------------------------------------
 -- alter table public.retours drop constraint retours_jeu_valide;
 -- alter table public.retours add constraint retours_jeu_valide check (jeu in (
---   'ouinon','ninon','menteur','coupable','cascade','chrono','tribunal','dilemme','devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire'));
+--   'ouinon','ninon','menteur','coupable','cascade','chrono','tribunal','dilemme','devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire','blindtest','paroles'));
 -- drop policy if exists "insertion publique des avis" on public.retours;
 -- create policy "insertion publique des avis" on public.retours for insert to anon with check (
---   jeu in ('ouinon','ninon','menteur','coupable','cascade','chrono','tribunal','dilemme','devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire')
+--   jeu in ('ouinon','ninon','menteur','coupable','cascade','chrono','tribunal','dilemme','devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire','blindtest','paroles')
 --   and vote in (-1, 1) and (commentaire is null or char_length(commentaire) <= 200)
 --   and mode in ('gages','alcool') and nb_joueurs between 0 and 16);
