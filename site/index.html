@@ -142,7 +142,7 @@
   .answer .as{font-size:14.5px;color:var(--ink-soft);line-height:1.45}
   .answer .ac{font-size:13.5px;color:var(--ink-faint);line-height:1.45;font-style:italic;margin-top:2px}
   .answer.ok{border-color:#2bb673}.answer.ok .aw{color:#2bb673}.answer.ko{border-color:#e5484d}.answer.ko .aw{color:#e5484d}
-  #qans,#vans{display:grid;gap:12px}#qans[hidden],#vans[hidden]{display:none}
+  #qans,#vans,#aans{display:grid;gap:12px}#qans[hidden],#vans[hidden],#aans[hidden]{display:none}
   .hstart{font-size:17px;line-height:1.5;font-style:italic;color:var(--ink-soft);margin:0}
   .hturn{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:grid;gap:4px}
   .hturn .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-top:6px}
@@ -1732,6 +1732,122 @@
   var HIST_DEBUTS=["Ce matin-là, en ouvrant mon frigo, j'ai trouvé un petit mot qui disait : « Ne mange surtout pas le yaourt. »","Le chauffeur du bus s'est arrêté au milieu de la route et a annoncé : « Changement de programme. »","Ma grand-mère m'a appelé à trois heures du matin pour me dire qu'elle avait gagné quelque chose.","Le jour de mon mariage, le témoin est arrivé déguisé en dinosaure.","En rentrant de vacances, on a découvert que quelqu'un avait vécu chez nous pendant notre absence.","Mon chat a disparu pendant une semaine, puis il est revenu avec un collier en or.","Le prof a fermé la porte à clé et a dit : « Personne ne sort tant que le coupable ne s'est pas dénoncé. »","À la caisse du supermarché, la caissière m'a regardé et a chuchoté : « Ils vous cherchent. »","Pendant la nuit, toutes les voitures de la ville ont été repeintes en rose.","Je me suis réveillé dans un pays dont je ne parlais pas la langue, avec un chameau attaché à ma valise.","Le GPS a dit : « Dans 200 mètres, faites demi-tour… et ne vous retournez pas. »","Mon voisin a frappé à ma porte avec un gâteau et une pelle.","Ce soir-là, au restaurant, le serveur nous a apporté un plat que personne n'avait commandé.","L'équipe de foot du village s'est qualifiée pour la Coupe du monde, à la surprise générale.","En creusant dans le jardin, papa a trouvé un vieux coffre avec mon prénom gravé dessus.","Le jour de la rentrée, le nouveau professeur était un robot.","Un matin, les animaux du zoo se sont mis à parler.","Au milieu du concert, le chanteur s'est arrêté et m'a désigné du doigt.","On était perdus en pleine forêt quand on a vu une lumière clignoter au loin.","Le téléphone a sonné : c'était moi, avec dix ans de plus.","Ma colocataire est rentrée avec un pingouin sous le bras.","Le jour où j'ai gagné au loto, j'ai perdu le ticket dans le bus.","Pendant l'entretien d'embauche, le patron a sorti un jeu de cartes.","Sur l'aire d'autoroute, un inconnu nous a demandé de garder sa valise cinq minutes.","Quand j'ai ouvert le colis, il était vide… à part une carte au trésor.","Le maire a annoncé que, désormais, il serait interdit de sourire le lundi.","En pleine nuit, le bus s'est arrêté devant un château qui n'était sur aucune carte.","Ma tante a décidé de faire le tour du monde en trottinette.","Le facteur m'a remis une lettre datée de 1952, adressée à mon nom.","Au camping, la tente des voisins a commencé à chanter."];
   var HIST_MOTS=["parapluie","licorne","saucisson","astronaute","grand-mère","volcan","perruque","trampoline","pingouin","moustache","baguette","fantôme","karaoké","tracteur","bisou","fromage","hélicoptère","pyjama","dentiste","crocodile","pirate","raclette","sirène","trottinette","cactus","chaussette","ninja","momie","banane","château","police","tatouage","dinosaure","magicien","camping-car","escargot","wifi","selfie","boulangerie","fusée","sorcière","boule à facettes","clown","pizza","robot","moustique","guitare","prison","Père Noël","chewing-gum","lama","influenceur","casserole","tempête","mariage","perroquet","sous-marin","patin à glace","zombie","cornichon","piscine","rap","marathon","pharaon","cow-boy","bouée canard","hamster","trésor","éclair","ascenseur","lasagnes","yoga","dragon","poubelle","Tour Eiffel","pétanque","chevalier","coiffeur","accordéon","carte bleue","coupe du monde","sumo","croissant","laser","ours polaire","boomerang","tutu","miroir","vélo","Las Vegas","biberon","cascade","crêpe","bowling","horoscope","nain de jardin","tornade","talons aiguilles","taupe","jacuzzi"];
 
+  /* ---------------- OÙ SUIS-JE ? : lieu | catégorie | 5 indices du plus vague au plus précis ---------------- */
+  var LIEUX=[
+    ["Marseille","france","Une grande ville du sud de la France.","Un port très ancien, ouvert sur la Méditerranée.","On y mange la bouillabaisse.","On y voit le Vieux-Port et la « Bonne Mère » qui veille sur la ville.","Son club de foot, c'est l'OM."],
+    ["Lyon","france","La troisième ville de France.","Deux cours d'eau s'y rejoignent : le Rhône et la Saône.","Ses petits restaurants traditionnels s'appellent des « bouchons ».","Chaque 8 décembre, la ville s'illumine pour la Fête des Lumières.","Les frères Lumière y ont tourné les premiers films du cinéma."],
+    ["Bordeaux","france","Une grande ville du sud-ouest.","Elle est traversée par la Garonne.","On la dit capitale mondiale du vin.","Son « miroir d'eau » reflète la place de la Bourse.","Spécialité : le canelé."],
+    ["Strasbourg","france","Une ville de l'est, tout près de la frontière allemande.","Elle accueille le Parlement européen.","Son marché de Noël est l'un des plus célèbres d'Europe.","Sa cathédrale gothique et le quartier de la Petite France.","On y mange choucroute et tarte flambée."],
+    ["Nice","france","Une ville de la Côte d'Azur.","On s'y promène sur la Promenade des Anglais.","Elle a donné son nom à une salade.","Son carnaval est l'un des plus célèbres du monde.","Elle est toute proche de Monaco et de l'Italie."],
+    ["Toulouse","france","Une grande ville du sud-ouest.","On l'appelle la « Ville rose », à cause de ses briques.","Les avions Airbus y sont assemblés.","Sa grande place s'appelle le Capitole.","Son équipe de rugby, le Stade toulousain, est la plus titrée de France."],
+    ["Lille","france","Une grande ville du nord de la France.","Elle est toute proche de la Belgique.","Chaque septembre, elle organise une gigantesque braderie.","On y mange des moules-frites et du welsh.","Le maroilles n'est pas loin."],
+    ["Saint-Malo","france","Une ville de Bretagne, au bord de la mer.","Elle est entourée de remparts.","On l'appelle la cité corsaire.","Ses marées sont parmi les plus fortes d'Europe.","C'est le point de départ de la Route du Rhum."],
+    ["Le Mont-Saint-Michel","france","Un lieu de Normandie, tout près de la Bretagne.","Une abbaye perchée sur un rocher.","À marée haute, la mer l'entoure.","On y mange l'omelette de la Mère Poulard.","Un des sites les plus visités de France, inscrit au patrimoine mondial de l'UNESCO."],
+    ["Chamonix","france","Une ville de montagne, en Haute-Savoie.","Les premiers Jeux olympiques d'hiver s'y sont déroulés, en 1924.","Un téléphérique monte à l'Aiguille du Midi.","C'est la capitale de l'alpinisme.","Elle est au pied du mont Blanc."],
+    ["Versailles","france","Une ville tout près de Paris.","Un roi y a installé toute sa cour.","Ses jardins ont été dessinés par Le Nôtre.","La galerie des Glaces.","Le château de Louis XIV."],
+    ["Ajaccio","france","Une ville sur une île française.","C'est un port, au fond d'un grand golfe.","C'est la préfecture de la Corse-du-Sud.","Un empereur y est né en 1769.","La ville natale de Napoléon."],
+    ["Cannes","france","Une ville de la Côte d'Azur.","On s'y promène sur la Croisette.","Chaque mai, des stars y montent les marches.","Un tapis rouge célèbre dans le monde entier.","On y remet la Palme d'or."],
+    ["Carcassonne","france","Une ville d'Occitanie.","Elle possède une cité médiévale entourée d'une double enceinte de remparts.","La cité a été restaurée au XIXe siècle par Viollet-le-Duc.","Elle est inscrite au patrimoine mondial de l'UNESCO.","Elle a donné son nom à un jeu de société avec des tuiles."],
+    ["Le Havre","france","Une ville de Normandie.","Un grand port, à l'embouchure de la Seine.","Détruite pendant la guerre, elle a été reconstruite par l'architecte Auguste Perret.","Claude Monet y a peint « Impression, soleil levant ».","Ce tableau a donné son nom à l'impressionnisme."],
+    ["Annecy","france","Une ville de Haute-Savoie.","Elle borde un lac aux eaux très pures.","On la surnomme la « Venise des Alpes ».","Le Palais de l'Île, une ancienne prison au milieu d'un canal.","Elle accueille un grand festival du film d'animation."],
+    ["Biarritz","france","Une ville du Pays basque.","Une station balnéaire aimée de l'impératrice Eugénie.","Une des capitales du surf en Europe.","On y voit le Rocher de la Vierge.","Elle a accueilli le sommet du G7 en 2019."],
+    ["Colmar","france","Une ville d'Alsace.","Maisons à colombages et routes des vins.","Son quartier au bord de l'eau s'appelle la « Petite Venise ».","Le sculpteur de la statue de la Liberté y est né.","Son musée Bartholdi porte le nom de cet enfant du pays."],
+    ["Avignon","france","Une ville de Provence.","Elle a été la résidence des papes au XIVe siècle.","Son Palais des Papes est immense.","Une chanson célèbre parle de son pont.","Chaque juillet, un grand festival de théâtre."],
+    ["Lourdes","france","Une petite ville au pied des Pyrénées.","Des millions de pèlerins y viennent chaque année.","Une grotte où l'on vient chercher l'eau.","En 1858, une jeune fille, Bernadette Soubirous, dit y avoir vu la Vierge.","Un des plus grands lieux de pèlerinage catholique du monde."],
+    ["Rome","monde","Une capitale européenne.","Une ville très ancienne, surnommée la Ville éternelle.","Un autre pays se trouve à l'intérieur de la ville : le Vatican.","On y jette une pièce dans la fontaine de Trevi.","Le Colisée."],
+    ["New York","monde","Une ville d'Amérique du Nord.","On la surnomme « la Grosse Pomme ».","Ses taxis sont jaunes.","Central Park et Times Square.","La statue de la Liberté accueille les bateaux à son entrée."],
+    ["Londres","monde","Une capitale européenne.","Elle est traversée par la Tamise.","Ses bus rouges ont deux étages.","Le palais de Buckingham.","Big Ben."],
+    ["Venise","monde","Une ville d'Italie.","Il n'y a pas de voitures dans ses rues.","La place Saint-Marc.","Son carnaval est célèbre pour ses masques.","On s'y déplace en gondole sur les canaux."],
+    ["Tokyo","monde","Une capitale d'Asie.","Une des plus grandes métropoles du monde.","Elle a accueilli les Jeux olympiques d'été en 1964 et en 2021.","Le carrefour de Shibuya, le plus fréquenté du monde.","Par temps clair, on y voit le mont Fuji."],
+    ["L'Égypte","monde","Un pays d'Afrique.","Un très long fleuve le traverse du sud au nord : le Nil.","Sa capitale est Le Caire.","Il était gouverné par des pharaons.","Les pyramides de Gizeh et le Sphinx."],
+    ["Rio de Janeiro","monde","Une ville d'Amérique du Sud.","On y parle portugais.","La plage de Copacabana.","Le Pain de Sucre et un carnaval géant.","La statue du Christ Rédempteur domine la ville."],
+    ["Barcelone","monde","Une ville d'Espagne.","La capitale de la Catalogne.","On s'y promène sur les Ramblas.","L'architecte Gaudí y a construit des bâtiments étonnants.","La Sagrada Família, toujours en construction."],
+    ["L'Australie","monde","Un pays de l'hémisphère Sud.","On dit que c'est une île-continent.","Sa capitale est Canberra, pas Sydney.","Le grand rocher rouge d'Uluru.","Les kangourous et les koalas."],
+    ["L'Inde","monde","Un pays d'Asie.","Le pays le plus peuplé du monde depuis 2023.","Le Gange y est un fleuve sacré.","Son cinéma s'appelle Bollywood.","Le Taj Mahal."],
+    ["Amsterdam","monde","Une capitale européenne.","Il y a plus de vélos que d'habitants.","Des centaines de ponts et de canaux.","La maison d'Anne Frank s'y visite.","La capitale des Pays-Bas."],
+    ["La Grèce","monde","Un pays d'Europe, au bord de la Méditerranée.","Des milliers d'îles, dont Santorin et ses maisons blanches.","On y mange de la feta et de la moussaka.","Le pays de Zeus et des dieux de l'Olympe.","L'Acropole d'Athènes."],
+    ["Le Canada","monde","Un pays d'Amérique du Nord.","Le deuxième plus grand pays du monde par la superficie.","On y parle anglais et français.","Une feuille d'érable sur son drapeau.","La province du Québec."],
+    ["Le Mexique","monde","Un pays d'Amérique.","On y fête le jour des Morts avec des têtes de mort colorées.","Des pyramides construites par les Mayas et les Aztèques.","Tacos, guacamole et sombreros.","Sa capitale porte le même nom que lui."],
+    ["L'Islande","monde","Un pays d'Europe du Nord.","Une île de volcans, de glaciers et de geysers.","On y observe des aurores boréales.","Un pays sans armée.","Sa capitale est Reykjavik."],
+    ["Le Maroc","monde","Un pays d'Afrique du Nord.","Sa capitale est Rabat.","On y mange le tajine et le couscous.","La place Jemaa el-Fna, à Marrakech.","On le rejoint de l'Espagne par le détroit de Gibraltar."],
+    ["Moscou","monde","Une très grande capitale, où l'hiver est glacial.","Ses stations de métro ressemblent à des palais.","La cathédrale Saint-Basile et ses bulbes colorés.","La place Rouge.","Le Kremlin."],
+    ["Las Vegas","monde","Une ville en plein désert.","On peut s'y marier en quelques minutes.","Ses hôtels reproduisent la tour Eiffel ou Venise.","Une grande avenue illuminée : le Strip.","La capitale mondiale des casinos."],
+    ["La Chine","monde","Un pays d'Asie.","Plus de 1,4 milliard d'habitants.","Le panda géant en est le symbole.","Sa capitale est Pékin.","La Grande Muraille."],
+    ["Le Pérou","monde","Un pays d'Amérique du Sud.","La cordillère des Andes le traverse.","On y croise des lamas et des alpagas.","Sa capitale est Lima.","Le Machu Picchu, la cité perdue des Incas."],
+    ["La Suisse","monde","Un petit pays d'Europe, sans accès à la mer.","On y parle quatre langues nationales.","Célèbre pour ses montres, ses banques et son chocolat.","Sa capitale est Berne, et non Genève.","Le Cervin, et les Alpes partout."],
+    ["Le Sénégal","monde","Un pays d'Afrique de l'Ouest.","On y parle français et wolof.","Le plat national est le thiéboudienne.","L'île de Gorée, mémoire de la traite des esclaves.","Sa capitale est Dakar."],
+    ["Dubaï","monde","Une ville du Moyen-Orient, en plein désert.","Des îles artificielles en forme de palmier.","On peut y skier dans un centre commercial.","La plus haute tour du monde, le Burj Khalifa.","Une ville des Émirats arabes unis."],
+    ["L'Antarctique","monde","Un continent.","Le plus froid de la planète.","Aucun pays ne le possède : un traité international le protège.","La France y a une base scientifique, Dumont-d'Urville.","Le royaume des manchots empereurs."],
+    ["Berlin","monde","Une capitale européenne.","On y mange la currywurst.","La porte de Brandebourg.","Un mur l'a coupée en deux jusqu'en 1989.","La capitale de l'Allemagne."],
+    ["Los Angeles","monde","Une grande ville de la côte ouest des États-Unis.","Elle est en Californie.","Les étoiles des stars sur un trottoir : le Walk of Fame.","De grandes lettres blanches sur une colline.","Le quartier d'Hollywood."],
+    ["La Thaïlande","monde","Un pays d'Asie du Sud-Est.","On y mange le pad thaï.","Des temples bouddhistes dorés.","L'éléphant en est un symbole.","Sa capitale est Bangkok."],
+    ["L'Irlande","monde","Un pays d'Europe, sur une île.","Ses paysages sont si verts qu'on l'appelle l'île d'émeraude.","Le trèfle en est un symbole.","On y fête la Saint-Patrick le 17 mars.","Sa capitale est Dublin."]
+  ];
+
+  /* ---------------- C'ÉTAIT MIEUX AVANT : type | question | réponse | explication ---------------- */
+  var AVANT=[
+    "avant|Un terminal à écran, branché sur la ligne téléphonique, pour consulter l'annuaire ou réserver un billet de train dans les années 80 et 90, avant Internet.|Le Minitel|On tapait « 3615 » suivi du nom du service.",
+    "avant|Une petite cabine vitrée dans la rue, pour téléphoner avec des pièces, puis avec une carte.|La cabine téléphonique|La carte s'appelait la télécarte, et on en faisait collection.",
+    "avant|Un baladeur avec un casque pour écouter de la musique en marchant, sur cassette.|Le Walkman|Sorti par Sony en 1979.",
+    "avant|Quand la bande s'emmêlait, on la rembobinait avec un crayon.|La cassette audio|On enregistrait aussi la radio dessus.",
+    "avant|Un petit carré de plastique pour enregistrer ses fichiers d'ordinateur. Son dessin sert encore d'icône « Enregistrer ».|La disquette|Elle contenait 1,44 Mo, à peine une photo d'aujourd'hui.",
+    "avant|On y glissait une grosse cassette pour regarder un film, et il fallait la rembobiner avant de la rendre au vidéoclub.|Le magnétoscope (et la cassette VHS)|Les vidéoclubs louaient les films pour un soir.",
+    "avant|On l'achetait pour les vacances, avec 24 ou 36 poses, puis on le déposait au labo pour faire développer les photos.|L'appareil photo jetable|On découvrait les photos une semaine plus tard.",
+    "avant|Un petit animal virtuel dans un porte-clés en forme d'œuf, qu'il fallait nourrir et soigner, sinon il mourait.|Le Tamagotchi|Un phénomène mondial en 1996-1997.",
+    "avant|Un petit boîtier qui bipait et affichait un numéro de téléphone, pour qu'on rappelle depuis une cabine.|Le Tatoo (le bipeur)|Avant les portables, c'était le moyen d'être joignable.",
+    "avant|La monnaie de la France avant l'euro.|Le franc|Remplacé par l'euro le 1er janvier 2002 : 1 euro = 6,56 francs.",
+    "avant|Un téléphone fixe sur lequel on faisait tourner une roue avec le doigt pour composer chaque chiffre.|Le téléphone à cadran|Composer un numéro avec des 9 prenait une éternité.",
+    "avant|Un énorme livre distribué chaque année, avec les numéros de téléphone de tous les habitants du département.|L'annuaire (les Pages blanches)|Les numéros des professionnels étaient dans les Pages jaunes.",
+    "avant|Une machine pour écrire des lettres, avec des touches qui frappaient le papier et une sonnette en bout de ligne.|La machine à écrire|Pas de touche « Effacer » : on utilisait du Tipp-Ex.",
+    "avant|Une machine qui envoyait une copie papier d'un document à distance, par la ligne téléphonique.|Le fax|On l'appelait aussi la télécopie.",
+    "avant|Une messagerie sur ordinateur des années 2000, avec des « wizz » qui faisaient trembler la fenêtre.|MSN Messenger|On y choisissait un pseudo plein de symboles.",
+    "avant|Un blog créé au collège dans les années 2000, avec des paillettes et des « lâchez vos com's ».|Le Skyblog|Lié à la radio Skyrock.",
+    "avant|Un téléphone portable réputé incassable, avec le jeu du serpent.|Le Nokia 3310|Sorti en 2000, sa batterie tenait une semaine.",
+    "avant|Des petits disques en carton qu'on empilait et qu'on frappait avec un palet plus lourd, dans la cour de récré.|Les Pogs|La folie des cours d'école au milieu des années 90.",
+    "avant|De petites photos sur film qu'on projetait au mur pendant les soirées en famille.|Les diapositives|Avec un projecteur qui faisait « clac » à chaque image.",
+    "avant|Un vélo noir avec un petit moteur posé sur la roue avant.|Le Solex (VéloSoleX)|Fabriqué en France pendant plus de quarante ans.",
+    "avant|Une petite voiture Citroën au toit en toile, surnommée la « deudeuche ».|La 2 CV|Produite de 1948 à 1990.",
+    "avant|Un avion supersonique qui reliait Paris à New York en un peu plus de trois heures.|Le Concorde|Il a volé jusqu'en 2003.",
+    "avant|L'abonnement du métro parisien, avec une photo d'identité et un coupon à changer chaque mois.|La carte Orange|Remplacée par le passe Navigo.",
+    "avant|Un appareil où l'on glissait un 45 tours par une fente pour l'écouter.|Le mange-disque|Très populaire dans les chambres d'enfants des années 70.",
+    "avant|Un cyclomoteur très populaire chez les ados des années 60 à 80, qu'on appelait la « mob ».|La Mobylette|Une marque devenue un nom commun.",
+    "avant|Un lecteur de CD portable, qui sautait dès qu'on marchait trop vite.|Le Discman|Le successeur du Walkman.",
+    "avant|Une petite caméra pour filmer la famille, d'abord sans le son, et projeter les films sur un drap.|La caméra Super 8|Les films de vacances de nos parents.",
+    "avant|Une émission jeunesse avec Dorothée, Jacky et des dessins animés japonais.|Le Club Dorothée|Diffusée sur TF1 de 1987 à 1997.",
+    "avant|Un CD-ROM de Microsoft pour faire ses exposés : toute une encyclopédie sur l'ordinateur.|Encarta|Avant Wikipédia.",
+    "avant|Un répondeur qui enregistrait les messages sur une petite cassette.|Le répondeur à cassette|On l'écoutait en rentrant, avec un bip entre chaque message.",
+    "jeune|« J'ai le seum. »|Je suis dégoûté, j'ai la rage.|Après une défaite ou une injustice.",
+    "jeune|« Je suis en PLS. »|Je suis au plus mal, effondré.|PLS veut dire « position latérale de sécurité », comme en secourisme.",
+    "jeune|« C'est mon crush. »|La personne pour qui j'ai un coup de cœur.|De l'anglais « to have a crush on ».",
+    "jeune|« Il m'a ghosté. »|Il a arrêté de me répondre du jour au lendemain, sans explication.|De l'anglais « ghost », fantôme : il a disparu.",
+    "jeune|« Cheh ! »|Bien fait pour toi !|On le dit à quelqu'un qui récolte ce qu'il a semé.",
+    "jeune|« Askip, il démissionne. »|À ce qu'il paraît.|Contraction de « à ce qu'il paraît ».",
+    "jeune|« Je bade. »|Je déprime, je suis triste.|De l'anglais « bad ».",
+    "jeune|« C'est la hess. »|C'est la galère, on n'a pas d'argent.|Un mot venu de l'arabe.",
+    "jeune|« Wallah, c'est vrai. »|Je te jure.|De l'arabe, « par Dieu ».",
+    "jeune|« Arrête de flex. »|Arrête de frimer, de te la montrer.|De l'anglais « to flex », gonfler ses muscles.",
+    "jeune|« On chill ce soir ? »|On se détend, on ne fait rien de spécial ?|De l'anglais « to chill ».",
+    "jeune|« Il s'est fait ratio. »|Sa publication a reçu une réponse qui a plus de likes qu'elle : il est humilié.|Un mot des réseaux sociaux.",
+    "jeune|« C'est quoi ton mood ? »|C'est quoi ton humeur, ton ambiance du moment ?|De l'anglais « mood ».",
+    "jeune|« Bae »|Mon amoureux, mon amoureuse.|Souvent expliqué comme « before anyone else ».",
+    "jeune|« Ça passe crème. »|Ça passe sans problème, facilement.|Doux comme de la crème.",
+    "jeune|« Il est trop cringe. »|Il est gênant, il met mal à l'aise.|De l'anglais « to cringe », grimacer de gêne.",
+    "jeune|« OKLM »|Au calme, tranquille.|Popularisé par le rappeur Booba.",
+    "jeune|« Je suis dead. »|Je suis mort de rire (ou épuisé).|On l'écrit aussi avec l'émoji 💀.",
+    "jeune|« Meskine »|Le pauvre, quelle pitié.|De l'arabe. On l'écrit souvent « mskn ».",
+    "jeune|« No cap. »|Sans mentir, sérieusement.|Venu de l'argot américain.",
+    "jeune|« Elle slay. »|Elle assure, elle est au top.|De l'anglais « to slay », tuer.",
+    "jeune|« Il a trop de rizz. »|Il a du charme, il sait séduire.|Élu mot de l'année 2023 par le dictionnaire d'Oxford.",
+    "jeune|« C'est une dinguerie ! »|C'est incroyable, c'est fou !|Se dit de tout ce qui impressionne.",
+    "jeune|« T'es un BG. »|Tu es un beau gosse.|Pour une fille, on dit aussi « BG ».",
+    "jeune|« POV : tu rates ton bus. »|Mets-toi à la place de… (point de vue).|De l'anglais « point of view », très utilisé sur TikTok.",
+    "jeune|« Tu forces. »|Tu exagères.|On dit aussi « tu abuses ».",
+    "jeune|« C'est mon sang. »|C'est mon meilleur ami, comme un frère.|Pour parler d'un ami très proche.",
+    "jeune|« Il est en sueur. »|Il est ridicule, il galère.|Se dit de quelqu'un qui en fait trop pour rien.",
+    "jeune|« Wesh ! »|Salut ! (ou « eh ! »)|Une interjection venue de l'arabe algérien.",
+    "jeune|« Gênant / malaisant »|Qui met mal à l'aise.|« Malaisant » est un mot récent, devenu très courant."
+  ];
+
   var GAMES=[
     {id:"ouinon",name:"Oui ou Non",em:"🔥",gc:"#ff4d8d",tg:"Réponds par oui ou non, et ne craque pas.",
      type:"grill",vic:"Sur le grill",relLbl:"Question piège",partie:12,
@@ -1775,6 +1891,10 @@
      rules:["Le téléphone joue un <b>vrai extrait</b> de 30 secondes : chanson, musique de film ou générique de série. Monte le son !","Le premier qui reconnaît crie la réponse : <b>1 point</b> pour le titre, <b>1 point de plus</b> pour l'artiste (ou le compositeur).","Choisis la catégorie avant de lancer. Il faut une <b>connexion internet</b> : les extraits viennent de Deezer (ou d'Apple Music)."]},
     {id:"paroles",name:"N'oubliez pas les paroles",em:"🎤",gc:"#f9a826",tg:"La musique s'arrête : continue les paroles !",type:"paroles",cat:"quiz",
      rules:["Le téléphone joue une chanson connue… et <b>coupe la musique d'un coup</b>, au hasard.","La personne au micro doit <b>continuer les paroles</b> toute seule, sans musique.","On relance la musique là où elle s'était arrêtée pour <b>vérifier</b>. Réussi : <b>2 points</b>. Il faut une connexion internet."]},
+    {id:"ousuisje",name:"Où suis-je ?",em:"🗺️",gc:"#26a69a",tg:"Une ville, un pays : trouve-le avec le moins d'indices.",type:"ousuisje",cat:"quiz",
+     rules:["Le téléphone choisit un <b>lieu mystère</b> : une ville de France, un pays, une ville du monde…","Une personne lit les indices un par un, <b>du plus vague au plus précis</b>.","Le premier qui trouve gagne : <b>5 points</b> au premier indice, puis 4, 3, 2, 1. Parfait pour toute la famille."]},
+    {id:"avant",name:"C'était mieux avant ?",em:"📼",gc:"#ec8f5e",tg:"Les objets d'avant contre les mots des jeunes.",type:"avant",cat:"quiz",
+     rules:["<b>📼 Objets d'avant</b> : le téléphone décrit un objet ou une habitude d'autrefois (le Minitel, la cabine téléphonique…). Les <b>plus jeunes</b> doivent deviner.","<b>📱 Mots des jeunes</b> : le téléphone affiche une expression d'aujourd'hui (« j'ai le seum », « il m'a ghosté »…). Les <b>plus âgés</b> doivent expliquer ce que ça veut dire.","On révèle la réponse avec une petite explication. <b>1 point</b> à qui a trouvé. Le jeu idéal pour mélanger les générations !"]},
     {id:"histoire",name:"L'Histoire à la chaîne",em:"📖",gc:"#a29bfe",tg:"Chacun continue l'histoire avec un mot imposé.",type:"histoire",cat:"quiz",
      rules:["Le téléphone donne le <b>début d'une histoire</b>.","À tour de rôle, chacun la continue en une ou deux phrases, en casant le <b>mot imposé</b> qui s'affiche pour lui.","Pas de points : le but, c'est que l'histoire parte n'importe où. On peut changer de mot ou démarrer une nouvelle histoire."]}
   ];
@@ -1938,6 +2058,9 @@
     if(G.id==="quiadit")opts=segOpts("qlvl","Difficulté",["f","m","d","mix"],qLvl,function(n){return {f:'🟢 Facile<span class="s">1 point</span>',m:'🟠 Moyen<span class="s">2 points</span>',d:'🔴 Difficile<span class="s">3 points</span>',mix:'📈 Progressif<span class="s">les trois</span>'}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
     if(G.id==="blindtest")opts=segOpts("btcat","1. Choisis ta catégorie",["musique","films","series","mix"],btCat,function(n){return {musique:"🎵 Musique",films:"🎬 Films",series:"📺 Séries",mix:"🎲 Mélange"}[n]+'<span class="s">'+btPool(n).length+' extraits</span>';})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
     if(G.id==="paroles"&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le micro et compter les points.</p>';
+    if(G.id==="ousuisje")opts=segOpts("oucat","Lieux",["france","monde","mix"],ouCat,function(n){return {france:"🇫🇷 France",monde:"🌍 Monde",mix:"🎲 Les deux"}[n]+'<span class="s">'+ouPool(n).length+' lieux</span>';});
+    if(G.id==="avant")opts=segOpts("avmode","Cartes",["avant","jeune","mix"],avMode,function(n){return {avant:"📼 Objets d'avant",jeune:"📱 Mots des jeunes",mix:"🎲 Mélange"}[n]+'<span class="s">'+avPool(n).length+' cartes</span>';});
+    if((G.id==="ousuisje"||G.id==="avant")&&players.length<2)opts+='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
     if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
     if((G.id==="fredonne"||G.id==="vraifaux")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
@@ -1970,7 +2093,7 @@
         });
       });
     }
-    [["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+    [["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -2029,6 +2152,8 @@
         showProg=true;break;
       case"vraifaux":deck=shuffle(VRAIFAUX);showProg=true;break;
       case"histoire":deck=freshAll("histoire",HIST_DEBUTS);showProg=false;break;
+      case"ousuisje":deck=freshFirst("ou_"+ouCat,shuffle(ouPool(ouCat)),ouPool(ouCat).length);showProg=false;break;
+      case"avant":deck=freshFirst("av_"+avMode,shuffle(avPool(avMode)),avPool(avMode).length);showProg=false;break;
       case"blindtest":deck=freshFirst("bt_"+btCat,shuffle(btPool(btCat)),btPool(btCat).length);aPos=0;showProg=false;break;
       case"paroles":deck=freshFirst("paroles",shuffle(btPool("musique")),btPool("musique").length);aPos=0;showProg=false;break;
     }
@@ -2080,6 +2205,8 @@
     if(G.type==="quiadit")return renderQuiadit(P);
     if(G.type==="vraifaux")return renderVraifaux(P);
     if(G.type==="histoire")return renderHistoire(P);
+    if(G.type==="ousuisje")return renderOusuisje(P);
+    if(G.type==="avant")return renderAvant(P);
     if(G.type==="blindtest")return renderBlindtest(P);
     if(G.type==="paroles")return renderParoles(P);
   }
@@ -3217,6 +3344,70 @@
       el("pquit").addEventListener("click",quitQuiz);
     }
     load();
+  }
+
+  /* ---------------- OÙ SUIS-JE ? ---------------- */
+  var ouCat="mix";
+  function ouPool(c){return LIEUX.filter(function(l){return c==="mix"||l[1]===c;});}
+  function renderOusuisje(P){
+    var named=players.length>=2, reader=named?vics[idx%vics.length]:"le lecteur", L=deck[idx%deck.length], shown=1;
+    function paint(){
+      var clues=L.slice(2,2+shown).map(function(c,i){return '<p><b>Indice '+(i+1)+'</b> '+esc(c)+'</p>';}).join("");
+      P.innerHTML='<div class="banner"><span class="em">🗺️</span><div><div class="lbl">'+(named?'Lit les indices':'Lieu mystère')+'</div><div class="name">'+esc(reader)+'</div></div></div>'+
+        '<div class="body"><div class="chip"><span class="dot"></span>'+(L[1]==="france"?'🇫🇷 En France':'🌍 Dans le monde')+' · '+(6-shown)+' point'+(6-shown>1?'s':'')+' en jeu</div>'+
+        '<h2 class="qtext sm">Où suis-je ?</h2><div class="hints">'+clues+'</div>'+
+        '<p class="instr">'+(named?esc(reader)+' lit l\'indice à voix haute (et ne joue pas cette manche). ':'')+'Le premier qui trouve gagne. Moins il y a d\'indices, plus ça rapporte.</p>'+
+        '<div class="peek" id="opeek" hidden></div></div>'+
+        '<div class="foot">'+(shown<5?'<button class="btn" id="onext">💡 Indice suivant</button>':'')+
+        '<div class="row2"><button class="btn found" id="ofound">🎉 Trouvé !</button><button class="btn ghost" id="ogive">Révéler</button></div>'+
+        '<button class="linkbtn" id="opeekb">👁 Voir la réponse (lecteur seulement)</button>'+
+        '<button class="linkbtn" id="oquit">Terminer la partie</button></div>';
+      el("opeekb").addEventListener("click",function(){var pk=el("opeek");pk.hidden=!pk.hidden;pk.innerHTML=pk.hidden?'':'<b>'+esc(L[0])+'</b>';el("opeekb").textContent=pk.hidden?"👁 Voir la réponse (lecteur seulement)":"🙈 Cacher la réponse";});
+      var n=el("onext");if(n)n.addEventListener("click",function(){shown++;paint();});
+      el("ofound").addEventListener("click",found);
+      el("ogive").addEventListener("click",function(){result(null,0);});
+      el("oquit").addEventListener("click",quitQuiz);
+    }
+    function found(){
+      var pts=6-shown;
+      if(!named){result("",pts);return;}
+      var others=players.filter(function(p){return p!==reader;});
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Bravo !</div><h2 class="qtext">'+esc(L[0])+'</h2><h2 class="qtext sm">Qui a trouvé ?</h2>'+
+        '<p class="instr">'+pts+' point'+(pts>1?'s':'')+' ('+shown+' indice'+(shown>1?'s':'')+')</p>'+
+        '<div class="chips pick">'+others.map(function(g,i){return '<button class="pchip" data-i="'+i+'">'+esc(g)+'</button>';}).join("")+'</div></div>'+
+        '<div class="foot"><button class="linkbtn" id="oback">← Fausse alerte</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".pick button"),function(b){
+        b.addEventListener("click",function(){var w=others[+b.getAttribute("data-i")];addPts(w,pts);result(w,pts);});
+      });
+      el("oback").addEventListener("click",paint);
+    }
+    function result(w,pts){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(w===null?'Personne n\'a trouvé':'Trouvé !')+'</div>'+
+        '<p class="instr">C\'était…</p><h2 class="qtext">'+esc(L[0])+'</h2>'+
+        '<div class="hints">'+L.slice(2).map(function(c,i){return '<p><b>Indice '+(i+1)+'</b> '+esc(c)+'</p>';}).join("")+'</div>'+
+        (w?'<p class="instr"><b>'+esc(w)+'</b> marque '+pts+' point'+(pts>1?'s':'')+'.</p>':'')+boardHTML()+'</div>'+
+        '<div class="foot"><button class="btn" id="onx">Lieu suivant →</button><button class="linkbtn" id="oquit">Terminer la partie</button></div>';
+      el("onx").addEventListener("click",function(){idx++;renderRound();});
+      el("oquit").addEventListener("click",quitQuiz);
+    }
+    paint();
+  }
+
+  /* ---------------- C'ÉTAIT MIEUX AVANT ---------------- */
+  var avMode="mix";
+  function avPool(m){return AVANT.filter(function(x){return m==="mix"||x.indexOf(m+"|")===0;});}
+  function renderAvant(P){
+    var q=deck[idx%deck.length].split("|"),old=q[0]==="avant";
+    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+(old?'📼 Objet d\'avant':'📱 Mot des jeunes')+'</div>'+
+      '<p class="instr">'+(old?'Qu\'est-ce que c\'est ?':'Qu\'est-ce que ça veut dire ?')+'</p>'+
+      '<h2 class="qtext'+(old?' sm':'')+'">'+esc(q[1])+'</h2>'+
+      '<p class="instr" id="ahelp">'+(old?'Les plus jeunes ont la parole en premier : les anciens n\'aident qu\'au bout de 30 secondes !':'Les plus âgés ont la parole en premier : les jeunes n\'aident qu\'au bout de 30 secondes !')+'</p>'+
+      '<div id="aans" hidden><div class="answer"><div class="aw">'+esc(q[2])+'</div><div class="as">'+esc(q[3])+'</div></div>'+padHTML("Qui a trouvé ? Touche pour +1")+'</div></div>'+
+      '<div class="foot"><button class="btn" id="ashow">Révéler la réponse</button><button class="btn" id="anext" hidden>Suivant →</button><button class="linkbtn" id="aquit2">Terminer la partie</button></div>';
+    el("ashow").addEventListener("click",function(){el("aans").hidden=false;el("ahelp").hidden=true;el("ashow").hidden=true;el("anext").hidden=false;});
+    wirePad(P);
+    el("anext").addEventListener("click",function(){idx++;renderRound();});
+    el("aquit2").addEventListener("click",quitQuiz);
   }
 
   /* ---------------- L'HISTOIRE À LA CHAÎNE ---------------- */
