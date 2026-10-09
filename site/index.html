@@ -1874,7 +1874,7 @@
     }
     function segOpts(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
     if(G.id==="quiadit")opts=segOpts("qlvl","Difficulté",["f","m","d","mix"],qLvl,function(n){return {f:'🟢 Facile<span class="s">1 point</span>',m:'🟠 Moyen<span class="s">2 points</span>',d:'🔴 Difficile<span class="s">3 points</span>',mix:'📈 Progressif<span class="s">les trois</span>'}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
-    if(G.id==="blindtest")opts=segOpts("btcat","Catégorie",["musique","films","series","mix"],btCat,function(n){return {musique:"🎵 Musique",films:"🎬 Films",series:"📺 Séries",mix:"🎲 Mélange"}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
+    if(G.id==="blindtest")opts=segOpts("btcat","1. Choisis ta catégorie",["musique","films","series","mix"],btCat,function(n){return {musique:"🎵 Musique",films:"🎬 Films",series:"📺 Séries",mix:"🎲 Mélange"}[n]+'<span class="s">'+btPool(n).length+' extraits</span>';})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
     if(G.id==="paroles"&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le micro et compter les points.</p>';
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
     if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
@@ -1883,8 +1883,9 @@
       '<div class="em">'+G.em+'</div>'+
       '<h2>'+G.name+'</h2>'+
       '<p class="tg">'+t(G.tg)+'</p>'+
+      (G.id==="blindtest"?opts:'')+
       '<div class="rules">'+rules+'</div>'+
-      amb+opts+
+      amb+(G.id==="blindtest"?"":opts)+
       (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+'</p>':
       '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
@@ -2923,7 +2924,43 @@
     "Reality Richard Sanderson|La Boum",
     "Vois sur ton chemin Les Choristes|Les Choristes",
     "Shallow Lady Gaga Bradley Cooper|A Star Is Born",
-    "Married Life Michael Giacchino|Là-haut"
+    "Married Life Michael Giacchino|Là-haut",
+    "Chariots of Fire Vangelis|Les Chariots de feu",
+    "Also sprach Zarathustra Strauss 2001|2001 : l'Odyssée de l'espace",
+    "Chi Mai Ennio Morricone|Le Professionnel",
+    "Tubular Bells Mike Oldfield|L'Exorciste",
+    "Halloween Theme John Carpenter|Halloween",
+    "Now We Are Free Hans Zimmer Lisa Gerrard|Gladiator",
+    "Interstellar Main Theme Hans Zimmer|Interstellar",
+    "Flying Theme E.T. John Williams|E.T. l'extra-terrestre",
+    "Schindler's List Theme John Williams|La Liste de Schindler",
+    "The Godfather Waltz Nino Rota|Le Parrain",
+    "Forrest Gump Suite Alan Silvestri|Forrest Gump",
+    "Under the Sea The Little Mermaid|La Petite Sirène",
+    "A Whole New World Aladdin|Aladdin",
+    "You've Got a Friend in Me Randy Newman|Toy Story",
+    "The Bare Necessities Jungle Book|Le Livre de la jungle",
+    "Remember Me Coco|Coco",
+    "How Far I'll Go Moana|Vaiana",
+    "We Don't Talk About Bruno Encanto|Encanto",
+    "All Star Smash Mouth|Shrek",
+    "Can't Stop the Feeling Justin Timberlake|Les Trolls",
+    "Happy Pharrell Williams|Moi, moche et méchant 2",
+    "Misirlou Dick Dale|Pulp Fiction",
+    "Bang Bang My Baby Shot Me Down Nancy Sinatra|Kill Bill",
+    "Stuck in the Middle with You Stealers Wheel|Reservoir Dogs",
+    "Don't You Forget About Me Simple Minds|The Breakfast Club",
+    "Danger Zone Kenny Loggins|Top Gun",
+    "Take My Breath Away Berlin|Top Gun",
+    "Footloose Kenny Loggins|Footloose",
+    "Flashdance What a Feeling Irene Cara|Flashdance",
+    "You're the One That I Want John Travolta Olivia Newton-John|Grease",
+    "Men in Black Will Smith|Men in Black",
+    "Oh Pretty Woman Roy Orbison|Pretty Woman",
+    "I Will Always Love You Whitney Houston|Bodyguard",
+    "Lose Yourself Eminem|8 Mile",
+    "Gangsta's Paradise Coolio|Esprits rebelles",
+    "Dance the Night Dua Lipa|Barbie"
   ];
   var BT_SERIES=[
     "Game of Thrones Main Title Ramin Djawadi|Game of Thrones",
@@ -2949,7 +2986,33 @@
     "Capitaine Flam Jean-Jacques Debout|Capitaine Flam",
     "Scooby-Doo Where Are You|Scooby-Doo",
     "Pokémon générique français|Pokémon",
-    "Wednesday Danny Elfman|Mercredi"
+    "Wednesday Danny Elfman|Mercredi",
+    "Dallas Theme Jerrold Immel|Dallas",
+    "A Beautiful Mine RJD2|Mad Men",
+    "Woke Up This Morning Alabama 3|Les Soprano",
+    "Desperate Housewives Main Title Danny Elfman|Desperate Housewives",
+    "Lost Main Title Michael Giacchino|Lost",
+    "Westworld Main Title Ramin Djawadi|Westworld",
+    "House of Cards Main Title Jeff Beal|House of Cards",
+    "If I Had a Heart Fever Ray|Vikings",
+    "The Walking Dead Main Title Bear McCreary|The Walking Dead",
+    "Yo Home to Bel-Air Will Smith Fresh Prince|Le Prince de Bel-Air",
+    "How Soon Is Now Love Spit Love|Charmed",
+    "Buffy the Vampire Slayer Theme Nerf Herder|Buffy contre les vampires",
+    "Superman Lazlo Bane|Scrubs",
+    "Boss of Me They Might Be Giants|Malcolm",
+    "We Are Hiroshi Kitadani One Piece|One Piece",
+    "Blue Bird Ikimono Gakari|Naruto Shippuden",
+    "Guren no Yumiya Linked Horizon|L'Attaque des Titans",
+    "SpongeBob SquarePants Theme|Bob l'éponge",
+    "Inspector Gadget Theme|Inspecteur Gadget",
+    "Toss a Coin to Your Witcher|The Witcher",
+    "Succession Main Title Nicholas Britell|Succession",
+    "The Last of Us Main Theme Gustavo Santaolalla|The Last of Us",
+    "The Mandalorian Ludwig Göransson|The Mandalorian",
+    "Ted Lasso Theme Marcus Mumford|Ted Lasso",
+    "Poirot Theme Christopher Gunning|Hercule Poirot",
+    "Fort Boyard Paul Koulak|Fort Boyard (émission)"
   ];
   var btCat="mix";
   function btPool(c){
