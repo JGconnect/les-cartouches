@@ -25,6 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Numéro de version (date de mise en ligne)
+        run: sed -i "s|__VERSION__|$(TZ=Europe/Paris date '+%d/%m/%Y à %Hh%M')|" site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
