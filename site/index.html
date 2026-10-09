@@ -99,6 +99,11 @@
   .lgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;padding:4px 0 10px;flex:1;align-content:flex-start}
   .lchip{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);font-family:var(--body);font-weight:600;font-size:14px;padding:9px 12px;border-radius:999px;-webkit-tap-highlight-color:transparent}
   .lchip.hard{border-style:dashed}
+  .lbonus{display:grid;gap:8px;text-align:center}.lbonus[hidden]{display:none}
+  .lbonus .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  .lbx{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  .missed .lbx{margin-top:10px}
+  .lchip.sm{font-size:13px;padding:7px 11px}
   .lchip.miss{opacity:.6;border-style:dashed}
   .lchip.pop{animation:lpop .45s ease}
   @keyframes lpop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
@@ -1685,7 +1690,7 @@
     {id:"devine",name:"Devine qui",em:"🕵️",gc:"#2ec4b6",tg:"Trouve le personnage secret, en oui ou non.",type:"devine",cat:"quiz",
      rules:["Le téléphone choisit un personnage secret pour le <b>maître du jeu</b> : célébrité, héros de BD, de jeu vidéo, personnage historique…","Chacun pose une question à tour de rôle. Réponse <b>oui</b> : la même personne rejoue. Réponse <b>non</b> : on passe au suivant.","Ça bloque ? Des <b>indices</b> se débloquent à 5, 7 et 9 minutes. Trouver sans indice rapporte 3 points, puis 2, puis 1."]},
     {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : trouve les 10 réponses cachées.",type:"liste",cat:"quiz",
-     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'appli cache <b>10 réponses</b> (dont 3 ⭐ difficiles). L'arbitre coche celles que l'équipe cite : 1 point chacune, 2 points pour les ⭐. Une réponse juste mais absente des 10 ne compte pas."]},
+     rules:["On joue en <b>équipes</b>. À chaque manche, une personne d'une autre équipe devient <b>arbitre</b> et tient le téléphone.","L'arbitre lit la catégorie (« les marques de voitures », « les fromages français »…). Au top, l'équipe cite un maximum de réponses avant la fin du chrono.","L'appli cache <b>10 réponses</b> (dont 3 ⭐ difficiles). L'arbitre coche celles que l'équipe cite : 1 point chacune, 2 points pour les ⭐. Les <b>autres bonnes réponses</b> de la liste comptent aussi en bonus : le micro les reconnaît, ou l'arbitre les ajoute à la fin."]},
     {id:"petitbac",name:"Le Petit Bac",em:"🔤",gc:"#5b8cff",tg:"Une lettre, cinq catégories, un chrono.",type:"bac",cat:"quiz",
      rules:["Le téléphone tire une <b>lettre</b> et <b>cinq catégories</b> (un pays, un métier, une excuse pour être en retard…).","Au top, chacun cherche un mot par catégorie qui commence par la lettre : sur papier, sur son téléphone ou à l'oral.","Fin du chrono ou « Stop ! » : on lit ses réponses. <b>1 point</b> par réponse valable, <b>2 points</b> si personne d'autre ne l'a trouvée."]},
     {id:"taboo",name:"Le Mot interdit",em:"🚫",gc:"#ff6b6b",tg:"Fais deviner le mot sans dire les mots interdits.",type:"taboo",cat:"quiz",
@@ -2555,9 +2560,17 @@
     if(na+nh<10)nh=Math.min(eh.length,10-na);
     var items=ea.slice(0,na).map(function(x){return{t:x,p:1};}).concat(eh.slice(0,nh).map(function(x){return{t:x,p:2};}));
     items.sort(function(a,b){return a.t.localeCompare(b.t,"fr");});
+    /* toutes les autres bonnes réponses de la liste comptent aussi (bonus hors des 10) */
+    var main=items.length,inMain=items.map(function(it){return it.t;});
+    aa.forEach(function(x){if(inMain.indexOf(x)<0)items.push({t:x,p:1,x:true});});
+    (cat.h?cat.h.split("|"):[]).forEach(function(x){if(inMain.indexOf(x)<0)items.push({t:x,p:2,x:true});});
     var got={},extra=0,left=lDur,running=false;
     function score(){var s=extra;for(var k in got)if(got[k])s+=items[k].p;return s;}
     function count(){var n=extra;for(var k in got)if(got[k])n++;return n;}
+    function mainCount(){var n=0;for(var k=0;k<main;k++)if(got[k])n++;return n;}
+    function bonusCount(){return count()-mainCount();}
+    function foundTxt(){var b=bonusCount();return mainCount()+" / "+main+(b?" · +"+b:"");}
+    function bonusChip(i,cls){var it=items[i];return '<button class="lchip sm'+(it.p>1?' hard':'')+(cls||'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}
 
     function hand(){
       clearT();
@@ -2572,7 +2585,7 @@
     function ready(){
       P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+team+' · '+lDur+' secondes</div>'+
         '<h2 class="qtext">'+esc(cat.c)+'</h2>'+
-        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. L\'appli en cache <b>'+items.length+'</b> : tu coches celles qui sont dites. Les <b>⭐ difficiles</b> valent 2 points.</p>'+
+        '<p class="instr">Lis la catégorie à voix haute. Au top, '+team+' cite un maximum de réponses. L\'appli en cache <b>'+main+'</b> : tu coches celles qui sont dites. Les <b>⭐ difficiles</b> valent 2 points.'+(items.length>main?' Les <b>autres bonnes réponses</b> comptent aussi en bonus : le micro les reconnaît, ou tu les ajoutes à la fin.':'')+'</p>'+
         (REC?'<div class="ambiance"><div class="lbl">Micro</div><div class="seg two" id="lmic"><button data-m="1"'+(lMic?' class="on"':'')+'>🎙️ Activé<span class="s">coche tout seul</span></button><button data-m="0"'+(lMic?'':' class="on"')+'>✋ Désactivé<span class="s">à la main</span></button></div></div>'+
           '<p class="hint">Le téléphone écoute les réponses et les coche tout seul. Tu peux toujours cocher ou décocher à la main.</p>':
           '<p class="hint">Ce navigateur ne permet pas la reconnaissance vocale : on coche à la main.</p>')+'</div>'+
@@ -2591,18 +2604,25 @@
     function paint(){
       el("ltime").textContent=left;
       el("lscore").textContent=score()+" pt"+(score()>1?"s":"");
-      el("lfound").textContent=count()+" / "+items.length;
+      el("lfound").textContent=foundTxt();
       el("lbar").style.width=(100*left/lDur)+"%";
       el("ltime").parentNode.classList.toggle("hurry",left<=10);
     }
     function run(){
       running=true;
       P.innerHTML='<div class="lhead"><div class="lcat">'+esc(cat.c)+'</div><div class="lnums"><span class="lt"><span id="ltime"></span> s</span><span id="lfound"></span><span id="lscore"></span></div><div class="lbarw"><div class="lbar" id="lbar"></div></div></div>'+
-        '<div class="lgrid ten" id="lgrid">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        '<div class="lgrid ten" id="lgrid">'+items.slice(0,main).map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        '<div class="lbonus" id="lbonus" hidden><div class="lbl">Bonus hors des '+main+'</div><div class="lbx" id="lbx"></div></div>'+
         '<div class="foot lfoot"><p class="heard" id="lheard" hidden></p><button class="btn sm" id="lstop">⏹ Stop</button></div>';
-      Array.prototype.forEach.call(P.querySelectorAll(".lchip"),function(b){
+      Array.prototype.forEach.call(P.querySelectorAll("#lgrid .lchip"),function(b){
         b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);paint();if(count()>=items.length)setTimeout(done,600);});
       });
+      function addBonus(i){
+        var z=el("lbonus");z.hidden=false;
+        el("lbx").insertAdjacentHTML("beforeend",bonusChip(i," on pop"));
+        var b=el("lbx").lastChild;
+        b.addEventListener("click",function(){got[i]=false;b.parentNode.removeChild(b);if(!el("lbx").children.length)z.hidden=true;paint();});
+      }
       if(lMic&&REC){
         var keys=items.map(function(it){return itemKeys(it.t);});
         var ok=micStart(function(txt,last){
@@ -2614,8 +2634,9 @@
           keys.forEach(function(ks,i){
             if(got[i])return;
             for(var k=0;k<ks.length;k++){if(n.indexOf(ks[k])>=0){
-              got[i]=true;var b=P.querySelector('.lchip[data-i="'+i+'"]');
-              if(b){b.classList.add("on","pop");(function(bb){setTimeout(function(){bb.classList.remove("pop");},500);})(b);}
+              got[i]=true;
+              if(i>=main){addBonus(i);}else{var b=P.querySelector('#lgrid .lchip[data-i="'+i+'"]');
+              if(b){b.classList.add("on","pop");(function(bb){setTimeout(function(){bb.classList.remove("pop");},500);})(b);}}
               paint();if(count()>=items.length)setTimeout(done,600);break;}}
           });
         });
@@ -2631,15 +2652,22 @@
       try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
       micStop();
       try{say("Temps écoulé !");}catch(e){}
-      function sumHTML(){var s=score(),n=count();return team+' : '+s+' point'+(s>1?'s':'')+' · '+n+' / '+items.length;}
+      function sumHTML(){var s=score();return team+' : '+s+' point'+(s>1?'s':'')+' · '+foundTxt();}
       P.innerHTML='<div class="body">'+
         '<div class="chip"><span class="dot"></span>Temps écoulé · vérification</div>'+
         '<h2 class="qtext sm" id="lsum">'+sumHTML()+'</h2>'+
         '<p class="instr">Une réponse <b>oubliée</b> ou <b>mal entendue</b> ? L\'arbitre la touche pour la cocher (ou la décocher). Les réponses en pointillé n\'ont pas été trouvées.</p>'+
-        '<div class="lgrid ten" id="lfix">'+items.map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+(got[i]?' on':' miss')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        '<div class="lgrid ten" id="lfix">'+items.slice(0,main).map(function(it,i){return '<button class="lchip'+(it.p>1?' hard':'')+(got[i]?' on':' miss')+'" data-i="'+i+'">'+(it.p>1?'⭐ ':'')+esc(it.t)+'</button>';}).join("")+'</div>'+
+        (items.length>main?'<div class="lbonus"><div class="lbl">Bonus hors des '+main+' · touche pour ajouter ou retirer</div><div class="lbx" id="lbfix">'+
+          items.map(function(it,i){return i<main||!got[i]?'':bonusChip(i," on");}).join("")+'</div>'+
+          '<details class="missed" id="lmore"><summary>➕ Ajouter une autre bonne réponse ('+(items.length-main)+' possibles)</summary><div class="lbx">'+
+          items.map(function(it,i){return i<main||got[i]?'':bonusChip(i," miss");}).join("")+'</div></details></div>':'')+
         (Object.keys(qScores).length?'<p class="hint">Classement avant cette manche :</p>'+boardHTML():'')+
       '</div>'+
       '<div class="foot"><button class="btn" id="lnext">Valider → au tour de '+teamName((idx+1)%lTeams)+'</button><button class="linkbtn" id="lquit">Valider et terminer la partie</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".lbonus .lchip"),function(b){
+        b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);b.classList.toggle("miss",!got[i]);el("lsum").textContent=sumHTML();});
+      });
       Array.prototype.forEach.call(P.querySelectorAll("#lfix .lchip"),function(b){
         b.addEventListener("click",function(){var i=+b.getAttribute("data-i");got[i]=!got[i];b.classList.toggle("on",!!got[i]);b.classList.toggle("miss",!got[i]);el("lsum").textContent=sumHTML();});
       });
