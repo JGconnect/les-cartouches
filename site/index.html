@@ -173,6 +173,9 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .tourp{margin-top:8px}.tourp .board{display:grid;gap:8px;margin:6px 0 10px}.tourp .bp{color:#ffd23f}
+  .tour .bp{color:#ffd23f}
+  .champ{font-family:var(--display);font-weight:800;font-size:24px;margin:4px 0 2px}
   .fav{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;
     font-size:22px;line-height:1;color:var(--ink-faint);cursor:pointer;border-radius:12px;-webkit-tap-highlight-color:transparent;font-family:inherit}
   .fav.on{color:#ffd23f}
@@ -245,6 +248,7 @@
 
   .foot{display:grid;gap:10px;padding-top:8px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row1{display:grid}
   .row-crack{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
   .btn{-webkit-tap-highlight-color:transparent;cursor:pointer;font-family:var(--display);font-weight:700;font-size:18px;border:none;border-radius:var(--radius);padding:17px;width:100%;background:var(--ga);color:#fff;letter-spacing:.02em;box-shadow:var(--shadow);transition:transform .12s ease,filter .12s ease}
   .btn:active{transform:translateY(2px);filter:brightness(1.06)}
@@ -1111,7 +1115,7 @@
 
   /* ---------------- VOCABULAIRE SELON LE MODE ---------------- */
   var mode="gages", players=[];
-  try{var m0=localStorage.getItem("cart_mode");if(m0==="alcool"||m0==="gages")mode=m0;}catch(e){}
+  try{var m0=localStorage.getItem("cart_mode");if(m0==="alcool"||m0==="gages"||m0==="famille")mode=m0;}catch(e){}
   try{var p0=JSON.parse(localStorage.getItem("cart_players")||"[]");if(Array.isArray(p0))players=p0.slice(0,16);}catch(e){}
   function save(){try{localStorage.setItem("cart_mode",mode);localStorage.setItem("cart_players",JSON.stringify(players));}catch(e){}}
   var votes=[];
@@ -1123,7 +1127,7 @@
     if(SUPABASE_KEY.indexOf("sb_")!==0)h["Authorization"]="Bearer "+SUPABASE_KEY;
     return fetch(SUPABASE_URL.replace(/\/+$/,"")+"/rest/v1/retours",{
       method:"POST",headers:h,
-      body:JSON.stringify({jeu:rec.g,vote:rec.v,commentaire:rec.note||null,mode:rec.mode,nb_joueurs:rec.n})
+      body:JSON.stringify({jeu:rec.g,vote:rec.v,commentaire:rec.note||null,mode:rec.mode==="alcool"?"alcool":"gages",nb_joueurs:rec.n})
     }).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);});
   }
   var flushing=false;
@@ -1151,9 +1155,35 @@
       });
     return lines.join("\n");
   }
+  var GAGES_FAM=[
+    "Parle avec un accent de ton choix jusqu'à ton prochain tour.",
+    "Fais un compliment à chaque personne du groupe.",
+    "Imite quelqu'un du groupe. Les autres doivent deviner qui.",
+    "Chante le refrain de ta chanson préférée.",
+    "Fais dix sauts sur place (ou dix moulinets des bras si tu es assis·e).",
+    "Parle de toi à la troisième personne jusqu'à ton prochain tour.",
+    "Mime un animal. Le groupe doit deviner lequel.",
+    "Garde les bras levés jusqu'à la prochaine question.",
+    "Invente un slogan publicitaire pour la personne à ta gauche.",
+    "Pousse ton meilleur cri de dinosaure.",
+    "Réponds à la prochaine question en chantant.",
+    "Raconte une blague. Si personne ne rit, tu en racontes une autre.",
+    "Parle en chuchotant jusqu'à ton prochain tour.",
+    "Fais une grimace et tiens-la cinq secondes.",
+    "Fais une pub de vingt secondes pour l'objet que le groupe choisit.",
+    "Dis l'alphabet à l'envers à partir de la lettre H.",
+    "Fais le bruit d'un animal choisi par le groupe.",
+    "Raconte le meilleur souvenir de tes vacances en trente secondes.",
+    "Fais deviner un métier en le mimant.",
+    "Dis trois mots qui riment avec « chapeau »."
+  ];
+  /* Contenus écartés en mode Famille */
+  var FAM_BAD=/bière|insulte|regrette le lendemain|interdites en soirée|drague|rendez-vous|trois heures du matin|rencontre|gros mots|avant de mourir|champagne|frigo d'étudiant/i;
+  function famOK(txt){if(mode!=="famille")return true;txt=String(txt);if(/cocktail/i.test(txt)&&!/sans alcool/i.test(txt))return false;return !FAM_BAD.test(txt);}
   var VOC={
     alcool:{ICO:"🍺",Pen:"Une gorgée",pen:"une gorgée",boit:"boit",boivent:"boivent",esquive:"bois pour passer"},
-    gages:{ICO:"🎯",Pen:"Un gage",pen:"un gage",boit:"prend un gage",boivent:"prennent un gage",esquive:"prends un gage pour passer"}
+    gages:{ICO:"🎯",Pen:"Un gage",pen:"un gage",boit:"prend un gage",boivent:"prennent un gage",esquive:"prends un gage pour passer"},
+    famille:{ICO:"🧸",Pen:"Un gage",pen:"un gage",boit:"prend un gage",boivent:"prennent un gage",esquive:"prends un gage pour passer"}
   };
   function t(s){var v=VOC[mode];return s.replace(/\{(\w+)\}/g,function(m,k){return v[k]!==undefined?v[k]:m;});}
   function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
@@ -1943,10 +1973,11 @@
   var sheetCb=null;
   function penalty(who,then){
     var tx;
-    if(mode==="gages"){tx=GAGES[Math.floor(Math.random()*GAGES.length)];}
+    if(mode==="famille"){tx=GAGES_FAM[Math.floor(Math.random()*GAGES_FAM.length)];}
+    else if(mode==="gages"){tx=GAGES[Math.floor(Math.random()*GAGES.length)];}
     else{tx="Une gorgée, et on repart. Un verre d'eau de temps en temps, c'est permis.";}
     el("sem").textContent=VOC[mode].ICO;
-    el("slbl").textContent=(mode==="gages"?"Gage pour ":"Gorgée pour ")+who;
+    el("slbl").textContent=(mode!=="alcool"?"Gage pour ":"Gorgée pour ")+who;
     el("stxt").textContent=tx;
     el("sok").textContent=then?"C'est fait, on continue":"C'est fait";
     sheetCb=then||null;
@@ -1972,7 +2003,7 @@
     ["ouinon","ninon","menteur","coupable","cascade","chrono","tribunal","dilemme"].forEach(function(id){m[id]=["soiree"];});
     q.forEach(function(id){m[id]=["trajet","famille"];});
     ["chrono","dilemme","menteur"].forEach(function(id){m[id].push("trajet");});
-    m.ninon.push("famille");
+    m.ninon.push("famille");m.chrono.push("famille");
     return m;
   })();
   var NEEDS_NET={blindtest:1,paroles:1};
@@ -1981,7 +2012,8 @@
   function loadList(k){try{var v=JSON.parse(lsGet(k)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
   function buildHub(focus){
     var favs=loadList("cart_favs"),filt=lsGet("cart_filter")||"tous";
-    if(!HUB_FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
+    var FILTERS=HUB_FILTERS.filter(function(f){return !(mode==="famille"&&(f[0]==="soiree"||f[0]==="famille"));});
+    if(!FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
     function card(g){
       var on=favs.indexOf(g.id)>=0;
       return '<div class="gw"><button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
@@ -1990,21 +2022,25 @@
         '<span class="go"></span></button>'+
         '<button class="fav'+(on?' on':'')+'" data-fav="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?'Retirer des favoris':'Ajouter aux favoris')+'">'+(on?'★':'☆')+'</button></div>';
     }
-    function inFilter(g){return filt==="tous"||(GAME_TAGS[g.id]||[]).indexOf(filt)>=0;}
+    function inFilter(g){
+      var tg=GAME_TAGS[g.id]||[];
+      if(mode==="famille"&&tg.indexOf("famille")<0)return false;
+      return filt==="tous"||tg.indexOf(filt)>=0;
+    }
     function isFav(g){return favs.indexOf(g.id)>=0;}
     var pool=GAMES.filter(inFilter);
     var favList=pool.filter(isFav);
     var rest=pool.filter(function(g){return !isFav(g);});
     function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
-    var fcur=HUB_FILTERS.filter(function(f){return f[0]===filt;})[0];
+    var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var gamesHTML=
-      '<div class="filters" id="filters" role="tablist">'+HUB_FILTERS.map(function(f){
+      '<div class="filters" id="filters" role="tablist">'+FILTERS.map(function(f){
         return '<button role="tab" data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-selected="true"':'')+'>'+f[1]+'</button>';
       }).join("")+'</div>'+
-      '<button class="surprise" id="surprise">🎲 Surprends-moi'+(filt!=="tous"?' · '+fcur[1].replace(/^\S+\s/,""):'')+'</button>'+
+      '<button class="surprise" id="surprise">🎲 Surprends-moi</button>'+
       sect("⭐ Tes favoris",favList.length?"":"",favList)+
       (filt==="tous"?
-        sect("🔥 Soirée","On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
+        sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
         sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
         : sect(fcur[1],fcur[2],rest))+
       (favs.length?'':'<p class="hint" style="margin:14px 4px 0">Astuce : touche ☆ sur un jeu pour l\'épingler en haut.</p>');
@@ -2024,18 +2060,20 @@
         '</div>'+
         '<div class="panel">'+
           '<div class="plbl">Pénalités</div>'+
-          '<div class="seg two" id="mode">'+
+          '<div class="seg" id="mode">'+
+            '<button data-m="famille"'+(mode==="famille"?' class="on"':'')+'>🧸 Famille<span class="s">tout public</span></button>'+
             '<button data-m="gages"'+(mode==="gages"?' class="on"':'')+'>🎯 Gages<span class="s">sans alcool</span></button>'+
             '<button data-m="alcool"'+(mode==="alcool"?' class="on"':'')+'>🍺 Gorgées<span class="s">soirée arrosée</span></button>'+
           '</div>'+
-          (mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
+          (mode==="famille"?'<p class="hint">Gages doux, jeux et questions adaptés aux enfants : les jeux pour adultes sont masqués.</p>':mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
         '</div>'+
       '</div>'+
       gamesHTML+
+      '<div class="sect"><div class="sh">🏆 Tournoi</div><div class="ss">Un classement qui court sur tous les quiz</div></div>'+tourHTML()+
       installHTML()+
       '<p class="fineprint">Version du __VERSION__</p>'+
       feedbackHTML();
-    wireFeedback();
+    wireFeedback();wireTour();
     var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
@@ -2065,7 +2103,7 @@
     el("addf").addEventListener("submit",function(e){
       e.preventDefault();
       var v=el("pname").value.trim().replace(/\s+/g," ");
-      if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();}
+      if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();var T=tourGet();if(T&&T.on&&!T.pts.hasOwnProperty(v)){T.pts[v]=0;tourSet(T);}}
       buildHub(true);
     });
     if(focus)el("pname").focus();
@@ -2152,8 +2190,8 @@
       (G.id==="blindtest"||G.id==="paroles"?opts:'')+
       '<div class="rules">'+rules+'</div>'+
       amb+(G.id==="blindtest"||G.id==="paroles"?"":opts)+
-      (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+'</p>':
-      '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
+      (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+(G.id!=="histoire"&&G.id!=="liste"&&G.id!=="taboo"&&tourGet()&&tourGet().on?' · 🏆 compte pour le tournoi':'')+'</p>':
+      '<p class="modeline">'+VOC[mode].ICO+' Mode '+({gages:"gages",alcool:"gorgées",famille:"famille"}[mode])+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
     if(G.id==="ouinon"){
       Array.prototype.forEach.call(el("seg").querySelectorAll("button"),function(b){
@@ -2218,13 +2256,13 @@
       case"menteur":deck=shuffle(MENTEUR);showProg=true;break;
       case"deck":deck=shuffle(COUPABLE);showProg=true;break;
       case"cascade":deck=cascadePartie(G.partie);showProg=true;break;
-      case"chrono":deck=shuffle(CHRONO);showProg=false;break;
+      case"chrono":deck=shuffle(CHRONO.filter(famOK));showProg=false;break;
       case"tribunal":deck=shuffle(TRIBUNAL);showProg=true;break;
       case"dilemme":deck=shuffle(DILEMME);showProg=true;break;
       case"devine":deck=[];showProg=false;break;
-      case"liste":deck=freshFirst("liste",shuffle(LISTES),LISTES.length);showProg=false;break;
+      case"liste":var LF=LISTES.filter(function(x){return famOK(x.c);});deck=freshFirst("liste",shuffle(LF),LF.length);showProg=false;break;
       case"bac":deck=[];showProg=false;break;
-      case"taboo":deck=freshAll("taboo",TABOO);tPos=0;showProg=false;break;
+      case"taboo":deck=freshAll("taboo",TABOO).filter(famOK);tPos=0;showProg=false;break;
       case"fredonne":deck=freshAll("fredonne",CHANSONS);fPos=0;showProg=false;break;
       case"quiadit":
         var byL=function(l){return CITATIONS.filter(function(c){return c.charAt(0)===l;});};
@@ -2238,7 +2276,7 @@
       case"blindtest":deck=freshFirst("bt_"+btCat,shuffle(btPool(btCat)),btPool(btCat).length);aPos=0;showProg=false;break;
       case"paroles":deck=freshFirst("par_"+parCat,shuffle(songPool(parCat)),songPool(parCat).length);aPos=0;showProg=false;break;
     }
-    qScores={};finalHTML="";padHist=[];
+    qScores={};finalHTML="";padHist=[];tourCounted=false;
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
     show("play");
     renderRound();
@@ -2652,6 +2690,70 @@
     el("tgo").addEventListener("click",function(){el("ring").classList.remove("done");runTimer(G.secs,function(){el("msg").textContent="Temps écoulé, au vote !";});});
     el("guilty").addEventListener("click",function(){clearT();penalty("l'accusé·e",advance);});
     el("free").addEventListener("click",function(){clearT();penalty("les accusateurs",advance);});
+  }
+
+  /* ---------------- TOURNOI ---------------- */
+  var TOUR_PTS=[3,2,1], tourCounted=false;
+  function tourGet(){try{var v=JSON.parse(lsGet("cart_tour")||"null");if(v&&typeof v==="object"&&v.pts)return v;}catch(e){}return null;}
+  function tourSet(v){if(v)lsSet("cart_tour",JSON.stringify(v));else{try{localStorage.removeItem("cart_tour");}catch(e){}}}
+  function tourRank(pts){
+    var ks=Object.keys(pts).sort(function(a,b){return pts[b]-pts[a];});
+    return ks.map(function(k){return {n:k,p:pts[k],r:1+ks.filter(function(x){return pts[x]>pts[k];}).length};});
+  }
+  function tourBoard(T,medals){
+    var rows=tourRank(T.pts);
+    return rows.map(function(o){
+      var ic=medals?(["🥇","🥈","🥉"][o.r-1]||o.r+"."):(o.r+".");
+      return '<div class="brow"><span class="bk">'+ic+'</span><span class="bn">'+esc(o.n)+'</span><span class="bp">'+o.p+' pt'+(o.p>1?'s':'')+'</span></div>';
+    }).join("");
+  }
+  /* À la fin d'un quiz : 3 / 2 / 1 points de tournoi pour le podium */
+  function tourAward(){
+    var T=tourGet();
+    if(!T||!T.on||tourCounted||!G||G.cat!=="quiz")return "";
+    var ks=Object.keys(qScores).filter(function(k){return T.pts.hasOwnProperty(k)&&qScores[k]>0;});
+    if(!ks.length)return "";
+    tourCounted=true;
+    var gained={};
+    ks.forEach(function(k){
+      var r=1+ks.filter(function(x){return qScores[x]>qScores[k];}).length;
+      if(r<=TOUR_PTS.length){gained[k]=TOUR_PTS[r-1];T.pts[k]+=TOUR_PTS[r-1];}
+    });
+    T.log.push({g:G.id,w:gained});
+    tourSet(T);
+    var gl=Object.keys(gained).sort(function(a,b){return gained[b]-gained[a];}).map(function(k){return esc(k)+' +'+gained[k];}).join(" · ");
+    return '<div class="panel board tour"><div class="plbl">🏆 Tournoi du trajet · manche '+T.log.length+'</div>'+
+      (gl?'<p class="hint" style="margin:0 0 4px">'+gl+'</p>':'')+tourBoard(T,false)+'</div>';
+  }
+  function tourHTML(){
+    var T=tourGet();
+    if(T&&T.done){
+      var top=tourRank(T.pts).filter(function(o){return o.r===1;}).map(function(o){return esc(o.n);}).join(" & ");
+      return '<div class="panel tourp"><div class="plbl">🏁 Tournoi terminé</div>'+
+        '<p class="champ">👑 '+top+'</p><p class="hint" style="margin:0 0 8px">Après '+T.log.length+' manche'+(T.log.length>1?'s':'')+'</p>'+
+        '<div class="board">'+tourBoard(T,true)+'</div>'+
+        '<div class="row2"><button class="btn sm" id="tnew">Nouveau tournoi</button><button class="btn sm ghost" id="tclose">Fermer</button></div></div>';
+    }
+    if(T&&T.on){
+      return '<div class="panel tourp"><div class="plbl">🏆 Tournoi en cours <span class="cnt">'+T.log.length+' manche'+(T.log.length>1?'s':'')+'</span></div>'+
+        '<div class="board">'+tourBoard(T,false)+'</div>'+
+        '<p class="hint">Chaque quiz terminé rapporte 3, 2 et 1 points au podium.</p>'+
+        '<div class="row1"><button class="btn sm" id="tend">Terminer le tournoi</button></div></div>';
+    }
+    return '<div class="panel tourp"><div class="plbl">🏆 Tournoi du trajet</div>'+
+      '<p class="hint" style="margin-top:0">Enchaînez les quiz : chaque partie rapporte 3, 2 ou 1 points au podium, et on désigne le ou la champion·ne à l\'arrivée.</p>'+
+      (players.length>=2?'<div class="row1"><button class="btn sm" id="tstart">Lancer un tournoi</button></div>':'<p class="hint">Ajoute au moins 2 prénoms pour lancer un tournoi.</p>')+'</div>';
+  }
+  function wireTour(){
+    function rebuild(){var y=window.scrollY;buildHub();window.scrollTo(0,y);}
+    var b=el("tstart");if(b)b.addEventListener("click",function(){var pts={};players.forEach(function(p){pts[p]=0;});tourSet({on:true,pts:pts,log:[]});rebuild();});
+    b=el("tnew");if(b)b.addEventListener("click",function(){var pts={};players.forEach(function(p){pts[p]=0;});tourSet(players.length>=2?{on:true,pts:pts,log:[]}:null);rebuild();});
+    b=el("tclose");if(b)b.addEventListener("click",function(){tourSet(null);rebuild();});
+    var armed=false;
+    b=el("tend");if(b)b.addEventListener("click",function(){
+      if(!armed){armed=true;b.textContent="Confirmer : afficher le podium";return;}
+      var T=tourGet();if(T){T.on=false;T.done=true;tourSet(T);}rebuild();
+    });
   }
 
   /* ---------------- QUIZ : outils communs ---------------- */
@@ -3599,7 +3701,7 @@
       '<div class="em">'+G.em+'</div>'+
       '<h2 class="big">Partie terminée.</h2>'+
       '<p>Fin de cette partie de « '+G.name+' ». '+(G.cat==="quiz"?'Une nouvelle partie remet les scores à zéro.':'Une nouvelle donne pioche d\'autres cartes.')+'</p>'+
-      finalHTML+
+      finalHTML+tourAward()+
       '<div class="panel rate">'+
         '<div class="plbl">Ce jeu vous a plu ?</div>'+
         '<div class="row2"><button class="vbtn" data-v="1">👍 On a aimé</button><button class="vbtn" data-v="-1">👎 Bof</button></div>'+
