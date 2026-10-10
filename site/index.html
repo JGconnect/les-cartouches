@@ -245,6 +245,15 @@
   .ring .num{font-family:var(--display);font-weight:800;font-size:60px;font-variant-numeric:tabular-nums;line-height:1}
   .ring.done .arc{stroke:var(--trash)}
   .ring.done .num{color:var(--trash)}
+  .warn{animation:warn .5s ease}
+  .ring.warn .num,.lnums.warn .lt{color:var(--trash)}
+  @keyframes warn{0%{transform:scale(1)}35%{transform:scale(1.12)}100%{transform:scale(1)}}
+  #countin{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  #countin[hidden]{display:none}
+  #countin .cnum{font-family:var(--display);font-weight:800;font-size:140px;line-height:1;color:var(--ga,#fff);text-align:center;padding:0 16px}
+  #countin .cnum.go{font-size:56px}
+  #countin .cnum.pop{animation:cpop .7s ease}
+  @keyframes cpop{0%{transform:scale(.4);opacity:0}30%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
 
   .foot{display:grid;gap:10px;padding-top:8px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1960,7 +1969,42 @@
   function el(id){return document.getElementById(id);}
   var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end")};
   var timer=null;
-  function clearT(){if(timer){clearInterval(timer);timer=null;}}
+  function clearT(){if(timer){clearInterval(timer);timer=null;}if(cTimer){clearTimeout(cTimer);cTimer=null;}var o=document.getElementById("countin");if(o)o.hidden=true;}
+  /* ---------------- VIBRATIONS & COMPTE À REBOURS ---------------- */
+  var cTimer=null,hapEl=null;
+  function haptic(pat){
+    try{
+      if(navigator.vibrate){navigator.vibrate(pat);return;}
+      /* iPhone (Safari 18+) : un interrupteur natif déclenche un retour haptique */
+      if(!hapEl){
+        hapEl=document.createElement("label");hapEl.setAttribute("aria-hidden","true");
+        hapEl.style.cssText="position:fixed;left:-99px;top:0;width:1px;height:1px;overflow:hidden;opacity:0";
+        hapEl.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(hapEl);
+      }
+      var n=Array.isArray(pat)?Math.ceil(pat.length/2):1;
+      for(var i=0;i<n;i++)setTimeout(function(){hapEl.click();},i*180);
+    }catch(e){}
+  }
+  function tickFx(left,box){
+    if(left>0&&left<=3){haptic(35);if(box){box.classList.remove("warn");void box.offsetWidth;box.classList.add("warn");}}
+    else if(left===0){haptic([220,90,220,90,320]);}
+  }
+  function countIn(cb){
+    clearT();
+    var o=document.getElementById("countin");
+    if(!o){o=document.createElement("div");o.id="countin";o.innerHTML='<div class="cnum" id="cnum"></div>';document.body.appendChild(o);}
+    var steps=["3","2","1","C'est parti !"],i=0;
+    o.hidden=false;
+    (function step(){
+      var n=el("cnum");n.textContent=steps[i];n.className="cnum"+(i===3?" go":"");void n.offsetWidth;n.classList.add("pop");
+      haptic(i===3?140:40);
+      cTimer=setTimeout(function(){
+        i++;
+        if(i<steps.length){step();return;}
+        cTimer=null;o.hidden=true;if(cb)cb();
+      },i===3?550:750);
+    })();
+  }
   function show(name){
     clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();if(typeof stopAudio==="function")stopAudio();
     for(var k in screens)screens[k].hidden=(k!==name);
@@ -2296,11 +2340,14 @@
     arc.style.strokeDasharray=C;
     function paint(){num.textContent=left;arc.style.strokeDashoffset=C*(1-left/secs);}
     paint();
-    timer=setInterval(function(){
-      left--;
-      if(left<=0){left=0;paint();clearT();ring.classList.add("done");if(onZero)onZero();return;}
-      paint();
-    },1000);
+    countIn(function(){
+      timer=setInterval(function(){
+        left--;
+        tickFx(left,ring);
+        if(left<=0){left=0;paint();clearT();ring.classList.add("done");if(onZero)onZero();return;}
+        paint();
+      },1000);
+    });
   }
 
   /* ---------------- RENDER PAR TYPE ---------------- */
@@ -3037,8 +3084,9 @@
       }
       el("lstop").addEventListener("click",done);
       paint();
-      clearT();
-      timer=setInterval(function(){left--;if(left<=0){left=0;paint();done();return;}paint();},1000);
+      countIn(function(){
+        timer=setInterval(function(){left--;tickFx(left,P.querySelector(".lnums"));if(left<=0){left=0;paint();done();return;}paint();},1000);
+      });
     }
     function done(){
       if(!running)return;running=false;clearT();
@@ -3167,8 +3215,9 @@
       el("tok").addEventListener("click",function(){pts++;found++;pick();paintCard();paint();});
       el("tpass").addEventListener("click",function(){pick();paintCard();});
       el("tbad").addEventListener("click",function(){pts--;pick();paintCard();paint();});
-      clearT();
-      timer=setInterval(function(){left--;if(left<=0){left=0;paint();done();return;}paint();},1000);
+      countIn(function(){
+        timer=setInterval(function(){left--;tickFx(left,P.querySelector(".lnums"));if(left<=0){left=0;paint();done();return;}paint();},1000);
+      });
     }
     function done(){
       if(!running)return;running=false;clearT();
