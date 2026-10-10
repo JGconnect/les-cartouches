@@ -125,7 +125,7 @@
   .row3 .btn{padding:13px 8px;font-size:15px}
   .chips.pick .pchip.on{border-color:var(--ga);background:color-mix(in srgb,var(--ga) 30%, var(--surface-2));color:var(--ink)}
   .pad{gap:10px}.pad .pp{color:var(--ga);font-variant-numeric:tabular-nums;margin-left:4px}
-  #qlvl,#btcat{grid-template-columns:repeat(2,1fr)}
+  #qlvl,#btcat,#parcat{grid-template-columns:repeat(2,1fr)}
   .bigletter{font-family:var(--display);font-weight:800;font-size:110px;line-height:1;color:var(--ga);text-align:center}
   .bigletter.sm{font-size:72px}
   .brow2{display:flex;align-items:center;justify-content:center;gap:22px}.brow2 .ring{width:130px;height:130px;margin:0}.brow2 .ring .num{font-size:44px}
@@ -2057,7 +2057,7 @@
     function segOpts(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
     if(G.id==="quiadit")opts=segOpts("qlvl","Difficulté",["f","m","d","mix"],qLvl,function(n){return {f:'🟢 Facile<span class="s">1 point</span>',m:'🟠 Moyen<span class="s">2 points</span>',d:'🔴 Difficile<span class="s">3 points</span>',mix:'📈 Progressif<span class="s">les trois</span>'}[n];})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
     if(G.id==="blindtest")opts=segOpts("btcat","1. Choisis ta catégorie",["musique","films","series","mix"],btCat,function(n){return {musique:"🎵 Musique",films:"🎬 Films",series:"📺 Séries",mix:"🎲 Mélange"}[n]+'<span class="s">'+btPool(n).length+' extraits</span>';})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>':'');
-    if(G.id==="paroles"&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le micro et compter les points.</p>';
+    if(G.id==="paroles")opts=segOpts("parcat","1. Choisis tes chansons",["fr","intl","recent","mix"],parCat,function(n){return {fr:"🇫🇷 Françaises",intl:"🌍 Internationales",recent:"🆕 Récentes",mix:"🎲 Mélange"}[n]+'<span class="s">'+songPool(n).length+' chansons</span>';})+(players.length<2?'<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour faire tourner le micro et compter les points.</p>':'');
     if(G.id==="ousuisje")opts=segOpts("oucat","Lieux",["france","monde","mix"],ouCat,function(n){return {france:"🇫🇷 France",monde:"🌍 Monde",mix:"🎲 Les deux"}[n]+'<span class="s">'+ouPool(n).length+' lieux</span>';});
     if(G.id==="avant")opts=segOpts("avmode","Cartes",["avant","jeune","mix"],avMode,function(n){return {avant:"📼 Objets d'avant",jeune:"📱 Mots des jeunes",mix:"🎲 Mélange"}[n]+'<span class="s">'+avPool(n).length+' cartes</span>';});
     if((G.id==="ousuisje"||G.id==="avant")&&players.length<2)opts+='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
@@ -2068,9 +2068,9 @@
       '<div class="em">'+G.em+'</div>'+
       '<h2>'+G.name+'</h2>'+
       '<p class="tg">'+t(G.tg)+'</p>'+
-      (G.id==="blindtest"?opts:'')+
+      (G.id==="blindtest"||G.id==="paroles"?opts:'')+
       '<div class="rules">'+rules+'</div>'+
-      amb+(G.id==="blindtest"?"":opts)+
+      amb+(G.id==="blindtest"||G.id==="paroles"?"":opts)+
       (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+'</p>':
       '<p class="modeline">'+VOC[mode].ICO+' Mode '+(mode==="gages"?"gages":"gorgées")+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
@@ -2093,7 +2093,7 @@
         });
       });
     }
-    [["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -2155,7 +2155,7 @@
       case"ousuisje":deck=freshFirst("ou_"+ouCat,shuffle(ouPool(ouCat)),ouPool(ouCat).length);showProg=false;break;
       case"avant":deck=freshFirst("av_"+avMode,shuffle(avPool(avMode)),avPool(avMode).length);showProg=false;break;
       case"blindtest":deck=freshFirst("bt_"+btCat,shuffle(btPool(btCat)),btPool(btCat).length);aPos=0;showProg=false;break;
-      case"paroles":deck=freshFirst("paroles",shuffle(btPool("musique")),btPool("musique").length);aPos=0;showProg=false;break;
+      case"paroles":deck=freshFirst("par_"+parCat,shuffle(songPool(parCat)),songPool(parCat).length);aPos=0;showProg=false;break;
     }
     qScores={};finalHTML="";padHist=[];
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
@@ -3206,8 +3206,87 @@
     "Fort Boyard Paul Koulak|Fort Boyard (émission)"
   ];
   var btCat="mix";
+  /* chansons récentes : titre | interprète | année | langue */
+  var CHANSONS2=[
+    "Tout oublier|Angèle et Roméo Elvis|2018|fr",
+    "La Thune|Angèle|2018|fr",
+    "Bruxelles je t'aime|Angèle|2021|fr",
+    "Copines|Aya Nakamura|2018|fr",
+    "Jolie nana|Aya Nakamura|2023|fr",
+    "La Kiffance|Naps|2021|fr",
+    "Tout va bien|Orelsan|2021|fr",
+    "La pluie|Orelsan et Stromae|2017|fr",
+    "L'enfer|Stromae|2022|fr",
+    "Ma meilleure ennemie|Stromae et Pomme|2024|fr",
+    "Dommage|Bigflo et Oli|2017|fr",
+    "Plus tard|Bigflo et Oli|2018|fr",
+    "Reine|Dadju|2018|fr",
+    "Est-ce que tu m'aimes ?|Maître Gims|2015|fr",
+    "Corazón|Gims|2018|fr",
+    "Les yeux de la mama|Kendji Girac|2015|fr",
+    "Andalouse|Kendji Girac|2014|fr",
+    "Viens on s'aime|Slimane|2016|fr",
+    "Mon amour|Slimane|2024|fr",
+    "Voilà|Barbara Pravi|2021|fr",
+    "Évidemment|La Zarra|2023|fr",
+    "J'ai cherché|Amir|2016|fr",
+    "Il est où le bonheur|Christophe Maé|2016|fr",
+    "Je m'en vais|Vianney|2016|fr",
+    "Pas là|Vianney|2014|fr",
+    "Ramenez la coupe à la maison|Vegedream|2018|fr",
+    "À nos souvenirs|Trois Cafés Gourmands|2018|fr",
+    "Avant toi|Vitaa et Slimane|2019|fr",
+    "Ça va ça vient|Vitaa et Slimane|2019|fr",
+    "Je vole|Louane|2014|fr",
+    "Jour 1|Louane|2015|fr",
+    "Bande organisée|Jul et 13'Organisé|2020|fr",
+    "Flowers|Miley Cyrus|2023|intl",
+    "As It Was|Harry Styles|2022|intl",
+    "Watermelon Sugar|Harry Styles|2019|intl",
+    "Levitating|Dua Lipa|2020|intl",
+    "Don't Start Now|Dua Lipa|2019|intl",
+    "Dance Monkey|Tones and I|2019|intl",
+    "Someone You Loved|Lewis Capaldi|2018|intl",
+    "Perfect|Ed Sheeran|2017|intl",
+    "Thinking Out Loud|Ed Sheeran|2014|intl",
+    "Señorita|Shawn Mendes et Camila Cabello|2019|intl",
+    "Havana|Camila Cabello|2017|intl",
+    "drivers license|Olivia Rodrigo|2021|intl",
+    "Stay|The Kid LAROI et Justin Bieber|2021|intl",
+    "Anti-Hero|Taylor Swift|2022|intl",
+    "Cruel Summer|Taylor Swift|2019|intl",
+    "Espresso|Sabrina Carpenter|2024|intl",
+    "Manchild|Sabrina Carpenter|2025|intl",
+    "Die With a Smile|Lady Gaga et Bruno Mars|2024|intl",
+    "APT.|Rosé et Bruno Mars|2024|intl",
+    "Abracadabra|Lady Gaga|2025|intl",
+    "Birds of a Feather|Billie Eilish|2024|intl",
+    "Calm Down|Rema et Selena Gomez|2022|intl",
+    "Unholy|Sam Smith et Kim Petras|2022|intl",
+    "Old Town Road|Lil Nas X|2019|intl",
+    "Hello|Adele|2015|intl",
+    "Easy On Me|Adele|2021|intl",
+    "Believer|Imagine Dragons|2017|intl",
+    "Thunder|Imagine Dragons|2017|intl",
+    "Sorry|Justin Bieber|2015|intl",
+    "Cheap Thrills|Sia|2016|intl",
+    "Can't Stop the Feeling!|Justin Timberlake|2016|intl",
+    "Shallow|Lady Gaga et Bradley Cooper|2018|intl",
+    "Dynamite|BTS|2020|intl",
+    "Beggin'|Måneskin|2021|intl",
+    "Golden|HUNTR/X (KPop Demon Hunters)|2025|intl",
+    "Ordinary|Alex Warren|2025|intl"
+  ];
+  var CH_INTL=[57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111];
+  var parCat="mix";
+  function songPool(c){
+    var CH_Y={3:2021,4:2018,5:2019,27:2018,28:2017,33:2015,42:2016,65:2017,66:2014,86:2014,87:2017,94:2019,95:2019};
+    var a=CHANSONS.map(function(x,i){return {q:songQuery(x),a:null,k:"🎵 Musique",fr:CH_INTL.indexOf(i)<0,y:CH_Y[i]||0};})
+      .concat(CHANSONS2.map(function(x){var p=x.split("|");return {q:songQuery(p[0]+"|"+p[1]),a:null,k:"🎵 Musique",fr:p[3]==="fr",y:+p[2]};}));
+    return a.filter(function(o){return c==="fr"?o.fr:c==="intl"?!o.fr:c==="recent"?o.y>=2014:true;});
+  }
   function btPool(c){
-    var mus=CHANSONS.map(function(x){return {q:songQuery(x),a:null,k:"🎵 Musique"};});
+    var mus=songPool("mix");
     var fil=BT_FILMS.map(function(x){var p=x.split("|");return {q:p[0],a:p[1],k:"🎬 Film"};});
     var ser=BT_SERIES.map(function(x){var p=x.split("|");return {q:p[0],a:p[1],k:"📺 Série"};});
     return c==="musique"?mus:c==="films"?fil:c==="series"?ser:mus.concat(fil,ser);
