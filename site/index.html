@@ -9,6 +9,13 @@
 <meta property="og:description" content="Huit jeux de soirée qui se jouent avec un téléphone et une bande de potes.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
 <title>Les Cartouches</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#181022">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cartouches">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +53,7 @@
       var(--bg);
     -webkit-font-smoothing:antialiased;
   }
-  .app{min-height:100%;max-width:520px;margin:0 auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+  .app{min-height:100%;max-width:520px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
 
   .top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
   .brand{font-family:var(--display);font-weight:800;letter-spacing:.16em;font-size:15px;text-transform:uppercase;color:var(--ink);background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -148,6 +155,7 @@
   .hturn .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-top:6px}
   .hname{font-family:var(--display);font-weight:800;font-size:22px}
   .hword{font-family:var(--display);font-weight:800;font-size:clamp(32px,9vw,44px);color:var(--ga)}
+  .inst{margin-top:18px;gap:8px}.inst .hint b{color:var(--ink)}
   .missed{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;text-align:left}
   .missed summary{cursor:pointer;font-weight:600;color:var(--ink-soft)}
   .missed p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--ink-soft)}
@@ -1977,9 +1985,11 @@
       '<div class="games">'+soir+'</div>'+
       '<div class="sect"><div class="sh">🧠 Quiz & devinettes</div><div class="ss">Pour le car, le train, les longues routes · à points, sans pénalité</div></div>'+
       '<div class="games">'+quiz+'</div>'+
+      installHTML()+
       '<p class="fineprint">Version du __VERSION__</p>'+
       feedbackHTML();
     wireFeedback();
+    var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
     });
@@ -1998,6 +2008,14 @@
     if(focus)el("pname").focus();
   }
 
+  function isStandalone(){return (window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||window.navigator.standalone===true;}
+  function installHTML(){
+    if(isStandalone())return "";
+    var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    if(deferredInstall)return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli</div><p class="hint">Une icône sur ton écran d\'accueil, le plein écran, et la plupart des jeux marchent même sans réseau.</p><button class="btn sm" id="instb">Installer Les Cartouches</button></div>';
+    if(ios)return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli sur iPhone</div><p class="hint">Dans Safari, touche le bouton <b>Partager</b> (le carré avec une flèche), puis <b>« Sur l\'écran d\'accueil »</b>. L\'appli s\'ouvrira en plein écran, et la plupart des jeux marcheront même sans réseau.</p></div>';
+    return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli</div><p class="hint">Dans le menu du navigateur, choisis <b>« Ajouter à l\'écran d\'accueil »</b> ou <b>« Installer l\'application »</b>. La plupart des jeux marcheront même sans réseau.</p></div>';
+  }
   function tallyHTML(id){var x=tally(id);if(!x.u&&!x.d)return "";return '<span class="tally">👍 '+x.u+' · 👎 '+x.d+'</span>';}
   function feedbackHTML(){
     if(REMOTE){
@@ -3561,6 +3579,12 @@
   el("brand").addEventListener("click",toHub);
   el("back").addEventListener("click",toHub);
 
+  /* appli installable + hors ligne */
+  if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
+    window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});
+  }
+  var deferredInstall=null;
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;if(screens.hub&&!screens.hub.hidden)buildHub();});
   buildHub();
   show("hub");
   flush();
