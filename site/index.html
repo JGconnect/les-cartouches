@@ -171,7 +171,19 @@
   .gcard .nm,.gcard .tg{display:block}
   .gcard .nm{font-family:var(--display);font-weight:800;font-size:18px;line-height:1.1}
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
-  .gcard .go{flex:none;color:var(--gc);font-size:16px;font-weight:700}
+  .gcard .go{flex:none;width:34px}
+  .gw{position:relative;display:grid}
+  .fav{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;
+    font-size:22px;line-height:1;color:var(--ink-faint);cursor:pointer;border-radius:12px;-webkit-tap-highlight-color:transparent;font-family:inherit}
+  .fav.on{color:#ffd23f}
+  .fav:active{transform:translateY(-50%) scale(.85)}
+  .net{display:inline-block;font-size:11px;font-weight:600;color:var(--ink-faint);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:2px;font-family:var(--body,inherit)}
+  .filters{display:flex;gap:8px;overflow-x:auto;margin:22px -4px 0;padding:2px 4px 4px;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .filters button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);border-radius:999px;padding:9px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .surprise{display:block;width:100%;margin-top:12px;border:1px dashed var(--line);background:none;color:var(--ink);border-radius:var(--radius);padding:14px;font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+  .surprise:active{transform:translateY(2px)}
   .fineprint{font-size:12px;color:var(--ink-faint);line-height:1.5;margin:18px 4px 0;text-align:center}
 
   /* ---------- INTRO ---------- */
@@ -1949,15 +1961,53 @@
   function stopVoiceLoop(){trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();}
 
   /* ---------------- HUB ---------------- */
+  var HUB_FILTERS=[
+    ["tous","Tous",""],
+    ["soiree","🍻 Soirée entre adultes","Pénalités, vérités et mauvaise foi"],
+    ["trajet","🚌 Trajet","Assis, sans bouger, un téléphone pour tout le monde"],
+    ["famille","👨‍👩‍👧 En famille","Pour tous les âges, sans rien de gênant"]
+  ];
+  var GAME_TAGS=(function(){
+    var m={},q=["devine","liste","petitbac","taboo","fredonne","quiadit","vraifaux","blindtest","paroles","ousuisje","avant","histoire"];
+    ["ouinon","ninon","menteur","coupable","cascade","chrono","tribunal","dilemme"].forEach(function(id){m[id]=["soiree"];});
+    q.forEach(function(id){m[id]=["trajet","famille"];});
+    ["chrono","dilemme","menteur"].forEach(function(id){m[id].push("trajet");});
+    m.ninon.push("famille");
+    return m;
+  })();
+  var NEEDS_NET={blindtest:1,paroles:1};
+  function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+  function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+  function loadList(k){try{var v=JSON.parse(lsGet(k)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
   function buildHub(focus){
+    var favs=loadList("cart_favs"),filt=lsGet("cart_filter")||"tous";
+    if(!HUB_FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
     function card(g){
-      return '<button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
+      var on=favs.indexOf(g.id)>=0;
+      return '<div class="gw"><button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
         '<span class="em">'+g.em+'</span>'+
-        '<span class="txt"><span class="nm">'+g.name+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
-        '<span class="go">→</span></button>';
+        '<span class="txt"><span class="nm">'+g.name+(NEEDS_NET[g.id]?'<span class="net">📶 internet</span>':'')+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
+        '<span class="go"></span></button>'+
+        '<button class="fav'+(on?' on':'')+'" data-fav="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?'Retirer des favoris':'Ajouter aux favoris')+'">'+(on?'★':'☆')+'</button></div>';
     }
-    var soir=GAMES.filter(function(g){return g.cat!=="quiz";}).map(card).join("");
-    var quiz=GAMES.filter(function(g){return g.cat==="quiz";}).map(card).join("");
+    function inFilter(g){return filt==="tous"||(GAME_TAGS[g.id]||[]).indexOf(filt)>=0;}
+    function isFav(g){return favs.indexOf(g.id)>=0;}
+    var pool=GAMES.filter(inFilter);
+    var favList=pool.filter(isFav);
+    var rest=pool.filter(function(g){return !isFav(g);});
+    function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
+    var fcur=HUB_FILTERS.filter(function(f){return f[0]===filt;})[0];
+    var gamesHTML=
+      '<div class="filters" id="filters" role="tablist">'+HUB_FILTERS.map(function(f){
+        return '<button role="tab" data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-selected="true"':'')+'>'+f[1]+'</button>';
+      }).join("")+'</div>'+
+      '<button class="surprise" id="surprise">🎲 Surprends-moi'+(filt!=="tous"?' · '+fcur[1].replace(/^\S+\s/,""):'')+'</button>'+
+      sect("⭐ Tes favoris",favList.length?"":"",favList)+
+      (filt==="tous"?
+        sect("🔥 Soirée","On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
+        sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
+        : sect(fcur[1],fcur[2],rest))+
+      (favs.length?'':'<p class="hint" style="margin:14px 4px 0">Astuce : touche ☆ sur un jeu pour l\'épingler en haut.</p>');
     var chips=players.map(function(p,i){
       return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer '+esc(p)+'">×</button></span>';
     }).join("");
@@ -1981,10 +2031,7 @@
           (mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
         '</div>'+
       '</div>'+
-      '<div class="sect"><div class="sh">🔥 Soirée</div><div class="ss">On se balance des cartouches</div></div>'+
-      '<div class="games">'+soir+'</div>'+
-      '<div class="sect"><div class="sh">🧠 Quiz & devinettes</div><div class="ss">Pour le car, le train, les longues routes · à points, sans pénalité</div></div>'+
-      '<div class="games">'+quiz+'</div>'+
+      gamesHTML+
       installHTML()+
       '<p class="fineprint">Version du __VERSION__</p>'+
       feedbackHTML();
@@ -1992,6 +2039,22 @@
     var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
+    });
+    Array.prototype.forEach.call(el("s-hub").querySelectorAll(".fav"),function(b){
+      b.addEventListener("click",function(){
+        var id=b.getAttribute("data-fav"),i=favs.indexOf(id);
+        if(i>=0)favs.splice(i,1);else favs.push(id);
+        lsSet("cart_favs",JSON.stringify(favs));
+        var y=window.scrollY;buildHub();window.scrollTo(0,y);
+      });
+    });
+    Array.prototype.forEach.call(el("filters").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){lsSet("cart_filter",b.getAttribute("data-f"));var y=window.scrollY;buildHub();window.scrollTo(0,y);});
+    });
+    el("surprise").addEventListener("click",function(){
+      if(!pool.length)return;
+      var g=pool[Math.floor(Math.random()*pool.length)];
+      openIntro(g.id);
     });
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".px"),function(b){
       b.addEventListener("click",function(){players.splice(+b.getAttribute("data-i"),1);save();buildHub();});
