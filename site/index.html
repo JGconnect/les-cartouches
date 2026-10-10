@@ -173,6 +173,17 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .welcome{text-align:center}
+  .welcome .wem{font-size:64px;line-height:1;margin:18px 0 6px}
+  .welcome h2{font-family:var(--display);font-weight:800;font-size:32px;line-height:1.05;margin:4px 0 8px;letter-spacing:-.01em}
+  .welcome .sub{color:var(--ink-soft);font-size:15.5px;line-height:1.5;max-width:32ch;margin:0 auto 18px}
+  .welcome .panel{text-align:left}
+  .wdots{display:flex;gap:6px;justify-content:center;margin:6px 0 2px}.wdots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.wdots i.on{background:var(--accent);width:22px;border-radius:4px}
+  .wchoice{display:grid;gap:10px;text-align:left}
+  .wchoice button{display:flex;gap:14px;align-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--radius);padding:16px 18px;font:inherit;cursor:pointer;text-align:left}
+  .wchoice button .e{font-size:30px;flex:none}.wchoice button b{display:block;font-family:var(--display);font-size:18px}.wchoice button span span{display:block;color:var(--ink-faint);font-size:13.5px;margin-top:2px;line-height:1.35}
+  .wtips{display:grid;gap:12px;text-align:left;margin:0 0 6px}
+  .wtips div{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.45;color:var(--ink-soft)}.wtips div .e{font-size:22px;flex:none;width:30px;text-align:center}.wtips b{color:var(--ink)}
   .mine h2{font-family:var(--display);font-weight:800;font-size:30px;margin:6px 0 4px}
   .mine .sub{margin-bottom:6px}
   .mform{display:grid;gap:10px}
@@ -349,6 +360,7 @@
     <section class="screen play" id="s-play"></section>
     <section class="screen end" id="s-end"></section>
     <section class="screen mine" id="s-mine" hidden></section>
+    <section class="screen welcome" id="s-welcome" hidden></section>
   </div>
   <div class="sheet" id="sheet" hidden>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="slbl">
@@ -1985,7 +1997,7 @@
     return pick.sort(function(a,b){return CASCADE.indexOf(a)-CASCADE.indexOf(b);});
   }
   function el(id){return document.getElementById(id);}
-  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end"),mine:el("s-mine")};
+  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end"),mine:el("s-mine"),welcome:el("s-welcome")};
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}if(cTimer){clearTimeout(cTimer);cTimer=null;}var o=document.getElementById("countin");if(o)o.hidden=true;}
   /* ---------------- VIBRATIONS & COMPTE À REBOURS ---------------- */
@@ -2072,7 +2084,11 @@
     return r;
   }
   function mineSave(o){lsSet("cart_mine",JSON.stringify(o));}
-  function mineCount(id){var m=mineAll();return id?(m[id]||[]).length:Object.keys(m).reduce(function(a,k){return a+m[k].length;},0);}
+  function mineCount(id){
+    var m=mineAll();
+    if(id)return (m[id]||[]).length+grpCards(id).filter(function(x){return m[id].indexOf(x)<0;}).length;
+    return Object.keys(m).reduce(function(a,k){return a+mineCount(k);},0);
+  }
   function clean(v){return String(v||"").replace(/[|\n\r]+/g," ").replace(/\s+/g," ").trim().slice(0,160);}
   function mineMake(id,f){
     var a=clean(f[0]),b=clean(f[1]),c=clean(f[2]);
@@ -2101,9 +2117,34 @@
     }
     return esc(x);
   }
+  /* ---- cartes de la bande (partagées en ligne via un code de groupe) ---- */
+  var GRP_ALPHA="ABCDEFGHJKMNPQRSTUVWXYZ23456789", mineTarget="local", grpSyncing=false;
+  function grpCode(){var c=lsGet("cart_group")||"";return /^[A-Z0-9]{8,16}$/.test(c)?c:"";}
+  function grpFmt(c){return c.replace(/(.{4})(?=.)/g,"$1-");}
+  function grpNorm(c){return String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"");}
+  function grpNew(){var a=new Uint32Array(10),out="";try{crypto.getRandomValues(a);}catch(e){for(var j=0;j<10;j++)a[j]=Math.floor(Math.random()*1e9);}for(var i=0;i<10;i++)out+=GRP_ALPHA.charAt(a[i]%GRP_ALPHA.length);return out;}
+  function grpCache(){try{var o=JSON.parse(lsGet("cart_group_cache")||"null");if(o&&o.code===grpCode()&&Array.isArray(o.cards))return o;}catch(e){}return {code:grpCode(),cards:[],at:0};}
+  function grpCards(id){return grpCode()?grpCache().cards.filter(function(c){return c.jeu===id&&typeof c.carte==="string";}).map(function(c){return c.carte;}):[];}
+  function rpc(name,body){
+    if(!REMOTE)return Promise.reject(new Error("off"));
+    var h={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
+    if(SUPABASE_KEY.indexOf("sb_")!==0)h["Authorization"]="Bearer "+SUPABASE_KEY;
+    return fetch(SUPABASE_URL.replace(/\/+$/,"")+"/rest/v1/rpc/"+name,{method:"POST",headers:h,body:JSON.stringify(body)})
+      .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.status===204?null:r.json();});
+  }
+  function grpSync(cb){
+    var c=grpCode();if(!c||grpSyncing){if(cb)cb(false);return;}
+    grpSyncing=true;
+    rpc("cartes_du_groupe",{code:c}).then(function(rows){
+      grpSyncing=false;
+      if(Array.isArray(rows))lsSet("cart_group_cache",JSON.stringify({code:c,cards:rows.map(function(r){return {id:r.id,jeu:r.jeu,carte:r.carte};}),at:Date.now()}));
+      if(cb)cb(true);
+    },function(){grpSyncing=false;if(cb)cb(false);});
+  }
   /* convertit vos cartes au format du jeu (texte échappé pour les jeux qui affichent du HTML) */
   function mineCards(id){
-    return (mineAll()[id]||[]).filter(famOK).map(function(x){
+    var loc=mineAll()[id]||[],all=loc.concat(grpCards(id).filter(function(x){return loc.indexOf(x)<0;}));
+    return all.filter(famOK).map(function(x){
       var p=x.split("|");
       if(id==="dilemme")return {a:esc(p[0]),b:esc(p[1])};
       if(id==="liste")return {c:p[0],a:(p[1]||"").split(";").join("|"),h:"",mine:true};
@@ -2132,28 +2173,36 @@
   function b64d(str){str=str.replace(/-/g,"+").replace(/_/g,"/");while(str.length%4)str+="=";return decodeURIComponent(escape(atob(str)));}
   function openMine(id,from){
     if(id&&MINE_GAMES[id])mineSel=id;
-    var m=mineAll(),cfg=MINE_GAMES[mineSel],list=m[mineSel];
+    var m=mineAll(),cfg=MINE_GAMES[mineSel],gc=grpCode();
+    if(!gc)mineTarget="local";
+    var grpRows=gc?grpCache().cards.filter(function(c){return c.jeu===mineSel;}):[];
+    var list=mineTarget==="group"?grpRows.map(function(c){return c.carte;}):m[mineSel];
+    var cnt=function(k){return mineTarget==="group"?grpCards(k).length:m[k].length;};
     var gname=function(k){var g=game(k);return g.em+" "+g.name;};
     var f=cfg.ph.map(function(ph,i){
       return (i===1&&mineSel!=="vraifaux"&&mineSel!=="quiadit"&&mineSel!=="dilemme")||(mineSel==="quiadit"&&i>0)||(mineSel==="vraifaux"&&i===1)?
         '<input id="mf'+i+'" maxlength="'+(mineSel==="liste"&&i===1?400:160)+'" placeholder="'+esc(ph)+'" autocomplete="off">':
         '<textarea id="mf'+i+'" rows="2" maxlength="160" placeholder="'+esc(ph)+'"></textarea>';
     }).join("");
-    var tot=mineCount();
+    var tot=Object.keys(m).reduce(function(x,k){return x+m[k].length;},0);
     el("s-mine").innerHTML=
       '<div class="kicker">Vos cartes perso</div><h2>✏️ À vous de jouer</h2>'+
       '<p class="sub">Vos blagues internes, vos anecdotes, vos répliques cultes : elles se glissent parmi les cartes du jeu.</p>'+
       '<div class="chips mgames" id="mgames">'+Object.keys(MINE_GAMES).map(function(k){
-        return '<button class="pchip'+(k===mineSel?' on':'')+'" data-k="'+k+'">'+gname(k)+(m[k].length?'<span class="n">'+m[k].length+'</span>':'')+'</button>';
+        return '<button class="pchip'+(k===mineSel?' on':'')+'" data-k="'+k+'">'+gname(k)+(cnt(k)?'<span class="n">'+cnt(k)+'</span>':'')+'</button>';
       }).join("")+'</div>'+
+      (gc?'<div class="ambiance" style="margin-top:14px"><div class="lbl">Où ranger tes cartes ?</div><div class="seg two" id="mtgt">'+
+        '<button data-t="local"'+(mineTarget==="local"?' class="on"':'')+'>📱 Ce téléphone<span class="s">rien que pour toi</span></button>'+
+        '<button data-t="group"'+(mineTarget==="group"?' class="on"':'')+'>👥 La bande<span class="s">sur tous les téléphones</span></button></div></div>':'')+
       '<div class="panel" style="margin-top:14px"><div class="plbl">'+cfg.lbl+'</div><form class="mform" id="mform">'+f+
         (cfg.vf?'<div class="seg two" id="mvf"><button type="button" data-v="V" class="on">✅ C\'est vrai</button><button type="button" data-v="F">❌ C\'est faux</button></div>':'')+
         (cfg.hint?'<p class="hint" style="margin:0">'+cfg.hint+'</p>':'')+
         '<button class="btn sm" type="submit">Ajouter la carte</button><p class="hint" id="mmsg" style="margin:0"></p></form></div>'+
       (list.length?'<div class="sect"><div class="sh" style="font-size:18px">'+list.length+' carte'+(list.length>1?'s':'')+' dans '+game(mineSel).name+'</div></div><div class="mlist">'+
         list.map(function(x,i){return '<div class="mitem"><div class="mt">'+mineLabel(mineSel,x)+'</div><button class="mx" data-i="'+i+'" aria-label="Supprimer">×</button></div>';}).slice().reverse().join("")+'</div>':'')+
-      '<div class="panel" style="margin-top:18px"><div class="plbl">📤 Partager avec la bande</div>'+
-        '<p class="hint" style="margin:0">'+(tot?'Envoie un lien : en l\'ouvrant, tes amis récupèrent tes '+tot+' carte'+(tot>1?'s':'')+' sur leur téléphone.':'Ajoute des cartes, puis partage-les par lien à tes amis.')+'</p>'+
+      grpPanelHTML()+
+      '<div class="panel" style="margin-top:18px"><div class="plbl">📤 Envoyer par lien</div>'+
+        '<p class="hint" style="margin:0">'+(tot?'Envoie un lien : en l\'ouvrant, tes amis récupèrent tes '+tot+' carte'+(tot>1?'s':'')+' rangée'+(tot>1?'s':'')+' sur ce téléphone.':'Les cartes rangées sur ce téléphone peuvent aussi s\'envoyer par lien.')+'</p>'+
         (tot?'<button class="btn sm ghost" id="mshare">Partager mes cartes</button>':'')+'<p class="hint" id="smsg" style="margin:0"></p></div>'+
       '<div class="foot"><button class="btn ghost" id="mback">'+(from?'← Retour au jeu':'← Tous les jeux')+'</button></div>';
     show("mine");
@@ -2166,13 +2215,28 @@
       var card=mineMake(mineSel,vals);
       if(!card){el("mmsg").textContent=mineSel==="liste"?"Il faut un titre et au moins 3 réponses.":"Il manque un champ.";return;}
       var mm=mineAll();
+      if(mineTarget==="group"){
+        el("mmsg").textContent="Envoi à la bande…";
+        rpc("ajouter_carte_groupe",{code:gc,p_jeu:mineSel,p_carte:card}).then(function(){
+          grpSync(function(){openMine(mineSel,from);setTimeout(function(){var x=el("mf0");if(x)x.focus();var mg=el("mmsg");if(mg)mg.textContent="✓ Carte ajoutée pour toute la bande";},30);});
+        },function(){el("mmsg").textContent="⚠️ Pas de réseau : la carte n'a pas pu être envoyée. Réessaie, ou range-la sur ce téléphone.";});
+        return;
+      }
       if(mm[mineSel].indexOf(card)>=0){el("mmsg").textContent="Cette carte existe déjà.";return;}
       if(mm[mineSel].length>=MINE_MAX){el("mmsg").textContent="Maximum atteint pour ce jeu.";return;}
       mm[mineSel].push(card);mineSave(mm);openMine(mineSel,from);
       setTimeout(function(){var x=el("mf0");if(x)x.focus();var mg=el("mmsg");if(mg)mg.textContent="✓ Carte ajoutée";},30);
     });
     Array.prototype.forEach.call(el("s-mine").querySelectorAll(".mx"),function(b){
-      b.addEventListener("click",function(){var mm=mineAll();mm[mineSel].splice(+b.getAttribute("data-i"),1);mineSave(mm);var y=window.scrollY;openMine(mineSel,from);window.scrollTo(0,y);});
+      b.addEventListener("click",function(){
+        var y=window.scrollY,i=+b.getAttribute("data-i");
+        if(mineTarget==="group"){
+          var row=grpRows[i];if(!row)return;b.disabled=true;
+          rpc("supprimer_carte_groupe",{code:gc,p_id:row.id}).then(function(){grpSync(function(){openMine(mineSel,from);window.scrollTo(0,y);});},function(){b.disabled=false;el("mmsg").textContent="⚠️ Pas de réseau : impossible de supprimer pour l'instant.";});
+          return;
+        }
+        var mm=mineAll();mm[mineSel].splice(i,1);mineSave(mm);openMine(mineSel,from);window.scrollTo(0,y);
+      });
     });
     var sb=el("mshare");if(sb)sb.addEventListener("click",function(){
       var mm=mineAll(),o={};Object.keys(mm).forEach(function(k){if(mm[k].length)o[k]=mm[k];});
@@ -2183,7 +2247,66 @@
       else el("smsg").textContent=url;
     });
     el("mback").addEventListener("click",function(){if(from){openIntro(from);show("intro");}else toHub();});
+    if(el("mtgt"))Array.prototype.forEach.call(el("mtgt").querySelectorAll("button"),function(b){b.addEventListener("click",function(){mineTarget=b.getAttribute("data-t");openMine(mineSel,from);});});
+    wireGrp(function(){openMine(mineSel,from);});
+    if(gc&&!openMine.synced){openMine.synced=true;grpSync(function(ok){openMine.synced=false;if(ok&&!screens.mine.hidden){var y=window.scrollY;openMine.synced=true;openMine(mineSel,from);openMine.synced=false;window.scrollTo(0,y);}});}
   }
+  function grpPanelHTML(){
+    var gc=grpCode();
+    if(!gc)return '<div class="panel" style="margin-top:18px"><div class="plbl">👥 Cartes de la bande</div>'+
+      '<p class="hint" style="margin:0">Créez un groupe : chacun ajoute ses cartes de son côté et elles arrivent sur tous les téléphones de la bande (il faut internet pour les synchroniser).</p>'+
+      '<button class="btn sm" id="gcreate">Créer un groupe</button>'+
+      '<form class="addrow" id="gjoin"><input id="gcode" maxlength="20" placeholder="Ou entre un code reçu" autocomplete="off" autocapitalize="characters"><button class="add" type="submit">Rejoindre</button></form>'+
+      '<p class="hint" id="gmsg" style="margin:0"></p></div>';
+    var c=grpCache();
+    return '<div class="panel" style="margin-top:18px"><div class="plbl">👥 Votre bande</div>'+
+      '<p class="champ" style="font-size:22px;letter-spacing:.06em;margin:0">'+grpFmt(gc)+'</p>'+
+      '<p class="hint" style="margin:0">'+c.cards.length+' carte'+(c.cards.length>1?'s':'')+' partagée'+(c.cards.length>1?'s':'')+(c.at?' · synchronisé '+new Date(c.at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):'')+'</p>'+
+      '<div class="row2"><button class="btn sm" id="ginvite">Inviter la bande</button><button class="btn sm ghost" id="gleave">Quitter</button></div>'+
+      '<p class="hint" id="gmsg" style="margin:0"></p></div>';
+  }
+  function grpJoin(code,done){
+    lsSet("cart_group",code);lsSet("cart_group_cache",JSON.stringify({code:code,cards:[],at:0}));
+    grpSync(function(){if(done)done();});
+  }
+  function wireGrp(refresh){
+    var b=el("gcreate");if(b)b.addEventListener("click",function(){var c=grpNew();mineTarget="group";grpJoin(c,refresh);});
+    var f=el("gjoin");if(f)f.addEventListener("submit",function(e){
+      e.preventDefault();var c=grpNorm(el("gcode").value);
+      if(!/^[A-Z0-9]{8,16}$/.test(c)){el("gmsg").textContent="Code incorrect : il fait 10 caractères (ex. K7QM-2XPA-9R).";return;}
+      el("gmsg").textContent="Connexion…";mineTarget="group";
+      grpJoin(c,refresh);
+    });
+    var inv=el("ginvite");if(inv)inv.addEventListener("click",function(){
+      var url=location.origin+location.pathname+"#groupe="+grpCode();
+      var txt="Rejoins notre bande sur Les Cartouches 🎉 (code "+grpFmt(grpCode())+") :";
+      if(navigator.share){navigator.share({title:"Les Cartouches",text:txt,url:url}).catch(function(){});}
+      else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){el("gmsg").textContent="✓ Lien copié : colle-le dans votre groupe.";},function(){el("gmsg").textContent=url;});}
+      else el("gmsg").textContent=url;
+    });
+    var armed=false,lv=el("gleave");if(lv)lv.addEventListener("click",function(){
+      if(!armed){armed=true;lv.textContent="Confirmer";el("gmsg").textContent="Les cartes de la bande ne seront plus utilisées sur ce téléphone (elles restent pour les autres). Garde le code si tu veux revenir.";return;}
+      try{localStorage.removeItem("cart_group");localStorage.removeItem("cart_group_cache");}catch(e){}
+      mineTarget="local";refresh();
+    });
+  }
+  var grpIncoming=null;
+  (function(){
+    var h=location.hash.match(/groupe=([A-Za-z0-9-]+)/);if(!h)return;
+    var c=grpNorm(h[1]);if(/^[A-Z0-9]{8,16}$/.test(c)&&c!==grpCode())grpIncoming=c;
+    try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  })();
+  function grpIncomingHTML(){
+    if(!grpIncoming)return "";
+    return '<div class="panel" style="margin-top:18px;border-color:var(--accent)"><div class="plbl">👥 Invitation</div>'+
+      '<p class="hint" style="margin:0">On t\'invite à rejoindre la bande <b>'+grpFmt(grpIncoming)+'</b> : ses cartes perso arriveront sur ton téléphone'+(grpCode()?' (tu quitteras ta bande actuelle)':'')+'.</p>'+
+      '<div class="row2"><button class="btn sm" id="gyes">Rejoindre</button><button class="btn sm ghost" id="gno">Non merci</button></div></div>';
+  }
+  function wireGrpIncoming(){
+    var y=el("gyes");if(y)y.addEventListener("click",function(){var c=grpIncoming;grpIncoming=null;grpJoin(c,function(){buildHub();});buildHub();});
+    var n=el("gno");if(n)n.addEventListener("click",function(){grpIncoming=null;buildHub();});
+  }
+
   /* cartes reçues par lien */
   var mineIncoming=null;
   (function(){
@@ -2208,6 +2331,125 @@
       mineSave(mm);mineIncoming=null;buildHub();
     });
     var n=el("inno");if(n)n.addEventListener("click",function(){mineIncoming=null;buildHub();});
+  }
+
+  /* ---------------- PACKS À THÈME ---------------- */
+  var THEMES={
+    evjf:{lbl:"👰 EVJF / EVG",ico:"👰",adult:true,cards:{
+      coupable:["…oublier les alliances le jour J ?","…pleurer pendant ses vœux ?","…finir la soirée en chantant du Céline Dion ?","…faire un discours de mariage beaucoup trop long ?","…se marier à Las Vegas sur un coup de tête ?","…organiser son mariage avec un tableur Excel ?","…s'endormir avant minuit ce soir ?","…tomber en essayant d'attraper le bouquet ?","…draguer quelqu'un ce soir ?","…perdre une chaussure avant la fin de la soirée ?"],
+      tribunal:["d'avoir disparu du groupe depuis qu'il ou elle est en couple","de ne jamais répondre au groupe WhatsApp du mariage","d'avoir parlé du plan de table pendant plus d'une heure","de vouloir tout contrôler pour le mariage","d'avoir imposé un dress code impossible","d'avoir déjà oublié la date d'anniversaire de son couple"],
+      dilemme:["Danser seul·e sur une chanson de ton choix au mariage|Faire un discours improvisé de deux minutes","Un mariage en petit comité|Une énorme fête avec 300 invités","Une lune de miel à la plage|Un road trip à l'aventure","Choisir la tenue de tes témoins|Laisser tes témoins choisir la tienne","Un mariage l'hiver à la montagne|Un mariage l'été au bord de la mer","Un DJ qui ne passe que des années 80|Un groupe qui ne joue que du jazz"],
+      chrono:["Des chansons de mariage","Des destinations de lune de miel","Des choses qu'on trouve sur un buffet de mariage","Des couples célèbres","Des films de mariage","Des cadeaux de mariage","Des défis pour un EVJF ou un EVG","Des phrases qu'on entend dans un discours de mariage"],
+      menteur:["J'ai déjà pleuré à un mariage.","J'ai déjà été demoiselle ou garçon d'honneur.","J'ai déjà attrapé le bouquet de la mariée.","J'ai déjà été recalé·e à l'entrée d'une boîte de nuit.","J'ai déjà dansé sur une table.","J'ai déjà rencontré quelqu'un à un mariage.","J'ai déjà oublié le prénom de la personne avec qui je dansais.","J'ai déjà fait un discours à un mariage."],
+      taboo:["Alliance|bague|doigt|mariage","Témoin|mariage|signer|ami","Lune de miel|voyage|mariés|vacances","Bouquet|fleurs|lancer|mariée","Voile|robe|tête|blanc","Pièce montée|gâteau|choux|caramel","Mairie|maire|signer|mariage","Demande en mariage|genou|bague|épouser"],
+      connait:["o|Quelle chanson {v} choisirait pour sa première danse ?","o|Quel plat {v} voudrait absolument au repas de mariage ?","o|Dans quel pays {v} rêve de partir en voyage de noces ?","ab|Pour la lune de miel, {v} préfère…|Plage et farniente|Aventure et randonnée","ab|Au mariage, {v} sera plutôt…|Sur la piste toute la nuit|À table à discuter","ab|{v} préfère…|Un mariage traditionnel|Un mariage original"]
+    }},
+    anniv:{lbl:"🎂 Anniversaire",ico:"🎂",cards:{
+      coupable:["…oublier l'anniversaire de son meilleur ami ?","…souffler les bougies avant la fin de la chanson ?","…offrir un cadeau acheté la veille ?","…pleurer en ouvrant ses cadeaux ?","…mentir sur son âge ?","…organiser une fête surprise ?","…manger la moitié du gâteau ?","…revendre un cadeau ?"],
+      tribunal:["d'offrir toujours le même cadeau","d'avoir oublié un anniversaire important","de ne jamais participer à la cagnotte","d'avoir gâché une fête surprise","d'arriver toujours en retard aux anniversaires","de faire semblant d'aimer ses cadeaux"],
+      dilemme:["Une fête surprise géante|Un dîner tranquille avec deux amis","Un gros cadeau|Plein de petits cadeaux","Fêter ton anniversaire chaque année|Le fêter tous les cinq ans, mais en très grand","Un gâteau au chocolat|Une tarte aux fraises","Une carte écrite à la main|Une vidéo de tous tes proches","Avoir dix ans de moins|Avoir dix ans de plus, mais être riche"],
+      chrono:["Des parfums de gâteau","Des idées de cadeaux","Des chansons pour faire la fête","Des jeux pour un anniversaire d'enfant","Des choses qu'on met sur un gâteau","Des thèmes de soirée déguisée","Des desserts de fête","Des choses qu'on reçoit pour ses 18 ans"],
+      menteur:["J'ai déjà eu une fête surprise.","J'ai déjà oublié l'anniversaire d'un proche.","J'ai déjà revendu un cadeau.","J'ai déjà menti sur mon âge.","J'ai déjà offert un cadeau qu'on m'avait offert.","J'ai déjà pleuré le jour de mon anniversaire.","J'ai déjà fêté mon anniversaire à l'étranger.","J'ai déjà soufflé les bougies de quelqu'un d'autre."],
+      taboo:["Bougie|gâteau|souffler|flamme","Cadeau|paquet|offrir|surprise","Ballon|gonfler|fête|air","Confettis|papier|fête|lancer","Cagnotte|argent|participer|cadeau","Fête surprise|cacher|secret|fête","Gâteau d'anniversaire|bougies|dessert|chocolat","Âge|ans|vieux|anniversaire"],
+      connait:["o|Quel cadeau ferait le plus plaisir à {v} ?","o|Quel est le gâteau d'anniversaire préféré {de} ?","o|Quel a été le meilleur anniversaire {de} ?","ab|Pour son anniversaire, {v} préfère…|Une grosse fête|Un moment en petit comité","ab|{v} préfère…|Les cadeaux surprises|Choisir son cadeau","ab|Quand on lui chante joyeux anniversaire, {v}…|Adore ça|Voudrait disparaître"]
+    }},
+    noel:{lbl:"🎄 Noël",ico:"🎄",cards:{
+      coupable:["…ouvrir ses cadeaux en avance ?","…s'endormir pendant le repas de Noël ?","…offrir des chaussettes ?","…croire encore un peu au Père Noël ?","…emballer ses cadeaux le 24 au soir ?","…chanter « Petit Papa Noël » complètement faux ?","…faire tomber le sapin ?","…porter le pull de Noël le plus moche ?","…finir tous les chocolats avant le dessert ?"],
+      tribunal:["d'emballer ses cadeaux dans du papier journal","d'avoir mangé tous les chocolats du calendrier de l'Avent","d'offrir chaque année une boîte de chocolats","d'avoir laissé le sapin jusqu'en février","de ne jamais aider à débarrasser la table","d'avoir secoué tous les cadeaux pour deviner ce qu'il y avait dedans"],
+      dilemme:["Un Noël à la neige|Un Noël au soleil","Ouvrir les cadeaux le 24 au soir|Les ouvrir le 25 au matin","Un vrai sapin|Un sapin artificiel","La bûche glacée|La bûche pâtissière","Être le Père Noël d'un soir|Être un lutin pendant tout décembre","Un Noël en grande famille|Un Noël à deux"],
+      chrono:["Des chants de Noël","Des films de Noël","Des choses qu'on accroche au sapin","Des plats du repas de Noël","Des choses qu'on trouve dans un marché de Noël","Des chocolats de Noël","Des cadeaux qu'on offre souvent","Des choses qui brillent"],
+      menteur:["J'ai déjà ouvert un cadeau en cachette avant Noël.","J'ai déjà fait semblant d'aimer un cadeau.","J'ai cru au Père Noël après mes 10 ans.","J'ai déjà offert un cadeau qu'on m'avait offert.","J'ai déjà passé Noël loin de ma famille.","J'ai déjà mangé un calendrier de l'Avent entier en un jour.","J'ai déjà porté un pull de Noël en public.","J'ai déjà joué le Père Noël pour quelqu'un."],
+      taboo:["Sapin|arbre|Noël|boules","Père Noël|barbe|rouge|cadeaux","Renne|traîneau|Rudolph|nez","Bûche|gâteau|Noël|dessert","Guirlande|lumières|sapin|décoration","Lutin|Père Noël|aide|oreilles","Calendrier de l'Avent|chocolat|décembre|cases","Cheminée|feu|Père Noël|bois"],
+      connait:["o|Quel est le plat de Noël préféré {de} ?","o|Quel est le film de Noël préféré {de} ?","o|Quel cadeau {v} a reçu enfant et n'a jamais oublié ?","ab|À Noël, {v} préfère…|Ouvrir les cadeaux le 24 au soir|Les ouvrir le 25 au matin","ab|{v} préfère…|La bûche|Les chocolats","ab|{v} préfère…|Décorer le sapin|Emballer les cadeaux"]
+    }},
+    halloween:{lbl:"🎃 Halloween",ico:"🎃",cards:{
+      coupable:["…hurler devant un film d'horreur ?","…manger tous les bonbons avant la fin de la soirée ?","…trouver son déguisement au dernier moment ?","…avoir peur dans une maison hantée ?","…croire aux fantômes ?","…se cacher pour faire peur aux autres ?","…se déguiser en vampire ?","…dormir avec la lumière allumée ce soir ?"],
+      tribunal:["d'avoir caché les meilleurs bonbons","d'avoir triché à « Un bonbon ou un sort »","de ne jamais se déguiser","d'avoir fait peur à quelqu'un jusqu'aux larmes","de se cacher derrière un coussin pendant les films d'horreur","d'avoir piqué les bonbons des enfants"],
+      dilemme:["Passer une nuit dans un château hanté|Passer une nuit seul·e dans une forêt","Être un vampire|Être un loup-garou","Croiser un fantôme|Croiser un zombie","Un déguisement qui fait peur|Un déguisement qui fait rire","Les bonbons acidulés|Les bonbons au chocolat","Regarder un film d'horreur seul·e|Raconter une histoire qui fait peur devant tout le monde"],
+      chrono:["Des monstres","Des déguisements d'Halloween","Des films qui font peur","Des bonbons","Des choses qu'on trouve dans une maison hantée","Des choses orange","Des sorcières célèbres","Des bruits qui font peur"],
+      menteur:["J'ai déjà dormi avec la lumière allumée après un film d'horreur.","J'ai déjà fait « Un bonbon ou un sort » déguisé·e.","J'ai déjà cru voir un fantôme.","J'ai déjà sculpté une citrouille.","J'ai déjà visité une maison hantée.","J'ai déjà eu peur d'une poupée.","J'ai déjà crié pendant un film d'horreur au cinéma.","J'ai déjà fait peur à quelqu'un en me cachant."],
+      taboo:["Citrouille|orange|Halloween|sculpter","Fantôme|drap|blanc|hanté","Sorcière|balai|chapeau|potion","Momie|bandelettes|Égypte|pyramide","Squelette|os|crâne|corps","Toile d'araignée|araignée|fil|piège","Zombie|mort-vivant|marcher|cerveau","Chauve-souris|nuit|voler|vampire"],
+      connait:["o|Quel serait le déguisement idéal pour {v} ?","o|De quoi {v} a le plus peur ?","o|Quels sont les bonbons préférés {de} ?","ab|{v} préfère…|Les films d'horreur|Les comédies","ab|{v} serait plutôt…|Un vampire|Un fantôme","ab|Face à un monstre, {v}…|Part en courant|L'affronte"]
+    }},
+    vacances:{lbl:"⛺ Vacances",ico:"⛺",cards:{
+      coupable:["…oublier son maillot de bain ?","…attraper un coup de soleil dès le premier jour ?","…se perdre en randonnée ?","…faire s'écrouler la tente ?","…ronfler le plus fort ?","…rapporter les souvenirs les plus ringards ?","…passer les vacances sur son téléphone ?","…refuser de se baigner parce que l'eau est froide ?","…manger une glace tous les jours ?"],
+      tribunal:["d'avoir pris toute la place dans la voiture","de ne jamais aider à monter la tente","d'avoir mis la musique trop fort sur la route","d'être toujours en retard au moment de partir","d'avoir oublié la crème solaire","d'avoir mangé tout le goûter avant d'arriver"],
+      dilemme:["Camping sous la tente|Hôtel tout confort","Vacances à la mer|Vacances à la montagne","Partir sans rien prévoir|Tout planifier à l'avance","Un mois sans téléphone|Un mois sans dessert","Voyager en voiture|Voyager en avion","Une plage bondée au soleil|Une plage déserte sous les nuages"],
+      chrono:["Des choses à mettre dans sa valise","Des activités à la plage","Des parfums de glace","Des pays où partir en vacances","Des jeux de plage","Des choses qu'on emporte en camping","Des souvenirs qu'on rapporte de vacances","Des sports nautiques"],
+      menteur:["J'ai déjà dormi à la belle étoile.","J'ai déjà raté un avion ou un train.","J'ai déjà attrapé un énorme coup de soleil.","J'ai déjà fait du camping sauvage.","J'ai déjà perdu ma valise.","J'ai déjà été piqué·e par une méduse.","J'ai déjà fait plus de 10 heures de route d'un coup.","J'ai déjà oublié quelque chose d'important en partant en vacances."],
+      taboo:["Tente|camping|dormir|piquets","Crème solaire|soleil|peau|brûler","Valise|bagages|voyage|vêtements","Glace|froid|cornet|parfum","Château de sable|plage|seau|pelle","Moustique|piqûre|bzz|insecte","Randonnée|marcher|montagne|chaussures","Bouée|eau|flotter|piscine"],
+      connait:["o|Quelle est la destination de rêve {de} ?","o|Qu'est-ce que {v} oublie toujours dans sa valise ?","o|Quel est le meilleur souvenir de vacances {de} ?","ab|En vacances, {v} préfère…|Ne rien faire au soleil|Visiter et bouger","ab|{v} préfère…|La tente|L'hôtel","ab|{v} préfère…|La piscine|La mer"]
+    }}
+  };
+  var THEME_GAMES={coupable:1,tribunal:1,dilemme:1,chrono:1,menteur:1,taboo:1,connait:1};
+  function curTheme(){var k=lsGet("cart_theme")||"";if(!THEMES[k])return "";if(THEMES[k].adult&&mode==="famille")return "";return k;}
+  function themeCards(id){
+    var k=curTheme();if(!k)return [];
+    var raw=(THEMES[k].cards[id]||[]).filter(famOK);
+    return raw.map(function(x){if(id==="dilemme"){var p=x.split("|");return {a:p[0],b:p[1]};}return x;});
+  }
+  /* les cartes du thème passent en priorité, mélangées aux premières cartes du jeu */
+  function themeMix(id,deck){
+    var tc=shuffle(themeCards(id));
+    if(!tc.length)return deck;
+    var len=deck.length;
+    if(G&&G.partie)tc=tc.slice(0,Math.ceil(G.partie*0.6));
+    var head=shuffle(tc.concat(deck.slice(0,Math.ceil(tc.length/2))));
+    var out=head.concat(deck.slice(Math.ceil(tc.length/2)));
+    return G&&G.partie?out.slice(0,Math.max(len,tc.length)):out;
+  }
+  function themeHTML(){
+    var k=curTheme(),keys=Object.keys(THEMES).filter(function(t){return !(THEMES[t].adult&&mode==="famille");});
+    return '<div class="sect"><div class="sh">🎭 Thème de la soirée</div><div class="ss">Des cartes spéciales qui passent en priorité dans 7 jeux</div></div>'+
+      '<div class="chips mgames" id="themes"><button class="pchip'+(k?'':' on')+'" data-t="">Aucun</button>'+
+      keys.map(function(t){return '<button class="pchip'+(k===t?' on':'')+'" data-t="'+t+'">'+THEMES[t].lbl+'</button>';}).join("")+'</div>';
+  }
+
+  /* ---------------- ÉCRAN DE BIENVENUE ---------------- */
+  function openWelcome(step){
+    step=step||1;
+    var dots='<div class="wdots">'+[1,2,3].map(function(i){return '<i'+(i===step?' class="on"':'')+'></i>';}).join("")+'</div>';
+    var W=el("s-welcome"),html="";
+    if(step===1){
+      var chips=players.map(function(p,i){return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer">×</button></span>';}).join("");
+      html='<div class="wem">🎉</div><h2>Bienvenue dans<br>Les Cartouches</h2>'+
+        '<p class="sub">Des jeux pour la soirée, le trajet ou la famille. Un seul téléphone suffit, il passe de main en main.</p>'+
+        '<div class="panel"><div class="plbl">Qui joue ? <span class="cnt">'+(players.length||"")+'</span></div>'+
+        (chips?'<div class="chips">'+chips+'</div>':'')+
+        '<form class="addrow" id="waddf"><input id="wname" maxlength="18" placeholder="Ajouter un prénom" autocomplete="off" enterkeyhint="done"><button class="add" type="submit">Ajouter</button></form>'+
+        '<p class="hint">Facultatif, mais avec les prénoms le jeu désigne les joueurs et compte les points.</p></div>'+
+        '<div class="foot"><button class="btn" id="wnext">Suivant</button><button class="linkbtn" id="wskip">Passer</button></div>'+dots;
+    }else if(step===2){
+      html='<div class="wem">🎭</div><h2>Quelle ambiance ?</h2><p class="sub">Tu pourras changer à tout moment depuis l\'accueil.</p>'+
+        '<div class="wchoice">'+
+          '<button data-c="soiree"><span class="e">🍻</span><span><b>Soirée entre adultes</b><span>Vérités, défis et mauvaise foi, avec des gages (ou des gorgées).</span></span></button>'+
+          '<button data-c="trajet"><span class="e">🚌</span><span><b>Trajet</b><span>Quiz et devinettes à faire assis, en voiture, en car ou en train.</span></span></button>'+
+          '<button data-c="famille"><span class="e">👨‍👩‍👧</span><span><b>En famille</b><span>Tout public : gages doux et jeux adaptés aux enfants.</span></span></button>'+
+        '</div><div class="foot"><button class="linkbtn" id="wskip">Passer</button></div>'+dots;
+    }else{
+      html='<div class="wem">💡</div><h2>Trois astuces</h2><p class="sub">Et c\'est parti.</p>'+
+        '<div class="panel wtips">'+
+          '<div><span class="e">☆</span><span>Touche l\'<b>étoile</b> d\'un jeu pour l\'épingler en haut. <b>🎲 Surprends-moi</b> en lance un au hasard.</span></div>'+
+          '<div><span class="e">✏️</span><span>Ajoute <b>vos propres cartes</b> : anecdotes, répliques cultes, blagues internes, et partagez-les avec la bande.</span></div>'+
+          '<div><span class="e">🏆</span><span>Lance un <b>tournoi</b> : chaque quiz rapporte des points jusqu\'à l\'arrivée.</span></div>'+
+          (isStandalone()?'':'<div><span class="e">📲</span><span><b>Installe l\'appli</b> : sur iPhone, Partager puis « Sur l\'écran d\'accueil ».</span></div>')+
+        '</div><div class="foot"><button class="btn" id="wdone">C\'est parti !</button></div>'+dots;
+    }
+    W.innerHTML=html;show("welcome");el("back").classList.remove("show");
+    function finish(){lsSet("cart_welcome","1");toHub();}
+    var sk=el("wskip");if(sk)sk.addEventListener("click",finish);
+    if(step===1){
+      el("waddf").addEventListener("submit",function(e){e.preventDefault();var v=el("wname").value.trim().replace(/\s+/g," ");if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();}openWelcome(1);el("wname").focus();});
+      Array.prototype.forEach.call(W.querySelectorAll(".px"),function(b){b.addEventListener("click",function(){players.splice(+b.getAttribute("data-i"),1);save();openWelcome(1);});});
+      el("wnext").addEventListener("click",function(){var v=el("wname").value.trim().replace(/\s+/g," ");if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();}openWelcome(2);});
+    }else if(step===2){
+      Array.prototype.forEach.call(W.querySelectorAll(".wchoice button"),function(b){b.addEventListener("click",function(){
+        var c=b.getAttribute("data-c");
+        if(c==="famille"){mode="famille";lsSet("cart_filter","tous");}
+        else{if(mode==="famille")mode="gages";lsSet("cart_filter",c);}
+        save();openWelcome(3);
+      });});
+    }else el("wdone").addEventListener("click",finish);
   }
 
   var HUB_FILTERS=[
@@ -2236,7 +2478,7 @@
       var on=favs.indexOf(g.id)>=0;
       return '<div class="gw"><button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
         '<span class="em">'+g.em+'</span>'+
-        '<span class="txt"><span class="nm">'+g.name+(NEEDS_NET[g.id]?'<span class="net">📶 internet</span>':'')+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
+        '<span class="txt"><span class="nm">'+g.name+(NEEDS_NET[g.id]?'<span class="net">📶 internet</span>':'')+(curTheme()&&THEME_GAMES[g.id]?'<span class="net">'+THEMES[curTheme()].ico+' thème</span>':'')+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
         '<span class="go"></span></button>'+
         '<button class="fav'+(on?' on':'')+'" data-fav="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?'Retirer des favoris':'Ajouter aux favoris')+'">'+(on?'★':'☆')+'</button></div>';
     }
@@ -2252,11 +2494,12 @@
     function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var gamesHTML=
-      incomingHTML()+
+      incomingHTML()+grpIncomingHTML()+
       '<div class="filters" id="filters" role="tablist">'+FILTERS.map(function(f){
         return '<button role="tab" data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-selected="true"':'')+'>'+f[1]+'</button>';
       }).join("")+'</div>'+
       '<button class="surprise" id="surprise">🎲 Surprends-moi</button>'+
+      themeHTML()+
       '<button class="minebtn" id="openmine">✏️ Vos cartes perso'+(mineCount()?' · '+mineCount():'')+'<span>Ajoutez vos anecdotes, vos répliques cultes et vos blagues internes</span></button>'+
       sect("⭐ Tes favoris",favList.length?"":"",favList)+
       (filt==="tous"?
@@ -2291,10 +2534,14 @@
       gamesHTML+
       '<div class="sect"><div class="sh">🏆 Tournoi</div><div class="ss">Un classement qui court sur tous les quiz</div></div>'+tourHTML()+
       installHTML()+
-      '<p class="fineprint">Version du __VERSION__</p>'+
+      '<p class="fineprint">Version du __VERSION__ · <button class="linkbtn" id="rewelcome" style="padding:0;font-size:12px">Revoir le guide</button></p>'+
       feedbackHTML();
-    wireFeedback();wireTour();wireIncoming();
+    wireFeedback();wireTour();wireIncoming();wireGrpIncoming();
+    el("rewelcome").addEventListener("click",function(){openWelcome(1);});
     el("openmine").addEventListener("click",function(){openMine(null,null);});
+    Array.prototype.forEach.call(el("themes").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){lsSet("cart_theme",b.getAttribute("data-t"));var y=window.scrollY;buildHub();window.scrollTo(0,y);});
+    });
     var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
@@ -2412,6 +2659,7 @@
       '<div class="rules">'+rules+'</div>'+
       amb+(G.id==="blindtest"||G.id==="paroles"?"":opts)+
       mineIntro()+
+      (curTheme()&&themeCards(G.id).length?'<p class="modeline">'+THEMES[curTheme()].lbl+' · '+themeCards(G.id).length+' cartes spéciales en priorité</p>':'')+
       (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+(G.id!=="histoire"&&G.id!=="liste"&&G.id!=="taboo"&&tourGet()&&tourGet().on?' · 🏆 compte pour le tournoi':'')+'</p>':
       '<p class="modeline">'+VOC[mode].ICO+' Mode '+({gages:"gages",alcool:"gorgées",famille:"famille"}[mode])+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
@@ -2514,6 +2762,7 @@
     curFresh={liste:"liste",taboo:"taboo",fredonne:"fredonne",histoire:"histoire",chrono:"chrono",cascade:"cascade",
       ousuisje:"ou_"+ouCat,avant:"av_"+avMode,blindtest:"bt_"+btCat,paroles:"par_"+parCat,connait:"connait"}[G.id]||(G.partie?G.id:null);
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
+    if(THEME_GAMES[G.id])deck=themeMix(G.id,deck);
     if(MINE_GAMES[G.id]){deck=mineMix(G.id,deck);if(G.id==="taboo")tPos=0;}
     show("play");
     renderRound();
@@ -4065,6 +4314,8 @@
   window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;if(screens.hub&&!screens.hub.hidden)buildHub();});
   buildHub();
   show("hub");
+  if(!lsGet("cart_welcome")&&!players.length&&!mineIncoming&&!grpIncoming)openWelcome(1);
+  if(grpCode())grpSync(function(ok){if(ok&&!screens.hub.hidden){var y=window.scrollY;buildHub();window.scrollTo(0,y);}});
   flush();
 })();
 </script>
