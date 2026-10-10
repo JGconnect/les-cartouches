@@ -173,6 +173,22 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .mine h2{font-family:var(--display);font-weight:800;font-size:30px;margin:6px 0 4px}
+  .mine .sub{margin-bottom:6px}
+  .mform{display:grid;gap:10px}
+  .mform input,.mform textarea{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);font-family:var(--body);font-size:16px;width:100%;resize:vertical}
+  .mform input::placeholder,.mform textarea::placeholder{color:var(--ink-faint)}
+  .mform label{font-size:13px;color:var(--ink-faint);font-weight:600}
+  .mlist{display:grid;gap:8px}
+  .mitem{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px 8px 10px 14px;font-size:14.5px;line-height:1.4}
+  .mitem .mt{flex:1;min-width:0;overflow-wrap:anywhere}.mitem .mt small{display:block;color:var(--ink-faint);font-size:12.5px;margin-top:2px}
+  .mitem .mx{flex:none;border:0;background:none;color:var(--ink-faint);font-size:20px;line-height:1;width:34px;height:34px;cursor:pointer;border-radius:10px}
+  .mgames .pchip{cursor:pointer;color:var(--ink-soft);padding:8px 13px}
+  .mgames .pchip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .mgames .pchip .n{font-size:11.5px;opacity:.75;margin-left:3px}
+  .minebtn{display:block;width:100%;margin-top:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--radius);padding:14px 16px;font:inherit;font-weight:700;font-size:15.5px;cursor:pointer;text-align:left}
+  .minebtn span{display:block;font-weight:500;font-size:13px;color:var(--ink-faint);margin-top:2px}
+  .mlink{background:none;border:0;color:var(--ink-soft);text-decoration:underline;font:inherit;font-size:14px;cursor:pointer;padding:4px;justify-self:center}
   .tourp{margin-top:8px}.tourp .board{display:grid;gap:8px;margin:6px 0 10px}.tourp .bp{color:#ffd23f}
   .tour .bp{color:#ffd23f}
   .champ{font-family:var(--display);font-weight:800;font-size:24px;margin:4px 0 2px}
@@ -332,6 +348,7 @@
     <section class="screen intro" id="s-intro"></section>
     <section class="screen play" id="s-play"></section>
     <section class="screen end" id="s-end"></section>
+    <section class="screen mine" id="s-mine" hidden></section>
   </div>
   <div class="sheet" id="sheet" hidden>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="slbl">
@@ -1967,7 +1984,7 @@
     return idxs.map(function(i){return CASCADE[i];});
   }
   function el(id){return document.getElementById(id);}
-  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end")};
+  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end"),mine:el("s-mine")};
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}if(cTimer){clearTimeout(cTimer);cTimer=null;}var o=document.getElementById("countin");if(o)o.hidden=true;}
   /* ---------------- VIBRATIONS & COMPTE À REBOURS ---------------- */
@@ -2036,6 +2053,162 @@
   function stopVoiceLoop(){trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}shutUp();}
 
   /* ---------------- HUB ---------------- */
+  /* ---------------- VOS CARTES PERSO ---------------- */
+  var MINE_GAMES={
+    coupable:{lbl:"Qui est le plus susceptible de…",ph:["finir en prison un jour ?"],hint:"Exemple : « oublier son passeport à l'aéroport »"},
+    tribunal:{lbl:"L'accusé·e est soupçonné·e…",ph:["d'avoir mangé la dernière part de pizza"],hint:"Commence par « de » ou « d' »."},
+    dilemme:{lbl:"Tu préfères…",ph:["Option A","Option B"]},
+    chrono:{lbl:"Catégorie du chrono",ph:["Des surnoms de Julien"]},
+    vraifaux:{lbl:"Anecdote vraie ou fausse",ph:["Max a déjà été coincé dans un ascenseur.","Le détail à raconter après (facultatif)"],vf:true,hint:"Vos anecdotes sur la bande : les autres devinent si c'est vrai."},
+    quiadit:{lbl:"Réplique culte de la bande",ph:["« Je conduis mieux après un café. »","Qui l'a dit ?","Quand ? Où ? (facultatif)"]},
+    liste:{lbl:"Catégorie de La Liste",ph:["Les villes où on est partis ensemble","Réponses, séparées par des virgules"],hint:"Au moins 3 réponses."},
+    taboo:{lbl:"Mot à faire deviner",ph:["Raclette","Les 3 mots interdits, séparés par des virgules"]}
+  };
+  var MINE_MAX=200, mineMode="mix", mineSel="vraifaux";
+  function mineAll(){
+    var o={};try{o=JSON.parse(lsGet("cart_mine")||"{}")||{};}catch(e){o={};}
+    var r={};Object.keys(MINE_GAMES).forEach(function(k){r[k]=Array.isArray(o[k])?o[k].filter(function(x){return typeof x==="string"&&x.length<=400;}).slice(0,MINE_MAX):[];});
+    return r;
+  }
+  function mineSave(o){lsSet("cart_mine",JSON.stringify(o));}
+  function mineCount(id){var m=mineAll();return id?(m[id]||[]).length:Object.keys(m).reduce(function(a,k){return a+m[k].length;},0);}
+  function clean(v){return String(v||"").replace(/[|\n\r]+/g," ").replace(/\s+/g," ").trim().slice(0,160);}
+  function mineMake(id,f){
+    var a=clean(f[0]),b=clean(f[1]),c=clean(f[2]);
+    if(!a)return null;
+    switch(id){
+      case"coupable":a=a.replace(/^(…|\.\.\.)\s*/,"").replace(/^(qui est le plus susceptible )?(de |d')/i,function(m,q,d){return d.toLowerCase()==="d'"?"":"";});
+        if(!/[?!.]$/.test(a))a+=" ?";return "…"+a;
+      case"tribunal":if(!/^(de |d'|du |des )/i.test(a))a="de "+a;return a;
+      case"dilemme":if(!b)return null;return a+"|"+b;
+      case"chrono":return a;
+      case"vraifaux":return (f[3]==="F"?"F":"V")+"|"+a+"|"+(b||(f[3]==="F"?"C'était faux !":"Eh oui, c'est vrai !"));
+      case"quiadit":if(!b)return null;return "p|"+a.replace(/^«\s*|\s*»$/g,"")+"|"+b+"|Entre nous||"+c;
+      case"liste":var ans=b.split(/\s*[,;]\s*/).filter(Boolean).map(function(x){return x.slice(0,40);});if(ans.length<3)return null;return a+"|"+ans.slice(0,30).join(";");
+      case"taboo":var ban=b.split(/\s*[,;]\s*/).filter(Boolean).slice(0,5);if(!ban.length)return null;return a+"|"+ban.join("|");
+    }
+    return null;
+  }
+  function mineLabel(id,x){
+    var p=x.split("|");
+    switch(id){
+      case"dilemme":return esc(p[0])+' <b>ou</b> '+esc(p[1]);
+      case"vraifaux":return (p[0]==="V"?"✅ ":"❌ ")+esc(p[1])+'<small>'+esc(p[2])+'</small>';
+      case"quiadit":return '« '+esc(p[1])+' »<small>— '+esc(p[2])+(p[5]?' · '+esc(p[5]):'')+'</small>';
+      case"liste":return esc(p[0])+'<small>'+esc((p[1]||"").split(";").join(", "))+'</small>';
+      case"taboo":return '<b>'+esc(p[0])+'</b><small>Interdit : '+esc(p.slice(1).join(", "))+'</small>';
+    }
+    return esc(x);
+  }
+  /* convertit vos cartes au format du jeu (texte échappé pour les jeux qui affichent du HTML) */
+  function mineCards(id){
+    return (mineAll()[id]||[]).filter(famOK).map(function(x){
+      var p=x.split("|");
+      if(id==="dilemme")return {a:esc(p[0]),b:esc(p[1])};
+      if(id==="liste")return {c:p[0],a:(p[1]||"").split(";").join("|"),h:"",mine:true};
+      if(id==="coupable"||id==="tribunal"||id==="chrono")return esc(x);
+      return x;
+    });
+  }
+  function mineMix(id,deck){
+    var mc=mineCards(id);
+    if(!mc.length)return deck;
+    if(mineMode==="only")return shuffle(mc);
+    mc=shuffle(mc);
+    if(G&&G.partie)mc=mc.slice(0,Math.max(3,Math.ceil(G.partie/2)));
+    var out=deck.slice(),span=Math.min(out.length,Math.max(mc.length*2,8));
+    mc.forEach(function(c){out.splice(Math.floor(Math.random()*(span+1)),0,c);span++;});
+    return out;
+  }
+  function mineIntro(){
+    if(!MINE_GAMES[G.id])return "";
+    var n=mineCount(G.id);
+    return (n?segOptsG("minem","Vos cartes perso ("+n+")",["mix","only"],mineMode,function(v){return {mix:"🔀 Mélangées<span class=\"s\">avec celles du jeu</span>",only:"✏️ Seulement les nôtres<span class=\"s\">"+n+" carte"+(n>1?"s":"")+"</span>"}[v];}):"")+
+      '<button class="mlink" id="tomine">✏️ '+(n?'Modifier vos cartes':'Ajouter vos propres cartes à ce jeu')+'</button>';
+  }
+  function segOptsG(id,lbl,vals,cur,fmt){return '<div class="ambiance"><div class="lbl">'+lbl+'</div><div class="seg two" id="'+id+'">'+vals.map(function(n){return '<button data-n="'+n+'"'+(cur===n?' class="on"':'')+'>'+fmt(n)+'</button>';}).join("")+'</div></div>';}
+  function b64e(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+  function b64d(str){str=str.replace(/-/g,"+").replace(/_/g,"/");while(str.length%4)str+="=";return decodeURIComponent(escape(atob(str)));}
+  function openMine(id,from){
+    if(id&&MINE_GAMES[id])mineSel=id;
+    var m=mineAll(),cfg=MINE_GAMES[mineSel],list=m[mineSel];
+    var gname=function(k){var g=game(k);return g.em+" "+g.name;};
+    var f=cfg.ph.map(function(ph,i){
+      return (i===1&&mineSel!=="vraifaux"&&mineSel!=="quiadit"&&mineSel!=="dilemme")||(mineSel==="quiadit"&&i>0)||(mineSel==="vraifaux"&&i===1)?
+        '<input id="mf'+i+'" maxlength="'+(mineSel==="liste"&&i===1?400:160)+'" placeholder="'+esc(ph)+'" autocomplete="off">':
+        '<textarea id="mf'+i+'" rows="2" maxlength="160" placeholder="'+esc(ph)+'"></textarea>';
+    }).join("");
+    var tot=mineCount();
+    el("s-mine").innerHTML=
+      '<div class="kicker">Vos cartes perso</div><h2>✏️ À vous de jouer</h2>'+
+      '<p class="sub">Vos blagues internes, vos anecdotes, vos répliques cultes : elles se glissent parmi les cartes du jeu.</p>'+
+      '<div class="chips mgames" id="mgames">'+Object.keys(MINE_GAMES).map(function(k){
+        return '<button class="pchip'+(k===mineSel?' on':'')+'" data-k="'+k+'">'+gname(k)+(m[k].length?'<span class="n">'+m[k].length+'</span>':'')+'</button>';
+      }).join("")+'</div>'+
+      '<div class="panel" style="margin-top:14px"><div class="plbl">'+cfg.lbl+'</div><form class="mform" id="mform">'+f+
+        (cfg.vf?'<div class="seg two" id="mvf"><button type="button" data-v="V" class="on">✅ C\'est vrai</button><button type="button" data-v="F">❌ C\'est faux</button></div>':'')+
+        (cfg.hint?'<p class="hint" style="margin:0">'+cfg.hint+'</p>':'')+
+        '<button class="btn sm" type="submit">Ajouter la carte</button><p class="hint" id="mmsg" style="margin:0"></p></form></div>'+
+      (list.length?'<div class="sect"><div class="sh" style="font-size:18px">'+list.length+' carte'+(list.length>1?'s':'')+' dans '+game(mineSel).name+'</div></div><div class="mlist">'+
+        list.map(function(x,i){return '<div class="mitem"><div class="mt">'+mineLabel(mineSel,x)+'</div><button class="mx" data-i="'+i+'" aria-label="Supprimer">×</button></div>';}).slice().reverse().join("")+'</div>':'')+
+      '<div class="panel" style="margin-top:18px"><div class="plbl">📤 Partager avec la bande</div>'+
+        '<p class="hint" style="margin:0">'+(tot?'Envoie un lien : en l\'ouvrant, tes amis récupèrent tes '+tot+' carte'+(tot>1?'s':'')+' sur leur téléphone.':'Ajoute des cartes, puis partage-les par lien à tes amis.')+'</p>'+
+        (tot?'<button class="btn sm ghost" id="mshare">Partager mes cartes</button>':'')+'<p class="hint" id="smsg" style="margin:0"></p></div>'+
+      '<div class="foot"><button class="btn ghost" id="mback">'+(from?'← Retour au jeu':'← Tous les jeux')+'</button></div>';
+    show("mine");
+    Array.prototype.forEach.call(el("mgames").querySelectorAll("button"),function(b){b.addEventListener("click",function(){openMine(b.getAttribute("data-k"),from);});});
+    var vf="V";
+    if(el("mvf"))Array.prototype.forEach.call(el("mvf").querySelectorAll("button"),function(b){b.addEventListener("click",function(){vf=b.getAttribute("data-v");Array.prototype.forEach.call(el("mvf").querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});});
+    el("mform").addEventListener("submit",function(e){
+      e.preventDefault();
+      var vals=[0,1,2].map(function(i){var x=el("mf"+i);return x?x.value:"";});vals[3]=vf;
+      var card=mineMake(mineSel,vals);
+      if(!card){el("mmsg").textContent=mineSel==="liste"?"Il faut un titre et au moins 3 réponses.":"Il manque un champ.";return;}
+      var mm=mineAll();
+      if(mm[mineSel].indexOf(card)>=0){el("mmsg").textContent="Cette carte existe déjà.";return;}
+      if(mm[mineSel].length>=MINE_MAX){el("mmsg").textContent="Maximum atteint pour ce jeu.";return;}
+      mm[mineSel].push(card);mineSave(mm);openMine(mineSel,from);
+      setTimeout(function(){var x=el("mf0");if(x)x.focus();var mg=el("mmsg");if(mg)mg.textContent="✓ Carte ajoutée";},30);
+    });
+    Array.prototype.forEach.call(el("s-mine").querySelectorAll(".mx"),function(b){
+      b.addEventListener("click",function(){var mm=mineAll();mm[mineSel].splice(+b.getAttribute("data-i"),1);mineSave(mm);var y=window.scrollY;openMine(mineSel,from);window.scrollTo(0,y);});
+    });
+    var sb=el("mshare");if(sb)sb.addEventListener("click",function(){
+      var mm=mineAll(),o={};Object.keys(mm).forEach(function(k){if(mm[k].length)o[k]=mm[k];});
+      var url=location.origin+location.pathname+"#cartes="+b64e(JSON.stringify(o));
+      var txt="Nos cartes perso pour Les Cartouches 🎉 Ouvre ce lien pour les ajouter :";
+      if(navigator.share){navigator.share({title:"Les Cartouches",text:txt,url:url}).catch(function(){});}
+      else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){el("smsg").textContent="✓ Lien copié : colle-le dans votre groupe.";},function(){el("smsg").textContent=url;});}
+      else el("smsg").textContent=url;
+    });
+    el("mback").addEventListener("click",function(){if(from){openIntro(from);show("intro");}else toHub();});
+  }
+  /* cartes reçues par lien */
+  var mineIncoming=null;
+  (function(){
+    var h=location.hash.match(/cartes=([A-Za-z0-9_-]+)/);if(!h)return;
+    try{
+      var o=JSON.parse(b64d(h[1])),r={},n=0;
+      Object.keys(MINE_GAMES).forEach(function(k){if(Array.isArray(o[k])){r[k]=o[k].filter(function(x){return typeof x==="string"&&x.length<=400;}).slice(0,MINE_MAX);n+=r[k].length;}});
+      if(n)mineIncoming={cards:r,n:n};
+    }catch(e){}
+    try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  })();
+  function incomingHTML(){
+    if(!mineIncoming)return "";
+    return '<div class="panel" style="margin-top:18px;border-color:var(--accent)"><div class="plbl">🎁 Cartes reçues</div>'+
+      '<p class="hint" style="margin:0">Un ami t\'a envoyé '+mineIncoming.n+' carte'+(mineIncoming.n>1?'s':'')+' perso. Tu les ajoutes aux tiennes ?</p>'+
+      '<div class="row2"><button class="btn sm" id="inyes">Ajouter</button><button class="btn sm ghost" id="inno">Non merci</button></div></div>';
+  }
+  function wireIncoming(){
+    var y=el("inyes");if(y)y.addEventListener("click",function(){
+      var mm=mineAll(),add=0;
+      Object.keys(mineIncoming.cards).forEach(function(k){mineIncoming.cards[k].forEach(function(x){if(mm[k].indexOf(x)<0&&mm[k].length<MINE_MAX){mm[k].push(x);add++;}});});
+      mineSave(mm);mineIncoming=null;buildHub();
+    });
+    var n=el("inno");if(n)n.addEventListener("click",function(){mineIncoming=null;buildHub();});
+  }
+
   var HUB_FILTERS=[
     ["tous","Tous",""],
     ["soiree","🍻 Soirée entre adultes","Pénalités, vérités et mauvaise foi"],
@@ -2078,10 +2251,12 @@
     function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var gamesHTML=
+      incomingHTML()+
       '<div class="filters" id="filters" role="tablist">'+FILTERS.map(function(f){
         return '<button role="tab" data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-selected="true"':'')+'>'+f[1]+'</button>';
       }).join("")+'</div>'+
       '<button class="surprise" id="surprise">🎲 Surprends-moi</button>'+
+      '<button class="minebtn" id="openmine">✏️ Vos cartes perso'+(mineCount()?' · '+mineCount():'')+'<span>Ajoutez vos anecdotes, vos répliques cultes et vos blagues internes</span></button>'+
       sect("⭐ Tes favoris",favList.length?"":"",favList)+
       (filt==="tous"?
         sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
@@ -2117,7 +2292,8 @@
       installHTML()+
       '<p class="fineprint">Version du __VERSION__</p>'+
       feedbackHTML();
-    wireFeedback();wireTour();
+    wireFeedback();wireTour();wireIncoming();
+    el("openmine").addEventListener("click",function(){openMine(null,null);});
     var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
@@ -2234,9 +2410,11 @@
       (G.id==="blindtest"||G.id==="paroles"?opts:'')+
       '<div class="rules">'+rules+'</div>'+
       amb+(G.id==="blindtest"||G.id==="paroles"?"":opts)+
+      mineIntro()+
       (G.cat==="quiz"?'<p class="modeline">'+(G.id==="histoire"?'📖 Sans points · sans pénalité':'🏆 Jeu à points · sans pénalité')+(players.length>=2&&G.id!=="liste"&&G.id!=="taboo"?' · '+players.length+' joueurs':'')+(G.id!=="histoire"&&G.id!=="liste"&&G.id!=="taboo"&&tourGet()&&tourGet().on?' · 🏆 compte pour le tournoi':'')+'</p>':
       '<p class="modeline">'+VOC[mode].ICO+' Mode '+({gages:"gages",alcool:"gorgées",famille:"famille"}[mode])+(players.length>=2?' · '+players.length+' joueurs':'')+'</p>')+
       '<div class="foot"><button class="btn" id="go">Commencer</button></div>';
+    if(el("tomine"))el("tomine").addEventListener("click",function(){openMine(G.id,G.id);});
     if(G.id==="ouinon"){
       Array.prototype.forEach.call(el("seg").querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){
@@ -2256,7 +2434,7 @@
         });
       });
     }
-    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}]].forEach(function(o){
+    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}],["minem",function(n){mineMode=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -2322,6 +2500,7 @@
     }
     qScores={};finalHTML="";padHist=[];tourCounted=false;
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
+    if(MINE_GAMES[G.id]){deck=mineMix(G.id,deck);if(G.id==="taboo")tPos=0;}
     show("play");
     renderRound();
   }
@@ -3285,7 +3464,7 @@
   }
 
   /* ---------------- QUI A DIT ÇA ? ---------------- */
-  var qLvl="mix", QLV={f:["🟢 Facile",1],m:["🟠 Moyen",2],d:["🔴 Difficile",3]};
+  var qLvl="mix", QLV={f:["🟢 Facile",1],m:["🟠 Moyen",2],d:["🔴 Difficile",3],p:["✏️ Entre nous",2]};
   function renderQuiadit(P){
     var q=deck[idx].split("|"),lv=QLV[q.shift()];
     P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>'+lv[0]+' · '+lv[1]+' point'+(lv[1]>1?'s':'')+'</div>'+
