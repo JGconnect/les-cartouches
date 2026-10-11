@@ -1268,6 +1268,46 @@
     })(0);
   }
   window.addEventListener("online",flush);
+  /* ---- statistiques d'utilisation anonymes : quel jeu, combien de temps, fini ou abandonné ---- */
+  var sess=null;
+  function deviceId(){var d=lsGet("cart_dev");if(!d||!/^[a-z0-9]{8,24}$/.test(d)){d=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,"").slice(0,16);lsSet("cart_dev",d);}return d;}
+  function partiesGet(){try{var a=JSON.parse(lsGet("cart_parties")||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function partiesSave(a){lsSet("cart_parties",JSON.stringify(a.slice(-200)));}
+  function sessStart(){
+    sess={g:G.id,t0:Date.now(),last:Date.now(),n:Math.min(players.length,16),m:mode,lv:G.cat==="hot"?hotLvl:null};
+    lsSet("cart_sess",JSON.stringify(sess));
+  }
+  function sessRecord(o,fini,dur){
+    if(!o||!/^[a-z]{2,30}$/.test(o.g))return;
+    if(dur<5)return; /* ouvert puis refermé aussitôt : on ne compte pas */
+    var a=partiesGet();
+    a.push({k:Date.now().toString(36)+Math.random().toString(36).slice(2,6),jeu:o.g,duree_s:Math.min(36000,Math.round(dur)),fini:!!fini,nb_joueurs:o.n||0,mode:o.m||"gages",niveau:o.lv||null,appareil:deviceId(),sent:false});
+    partiesSave(a);flushParties();
+  }
+  function sessEnd(fini){
+    if(!sess)return;var o=sess;sess=null;try{localStorage.removeItem("cart_sess");}catch(e){}
+    sessRecord(o,fini,(Date.now()-o.t0)/1000);
+  }
+  /* appli fermée en pleine partie : on la compte comme abandonnée à la prochaine ouverture */
+  (function(){try{var o=JSON.parse(lsGet("cart_sess")||"null");if(o&&o.t0){localStorage.removeItem("cart_sess");sessRecord(o,false,((o.last||o.t0)-o.t0)/1000);}}catch(e){}})();
+  document.addEventListener("visibilitychange",function(){if(sess){sess.last=Date.now();lsSet("cart_sess",JSON.stringify(sess));}});
+  setInterval(function(){if(sess){sess.last=Date.now();lsSet("cart_sess",JSON.stringify(sess));}},30000);
+  var flushingP=false;
+  function flushParties(){
+    if(!REMOTE||flushingP)return;
+    var a=partiesGet(),todo=a.filter(function(x){return !x.sent;});
+    if(!todo.length)return;
+    flushingP=true;
+    var h={"apikey":SUPABASE_KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
+    if(SUPABASE_KEY.indexOf("sb_")!==0)h["Authorization"]="Bearer "+SUPABASE_KEY;
+    var body=todo.map(function(x){return {jeu:x.jeu,duree_s:x.duree_s,fini:x.fini,nb_joueurs:x.nb_joueurs,mode:x.mode,niveau:x.niveau,appareil:x.appareil};});
+    fetch(SUPABASE_URL.replace(/\/+$/,"")+"/rest/v1/parties",{method:"POST",headers:h,body:JSON.stringify(body)})
+      .then(function(r){
+        flushingP=false;
+        if(r.ok){var ks=todo.map(function(x){return x.k;});partiesSave(partiesGet().filter(function(x){return ks.indexOf(x.k)<0;}));}
+      },function(){flushingP=false;});
+  }
+  window.addEventListener("online",flushParties);
   function tally(id){var u=0,d=0;votes.forEach(function(v){if(v.g===id){if(v.v>0)u++;else d++;}});return{u:u,d:d};}
   function bilan(){
     var dt=new Date().toLocaleDateString("fr-FR");
@@ -2154,6 +2194,7 @@
   function show(name){
     clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();if(typeof stopAudio==="function")stopAudio();
     var prev=curScreen;curScreen=name;
+    if(sess&&name!=="play"&&name!=="end")sessEnd(false);
     for(var k in screens)screens[k].hidden=(k!==name);
     var sub=name!=="hub"&&name!=="welcome";
     el("back").classList.toggle("show",sub);
@@ -2714,7 +2755,9 @@
     function isFav(g){return favs.indexOf(g.id)>=0;}
     var pool=GAMES.filter(inFilter);
     var favList=pool.filter(isFav);
-    var rest=pool.filter(function(g){return !isFav(g);});
+    var TOP=["ninon","liste","blindtest","barometre","mission","connait","taboo","quiadit"];
+    var topList=TOP.map(function(id){return pool.filter(function(g){return g.id===id&&!isFav(g);})[0];}).filter(Boolean);
+    var rest=pool.filter(function(g){return !isFav(g)&&(filt!=="tous"||TOP.indexOf(g.id)<0);});
     function sect(h,ss,list,cls){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games'+(cls?' '+cls:'')+'">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var TABS={tous:["🎲","Tous"],soiree:["🍻","Soirée"],trajet:["🚌","Trajet"],famille:["👨‍👩‍👧","Famille"]};
@@ -2725,6 +2768,7 @@
       '<div id="gamestop"></div>'+
       '<button class="surprise" id="surprise"><span class="se">🎲</span><span><b>Surprends-moi</b><span>Un jeu au hasard'+(filt!=="tous"?' · '+TABS[filt][1]:'')+'</span></span><span class="sa">›</span></button>'+
       sect("⭐ Tes favoris","",favList,"favrow")+
+      (filt==="tous"?sect("🏆 Les incontournables","Notre sélection pour bien commencer",topList,"favrow"):"")+
       (filt==="tous"?
         sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return !g.cat;}))+
         sect("🌶️ Hot","Pour les soirées entre adultes · 18+",rest.filter(function(g){return g.cat==="hot";}))+
@@ -2950,6 +2994,7 @@
 
   /* ---------------- LANCEMENT ---------------- */
   function startGame(){
+    if(sess)sessEnd(false);sessStart();
     vics=players.length>=2?shuffle(players):shuffle(VICTIMS);
     idx=0;rIdx=0;
     switch(G.type){
@@ -4889,6 +4934,7 @@
     });
     el("replay").addEventListener("click",startGame);
     el("tohub").addEventListener("click",toHub);
+    sessEnd(true);
     show("end");
   }
 
@@ -4909,7 +4955,7 @@
   setTimeout(function(){var sp=el("splash");if(sp)sp.remove();},1300);
   if(!lsGet("cart_welcome")&&!players.length&&!mineIncoming&&!grpIncoming)openWelcome(1);
   if(grpCode())grpSync(function(ok){if(ok&&!screens.hub.hidden){var y=window.scrollY;buildHub();window.scrollTo(0,y);}});
-  flush();
+  flush();flushParties();
 })();
 </script>
 </body>
