@@ -91,3 +91,7 @@ order by score desc, total_avis desc;
 --   jeu in ('ouinon','ninon','menteur','coupable','cascade','chrono','tribunal','dilemme','devine','liste','petitbac','taboo','fredonne','quiadit','vraifaux','histoire','blindtest','paroles','ousuisje','avant','connait','avpiment','jamais','barometre','confessions','roue','mission','quideux')
 --   and vote in (-1, 1) and (commentaire is null or char_length(commentaire) <= 200)
 --   and mode in ('gages','alcool') and nb_joueurs between 0 and 16);
+
+-- MISE À JOUR (11 oct. 2026) : liste des jeux remplacée par un format libre (lettres minuscules)
+-- et suppression de l'ancienne contrainte « retours_jeu_check » qui n'autorisait que les 8 premiers jeux.
+-- alter table public.retours drop constraint if exists retours_jeu_check;
