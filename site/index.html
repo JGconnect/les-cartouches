@@ -2687,7 +2687,8 @@
     var favList=pool.filter(isFav);
     var TOP=["ninon","liste","blindtest","barometre","mission","connait","taboo","quiadit"];
     var topList=TOP.map(function(id){return pool.filter(function(g){return g.id===id&&!isFav(g);})[0];}).filter(Boolean);
-    var rest=pool.filter(function(g){return !isFav(g)&&(filt!=="tous"||TOP.indexOf(g.id)<0);});
+    var showTop=filt==="tous"&&!favList.length;
+    var rest=pool.filter(function(g){return !isFav(g)&&(!showTop||TOP.indexOf(g.id)<0);});
     function sect(h,ss,list,cls){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games'+(cls?' '+cls:'')+'">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var TABS={tous:["🎲","Tous"],soiree:["🍻","Soirée"],trajet:["🚌","Trajet"],famille:["👨‍👩‍👧","Famille"]};
@@ -2698,13 +2699,13 @@
       '<div id="gamestop"></div>'+
       '<button class="surprise" id="surprise"><span class="se">🎲</span><span><b>Surprends-moi</b><span>Un jeu au hasard'+(filt!=="tous"?' · '+TABS[filt][1]:'')+'</span></span><span class="sa">›</span></button>'+
       sect("⭐ Tes favoris","",favList,"favrow")+
-      (filt==="tous"?sect("🏆 Les incontournables","Notre sélection pour bien commencer",topList,"favrow"):"")+
+      (showTop?sect("🏆 Les incontournables","Pour bien commencer · touche ☆ pour épingler tes jeux préférés ici",topList,"favrow"):"")+
       (filt==="tous"?
         sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return !g.cat;}))+
         sect("🌶️ Hot","Pour les soirées entre adultes · 18+",rest.filter(function(g){return g.cat==="hot";}))+
         sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
         : sect(fcur[1],fcur[2],rest))+
-      (favs.length?'':'<p class="hint" style="margin:14px 4px 0">Astuce : touche ☆ sur un jeu pour l\'épingler en haut.</p>');
+      '';
     var chips=players.map(function(p,i){
       return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer '+esc(p)+'">×</button></span>';
     }).join("");
