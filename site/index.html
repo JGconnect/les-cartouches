@@ -71,9 +71,16 @@
   .screen[hidden]{display:none!important}
 
   /* ---------- HUB ---------- */
-  .hub{gap:6px;padding-top:10px}
+  .hub{gap:6px;padding-top:10px;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar .tabs{max-width:520px;margin:0 auto;display:grid;gap:4px}
+  .tabbar button{border:0;background:none;color:var(--ink-faint);font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .tabbar .ti{font-size:21px;line-height:1;filter:grayscale(.6);opacity:.75}
+  .tabbar .tl{font-size:11.5px;font-weight:600}
+  .tabbar button.on{color:var(--ink);background:var(--surface)}
+  .tabbar button.on .ti{filter:none;opacity:1}
   .hub .kicker{font-size:12.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);font-weight:600;text-align:center}
-  .hub h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,13vw,64px);line-height:.92;margin:6px 0 4px;letter-spacing:-.02em;text-align:center;text-wrap:balance}
+  .hub h1{font-family:var(--display);font-weight:800;font-size:clamp(36px,11vw,56px);line-height:.92;margin:6px 0 4px;letter-spacing:-.02em;text-align:center;text-wrap:balance}
   .hub .sub{color:var(--ink-soft);font-size:15px;text-align:center;margin:0 auto 12px;max-width:32ch;line-height:1.5}
   .games{display:grid;gap:12px;margin-top:6px}
   .sect{margin:22px 4px 2px}
@@ -375,6 +382,7 @@
     <section class="screen mine" id="s-mine" hidden></section>
     <section class="screen welcome" id="s-welcome" hidden></section>
   </div>
+  <nav class="tabbar" id="tabbar" hidden aria-label="Catégories de jeux"></nav>
   <div class="sheet" id="sheet" hidden>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="slbl">
       <div class="sem" id="sem"></div>
@@ -2066,6 +2074,7 @@
     for(var k in screens)screens[k].hidden=(k!==name);
     el("back").classList.toggle("show",name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
+    el("tabbar").hidden=(name!=="hub");
     window.scrollTo(0,0);
   }
 
@@ -2514,7 +2523,7 @@
   function buildHub(focus){
     var favs=loadList("cart_favs"),filt=lsGet("cart_filter")||"tous";
     var FILTERS=HUB_FILTERS.filter(function(f){return !(mode==="famille"&&(f[0]==="soiree"||f[0]==="famille"));});
-    if(!FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
+    if(filt!=="plus"&&!FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
     function card(g){
       var on=favs.indexOf(g.id)>=0;
       return '<div class="gw"><button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
@@ -2534,11 +2543,13 @@
     var rest=pool.filter(function(g){return !isFav(g);});
     function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
-    var gamesHTML=
-      '<div class="filters" id="filters" role="tablist">'+FILTERS.map(function(f){
-        return '<button role="tab" data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-selected="true"':'')+'>'+f[1]+'</button>';
-      }).join("")+'</div>'+
-      '<button class="surprise" id="surprise">🎲 Surprends-moi</button>'+
+    var TABS={tous:["🎲","Tous"],soiree:["🍻","Soirée"],trajet:["🚌","Trajet"],famille:["👨‍👩‍👧","Famille"]};
+    el("tabbar").innerHTML='<div class="tabs" style="grid-template-columns:repeat('+(FILTERS.length+1)+',1fr)">'+
+      FILTERS.map(function(f){var tb=TABS[f[0]];return '<button data-f="'+f[0]+'"'+(f[0]===filt?' class="on" aria-current="page"':'')+'><span class="ti">'+tb[0]+'</span><span class="tl">'+tb[1]+'</span></button>';}).join("")+
+      '<button data-f="plus"'+(filt==="plus"?' class="on" aria-current="page"':'')+'><span class="ti">✨</span><span class="tl">Plus</span></button></div>';
+    var gamesHTML=filt==="plus"?'':
+      '<div id="gamestop"></div>'+
+      '<button class="surprise" id="surprise">🎲 Surprends-moi'+(filt!=="tous"?' <span style="opacity:.6;font-weight:600">· '+TABS[filt][1]+'</span>':'')+'</button>'+
       sect("⭐ Tes favoris",favList.length?"":"",favList)+
       (filt==="tous"?
         sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
@@ -2574,21 +2585,39 @@
         themeHTML()+
       '</div></details>'+
       gamesHTML+
-      '<div class="sect"><div class="sh">✨ Pour aller plus loin</div><div class="ss">Vos propres cartes et un classement sur tout le trajet</div></div>'+
+      (filt==="plus"?
+      '<div id="gamestop"></div><div class="sect"><div class="sh">✨ Pour aller plus loin</div><div class="ss">Vos propres cartes et un classement sur tout le trajet</div></div>'+
       '<button class="minebtn" id="openmine">✏️ Vos cartes perso'+(mineCount()?' · '+mineCount():'')+'<span>Vos anecdotes, vos répliques cultes, vos blagues internes'+(grpCode()?' · 👥 bande '+grpFmt(grpCode()):'')+'</span></button>'+
       '<div id="tourpanel">'+tourHTML()+'</div>'+
       installHTML()+
       '<p class="fineprint">Version du __VERSION__ · <button class="linkbtn" id="rewelcome" style="padding:0;font-size:12px">Revoir le guide</button></p>'+
-      feedbackHTML();
-    wireFeedback();wireTour();wireIncoming();wireGrpIncoming();
-    el("rewelcome").addEventListener("click",function(){openWelcome(1);});
+      feedbackHTML()
+      :'<p class="fineprint">Cartes perso, tournoi, installation : onglet <b>✨ Plus</b> en bas.</p>');
+    if(filt==="plus"){wireFeedback();wireTour();
+      el("rewelcome").addEventListener("click",function(){openWelcome(1);});
+      el("openmine").addEventListener("click",function(){openMine(null,null);});
+      var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
+    }else{
+      el("surprise").addEventListener("click",function(){
+        if(!pool.length)return;
+        var g=pool[Math.floor(Math.random()*pool.length)];
+        openIntro(g.id);
+      });
+    }
+    wireIncoming();wireGrpIncoming();
+    Array.prototype.forEach.call(el("tabbar").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){
+        lsSet("cart_filter",b.getAttribute("data-f"));
+        var y=window.scrollY;buildHub();
+        var gt=el("gamestop"),top=gt?gt.getBoundingClientRect().top+window.scrollY-12:0;
+        window.scrollTo(0,Math.min(y,top));
+      });
+    });
     el("setupbox").addEventListener("toggle",function(){lsSet("cart_setup_open",el("setupbox").open?"1":"0");});
-    var tb=el("tourbar");if(tb)tb.addEventListener("click",function(){el("tourpanel").scrollIntoView({behavior:"smooth",block:"center"});});
-    el("openmine").addEventListener("click",function(){openMine(null,null);});
+    var tb=el("tourbar");if(tb)tb.addEventListener("click",function(){lsSet("cart_filter","plus");buildHub();el("tourpanel").scrollIntoView({behavior:"smooth",block:"center"});});
     Array.prototype.forEach.call(el("themes").querySelectorAll("button"),function(b){
       b.addEventListener("click",function(){lsSet("cart_theme",b.getAttribute("data-t"));lsSet("cart_setup_open","1");var y=window.scrollY;buildHub();window.scrollTo(0,y);});
     });
-    var ib=el("instb");if(ib)ib.addEventListener("click",function(){if(!deferredInstall)return;deferredInstall.prompt();deferredInstall.userChoice.then(function(){deferredInstall=null;buildHub();});});
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
     });
@@ -2600,14 +2629,7 @@
         var y=window.scrollY;buildHub();window.scrollTo(0,y);
       });
     });
-    Array.prototype.forEach.call(el("filters").querySelectorAll("button"),function(b){
-      b.addEventListener("click",function(){lsSet("cart_filter",b.getAttribute("data-f"));var y=window.scrollY;buildHub();window.scrollTo(0,y);});
-    });
-    el("surprise").addEventListener("click",function(){
-      if(!pool.length)return;
-      var g=pool[Math.floor(Math.random()*pool.length)];
-      openIntro(g.id);
-    });
+
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".px"),function(b){
       b.addEventListener("click",function(){players.splice(+b.getAttribute("data-i"),1);save();lsSet("cart_setup_open","1");var y=window.scrollY;buildHub();window.scrollTo(0,y);});
     });
