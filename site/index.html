@@ -173,6 +173,7 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .voicehelp{display:grid;gap:2px;justify-items:center;text-align:center;margin:6px 0 2px}
   .setupbox{margin:10px 0 4px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius)}
   .setupbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;-webkit-tap-highlight-color:transparent}
   .setupbox summary::-webkit-details-marker{display:none}
@@ -1248,18 +1249,30 @@
           ||vs.filter(function(v){return /fran/i.test(v.name);})[0]||null;
   }
   if(SPEAK){loadVoices();try{window.speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
+  var curUtt=null;/* garde une référence : sinon Safari peut « oublier » la phrase en cours */
   function say(text,onend){
     if(!SPEAK){setTimeout(function(){onend&&onend();},Math.min(3500,Math.max(1600,text.length*55)));return;}
     try{
-      window.speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang="fr-FR";if(frVoice)u.voice=frVoice;u.rate=1.05;u.pitch=1;
+      var ss=window.speechSynthesis;
+      if(!frVoice)loadVoices();
+      if(ss.speaking||ss.pending)ss.cancel();
+      if(ss.paused)ss.resume();
+      var u=new SpeechSynthesisUtterance(String(text).replace(/·[a-zà-ÿ]+/gi,""));curUtt=u;
+      u.lang="fr-FR";if(frVoice)u.voice=frVoice;u.rate=1.05;u.pitch=1;u.volume=1;
       var done=false;function fin(){if(done)return;done=true;onend&&onend();}
       u.onend=fin;u.onerror=fin;
-      window.speechSynthesis.speak(u);
+      ss.speak(u);
       setTimeout(fin,Math.min(12000,2000+text.length*110));
     }catch(e){setTimeout(function(){onend&&onend();},1600);}
   }
+  /* iPhone : la voix doit être « débloquée » par un premier toucher */
+  var voiceUnlocked=false;
+  function unlockVoice(){
+    if(voiceUnlocked||!SPEAK)return;voiceUnlocked=true;
+    try{var u=new SpeechSynthesisUtterance(" ");u.volume=0;u.lang="fr-FR";window.speechSynthesis.speak(u);}catch(e){}
+  }
+  document.addEventListener("touchend",unlockVoice,{passive:true});
+  document.addEventListener("click",unlockVoice);
   function shutUp(){if(SPEAK){try{window.speechSynthesis.cancel();}catch(e){}}}
 
   /* ---------------- MÉTA DES JEUX ---------------- */
@@ -2933,6 +2946,7 @@
           '<button data-s="rapide">Rapide</button>'+
         '</div></div>'+
       '</div>'+
+      '<div class="voicehelp">'+(SPEAK?'<button class="linkbtn" id="vtest">🔊 Tester la voix</button><p class="hint" style="margin:0">Pas de son ? Désactive le <b>mode silencieux</b> de ton iPhone (bouton sur le côté) et monte le volume.</p>':'<p class="hint" style="margin:0">⚠️ Ce navigateur ne sait pas parler : lis les questions à voix haute.</p>')+'</div>'+
       '<div class="strip">Interdit de dire <span class="tag2"><b class="y">OUI</b><b class="x">NON</b></span> sinon '+I()+'</div>'+
       '<div class="foot">'+
         '<button class="btn" id="run">▶️ Lancer l\'interrogatoire</button>'+
@@ -3036,6 +3050,7 @@
       say(clean(w)+" gagne la manche ! Bravo.",function(){});
     }
     runBtn.addEventListener("click",function(){trapRun?pauseLoop():startLoop();});
+    var vt=el("vtest");if(vt)vt.addEventListener("click",function(){say("Bonjour ! Je vais vous poser des questions. Interdit de dire oui ou non.",function(){});});
     el("crack").addEventListener("click",function(){
       if(!curP||out.indexOf(curP)>=0)return;
       var wasRunning=trapRun;if(trapRun)pauseLoop();
