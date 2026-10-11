@@ -190,6 +190,10 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .flag{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:17px;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  .flag.done{background:color-mix(in srgb,#3ddc97 25%,var(--surface));border-color:#3ddc97}
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;z-index:95;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:11px 16px;border-radius:14px;pointer-events:none;transition:all .25s ease;max-width:88vw;text-align:center}
+  #toast.on{opacity:1;transform:translate(-50%,0)}
   .pass{text-align:center}
   .speakers{margin:8px auto 0;padding:0 0 0 22px;display:grid;gap:6px;font-weight:700;font-size:17px;max-width:260px;text-align:left}.passem{font-size:56px;text-align:center;margin:10px 0 4px}
   .qtext.big2{font-size:clamp(30px,9vw,40px)}
@@ -438,6 +442,7 @@
     <button class="brand" id="brand">LES <span>CARTOUCHES</span></button>
     <div class="ttl" id="ttl"></div>
     <div class="progress" id="progress" hidden></div>
+    <button class="flag" id="flag" hidden aria-label="Signaler cette carte">👎</button>
     <button class="gear" id="gear" aria-label="Réglages">⚙️</button>
   </header>
 
@@ -701,6 +706,9 @@
 
   /* Le Menteur : un thème pour tout le monde, un menteur caché qui invente son histoire */
   var MENTEUR=[
+    "Raconte un fou rire que tu n'arrivais pas à arrêter.","Raconte un truc que tu as cassé sans jamais l'avouer.","Raconte ton message le plus gênant envoyé par erreur.",
+    "Raconte ton pire cadeau d'anniversaire.","Raconte ta pire coupe de cheveux.","Raconte la pire excuse que tu aies inventée.","Raconte ton pire souvenir de mariage.","Raconte ta plus grosse dispute pour rien.",
+    "épicé|Raconte ton crush le plus inavouable.","épicé|Raconte ta pire nuit chez quelqu'un.","épicé|Raconte ton plus gros mensonge pour séduire.","épicé|Raconte une rencontre sur une appli qui a mal tourné.","épicé|Raconte ton coup de foudre le plus fou.",
     "Raconte ta pire honte en soirée.","Raconte ta plus grosse galère de vacances.","Raconte ta pire chute en public.",
     "Raconte un mensonge que tes parents ont cru.","Raconte la fois où tu as eu le plus peur.","Raconte ta rencontre avec une célébrité.",
     "Raconte la pire chose que tu aies mangée.","Raconte une bêtise d'enfance jamais avouée.","Raconte ton réveil le plus horrible.",
@@ -1231,7 +1239,7 @@
       },function(){flushingP=false;});
   }
   window.addEventListener("online",flushParties);
-  function tally(id){var u=0,d=0;votes.forEach(function(v){if(v.g===id){if(v.v>0)u++;else d++;}});return{u:u,d:d};}
+  function tally(id){var u=0,d=0;votes.forEach(function(v){if(v.g===id&&!v.card){if(v.v>0)u++;else d++;}});return{u:u,d:d};}
   function bilan(){
     var dt=new Date().toLocaleDateString("fr-FR");
     var lines=["Bilan Les Cartouches du "+dt+" ("+votes.length+" avis)",""];
@@ -2127,6 +2135,7 @@
     el("ttl").textContent=({settings:"Réglages",mine:"Vos cartes perso"})[name]||((name==="intro"||name==="play"||name==="end")&&G?G.name:"");
     el("gear").hidden=(name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
+    if(name!=="play"){var _f=el("flag");if(_f)_f.hidden=true;}
     el("tabbar").hidden=(name!=="hub");
     /* bouton retour du téléphone : on revient à l'accueil au lieu de quitter l'appli */
     if(sub&&!navPushed){try{history.pushState({cart:1},"");navPushed=true;}catch(e){}}
@@ -2911,7 +2920,24 @@
     return un.concat(old).slice(0,n);
   }
   var curFresh=null;
+  /* ---- « 👎 Carte nulle » : signale la carte affichée et ne la remontre plus sur ce téléphone ---- */
+  var curCard=null;
+  function cardText(c){var x=typeof c==="string"?c:(c&&c.a&&c.b?c.a+" / "+c.b:(c&&(c.q||c.c))||JSON.stringify(c));return String(x).replace(/<[^>]+>/g,"").replace(/^[a-z]+\|/,"").replace(/\|/g," · ").slice(0,180);}
+  function bannedGet(){try{return JSON.parse(lsGet("cart_banned")||"{}")||{};}catch(e){return {};}}
+  function notBanned(id){var b=bannedGet()[id]||[];return function(c){return b.indexOf(seenKey(c))<0;};}
+  function setCard(c){curCard=c;var f=el("flag");if(f){f.hidden=!(c!==null&&c!==undefined&&curScreen==="play");f.classList.remove("done");}}
+  function flagCard(){
+    if(!curCard||!G)return;
+    var all=bannedGet(),k=seenKey(curCard);all[G.id]=(all[G.id]||[]).concat([k]).slice(-500);lsSet("cart_banned",JSON.stringify(all));
+    votes.push({g:G.id,v:-1,note:("CARTE NULLE : "+cardText(curCard)).slice(0,200),mode:mode,n:players.length,at:new Date().toISOString(),sent:false,card:true});
+    saveVotes();flush();
+    var f=el("flag");f.classList.add("done");f.textContent="✓";haptic(20);
+    toast("Carte signalée : elle ne reviendra plus. Merci !");
+    setTimeout(function(){f.textContent="👎";f.hidden=true;},1500);
+  }
+  function toast(msg){var t=el("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t);}t.textContent=msg;t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(toast.tm);toast.tm=setTimeout(function(){t.classList.remove("on");},2200);}
   function markSeen(c){
+    setCard(c);
     if(!curFresh||c===undefined||c===null)return;
     var id=curFresh;
     if(G&&G.id==="quiadit"&&typeof c==="string")id="quiadit_"+c.charAt(0);
@@ -2965,6 +2991,8 @@
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
     if(THEME_GAMES[G.id])deck=themeMix(G.id,deck);
     if(MINE_GAMES[G.id]){deck=mineMix(G.id,deck);if(G.id==="taboo")tPos=0;}
+    deck=deck.filter(notBanned(G.id));if(G.type==="av"){avV=avV.filter(notBanned(G.id));avA=avA.filter(notBanned(G.id));}
+    setCard(null);
     show("play");
     renderRound();
   }
@@ -5001,6 +5029,7 @@
   el("brand").addEventListener("click",toHub);
   el("back").addEventListener("click",function(){if(curScreen==="mine"&&openMine.from){openIntro(openMine.from);return;}if(curScreen==="settings"){toHub();return;}toHub();});
   el("gear").addEventListener("click",function(){openSettings();});
+  el("flag").addEventListener("click",flagCard);
 
   /* appli installable + hors ligne */
   if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
