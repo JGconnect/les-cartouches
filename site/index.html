@@ -190,7 +190,8 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
-  .pass{text-align:center}.passem{font-size:56px;text-align:center;margin:10px 0 4px}
+  .pass{text-align:center}
+  .speakers{margin:8px auto 0;padding:0 0 0 22px;display:grid;gap:6px;font-weight:700;font-size:17px;max-width:260px;text-align:left}.passem{font-size:56px;text-align:center;margin:10px 0 4px}
   .qtext.big2{font-size:clamp(30px,9vw,40px)}
   .duo.av .opt{min-height:120px}.duo.av .opt .k{font-size:34px}.duo.av .opt .t{font-family:var(--display);font-weight:800;font-size:22px}
   .vgrid{justify-content:center;margin-top:14px}
@@ -2011,9 +2012,10 @@
     {id:"ninon",name:"Ni oui ni non",em:"🤐",gc:"#7c6cff",tg:"Tiens la conversation sans jamais dire oui ni non.",
      type:"trap",vic:"Sur la sellette",
      rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b>. En mode <b>survivant</b> (au choix), tu es éliminé·e et le dernier debout gagne."]},
-    {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Tout le monde raconte, un seul invente. Qui ment ?",
+    {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Un menteur caché parmi vous : histoires inventées ou mots piégés.",
      type:"menteur",vic:"Au tour de",partie:6,
-     rules:["Le téléphone donne un <b>thème à tout le monde</b> (« Ta pire honte en soirée »). Il passe de main en main : chacun découvre son rôle <b>en secret</b>.","Tout le monde raconte une <b>vraie</b> histoire… sauf <b>un menteur caché</b>, qui invente la sienne.","Chacun raconte en 30 secondes. Puis à <b>3, 2, 1</b>, tout le monde <b>pointe du doigt</b> le menteur ! Démasqué, il prend {pen}. Sinon, il marque 2 points et ceux qui se sont trompés prennent {pen}."]},
+     rules:["Le téléphone donne un <b>thème à tout le monde</b> (« Ta pire honte en soirée »). Il passe de main en main : chacun découvre son rôle <b>en secret</b>.","Tout le monde raconte une <b>vraie</b> histoire… sauf <b>un menteur caché</b>, qui invente la sienne.","Chacun raconte en 30 secondes. Puis à <b>3, 2, 1</b>, tout le monde <b>pointe du doigt</b> le menteur ! Démasqué, il prend {pen}. Sinon, il marque 2 points et ceux qui se sont trompés prennent {pen}."],
+     rulesMots:["Tout le monde reçoit <b>le même mot</b> en secret… sauf <b>l'intrus</b>, qui a un mot proche (« Chat » / « Chien »). Il ne sait pas qu'il est l'intrus ! Option : un <b>Mr White</b> sans aucun mot.","Chacun son tour, chacun dit <b>un seul mot</b> pour décrire le sien. Ni trop précis, ni trop vague !","À 3, 2, 1, tout le monde <b>pointe</b> un suspect : le plus désigné est éliminé et son rôle révélé. On continue jusqu'à démasquer l'intrus… ou jusqu'à ce qu'il gagne. Mr White éliminé peut encore gagner en devinant le mot des civils."]},
     {id:"coupable",name:"Le Coupable",em:"👉",gc:"#3ddc97",tg:"« Qui est le plus susceptible de… »",
      type:"deck",partie:10,instr:"À trois, tout le monde pointe une personne. Le plus <span class='g'>désigné {boit}</span>.",
      rules:["Le téléphone pose une question sur le groupe.","Au top, chacun pointe la personne la plus concernée.","La personne la plus désignée {boit}. Égalité ? Tout le monde y passe."]},
@@ -2810,7 +2812,7 @@
       el("adultno").addEventListener("click",toHub);
       return;
     }
-    var rules=G.rules.map(function(r,i){return '<div class="rule"><span class="num">'+(i+1)+'</span><p>'+t(r)+'</p></div>';}).join("");
+    var rules=(G.id==="menteur"&&menMode==="mots"?G.rulesMots:G.rules).map(function(r,i){return '<div class="rule"><span class="num">'+(i+1)+'</span><p>'+t(r)+'</p></div>';}).join("");
     var amb=G.id==="ouinon"?
       '<div class="ambiance"><div class="lbl">Ambiance</div><div class="seg" id="seg">'+
       '<button data-lvl="soft"'+(ambiance==="soft"?' class="on"':'')+'><span class="d soft"></span>Soft<span class="s">tranquille</span></button>'+
@@ -2838,7 +2840,9 @@
     if(G.id==="avant")opts=segOpts("avmode","Cartes",["avant","jeune","mix"],avMode,function(n){return {avant:"📼 Objets d'avant",jeune:"📱 Mots des jeunes",mix:"🎲 Mélange"}[n]+'<span class="s">'+avPool(n).length+' cartes</span>';});
     if((G.id==="ousuisje"||G.id==="avant")&&players.length<2)opts+='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
-    if(G.id==="menteur")opts=segOpts("menlvl","Thèmes",["doux","epice"],menLvl,function(n){return {doux:'😇 Tout public<span class="s">anecdotes de vie</span>',epice:'🌶️ Avec du piquant<span class="s">amours et dates</span>'}[n];})+(players.length<3?'<p class="hint">Ajoute au moins 3 prénoms dans les réglages (idéalement 4 ou plus).</p>':'');
+    if(G.id==="menteur")opts=segOpts("menmode","Variante",["histoires","mots"],menMode,function(n){return {histoires:'📖 Histoires<span class="s">un menteur invente</span>',mots:'🎭 Mots<span class="s">façon Undercover</span>'}[n];})+
+      (menMode==="mots"?segOpts("menwhite","Mr White (5 joueurs et +)",["non","oui"],intrusWhite?"oui":"non",function(n){return {non:'Sans<span class="s">un intrus</span>',oui:'👻 Avec<span class="s">un joueur sans mot</span>'}[n];})
+      :segOpts("menlvl","Thèmes",["doux","epice"],menLvl,function(n){return {doux:'😇 Tout public<span class="s">anecdotes de vie</span>',epice:'🌶️ Avec du piquant<span class="s">amours et dates</span>'}[n];}))+(players.length<3?'<p class="hint">Ajoute au moins 3 prénoms dans les réglages (idéalement 4 ou plus).</p>':'');
     if(G.cat==="hot"&&G.id!=="confessions")opts=segOpts("hotlvl","Niveau",["flirt","chaud","brulant"],hotLvl,function(n){return {flirt:'💋 Flirt<span class="s">pour chauffer</span>',chaud:'🔥 Chaud<span class="s">ça monte</span>',brulant:'🌶️ Brûlant<span class="s">sans filtre</span>'}[n];})+'<p class="hint" style="text-align:center;margin:0">Chaque niveau inclut les précédents.</p>'+
       ((G.id==="barometre"||G.id==="mission")&&players.length<3?'<p class="hint">Ajoute au moins 3 prénoms dans les réglages pour ce jeu.</p>':'')+(G.id==="roue"&&players.length<2?'<p class="hint">Ajoute les prénoms dans les réglages pour que la roue désigne les joueurs.</p>':'')+
       (G.id==="mission"&&missionsGet()?'<p class="hint">🕶️ Des missions sont en cours : « Commencer » les révèle.</p>':'');
@@ -2877,7 +2881,7 @@
         });
       });
     }
-    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}],["minem",function(n){mineMode=n;}],["hotlvl",function(n){hotLvl=n;}],["menlvl",function(n){menLvl=n;}]].forEach(function(o){
+    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}],["minem",function(n){mineMode=n;}],["hotlvl",function(n){hotLvl=n;}],["menlvl",function(n){menLvl=n;}],["menmode",function(n){menMode=n;openIntro("menteur");}],["menwhite",function(n){intrusWhite=n==="oui";}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -2929,7 +2933,7 @@
     switch(G.type){
       case"grill":deck=shuffle(OUINON.filter(function(s){return LEVELS[ambiance].indexOf(s.l)>=0;}));showProg=true;break;
       case"trap":deck=shuffle(NINON);showProg=false;break;
-      case"menteur":deck=shuffle(MENTEUR.filter(function(x){return menLvl==="epice"||x.indexOf("épicé|")!==0;}));menLast=null;showProg=true;break;
+      case"menteur":deck=menMode==="mots"?freshFirst("intrus",shuffle(INTRUS_MOTS),INTRUS_MOTS.length):shuffle(MENTEUR.filter(function(x){return menLvl==="epice"||x.indexOf("épicé|")!==0;}));menLast=null;showProg=true;break;
       case"deck":deck=shuffle(COUPABLE);showProg=true;break;
       case"cascade":deck=cascadePartie(G.partie);showProg=true;break;
       case"chrono":var CF=CHRONO.filter(famOK);deck=freshFirst("chrono",shuffle(CF),CF.length);showProg=false;break;
@@ -3249,9 +3253,109 @@
     el("stop").addEventListener("click",function(){stopVoiceLoop();endGame();});
   }
 
-  var menLast=null;
+  /* ---------------- L'INTRUS (mots proches, un joueur a un mot différent) ---------------- */
+  var INTRUS_MOTS=[
+    "Chat|Chien","Café|Thé","Plage|Piscine","Pizza|Burger","Train|Métro","Soleil|Lune","Guitare|Violon","Mer|Lac",
+    "Ski|Snowboard","Croissant|Pain au chocolat","Fourchette|Cuillère","Football|Rugby","Netflix|YouTube","Avion|Hélicoptère","Livre|Magazine","Montagne|Colline",
+    "Pomme|Poire","Citron|Orange","Lion|Tigre","Facebook|Instagram","Docteur|Infirmier","Policier|Pompier","Château|Palais","Vélo|Trottinette",
+    "Chocolat|Caramel","Crêpe|Gaufre","Paris|Londres","Harry Potter|Le Seigneur des anneaux","Mariage|Anniversaire","Piano|Orgue","Moustache|Barbe","Lunettes|Lentilles",
+    "Chaussettes|Collants","Tennis|Badminton","Requin|Dauphin","Abeille|Guêpe","Fraise|Framboise","Sushi|Ramen","Cinéma|Théâtre","Taxi|Bus",
+    "Canapé|Fauteuil","Douche|Bain","Oreiller|Couette","Coca|Limonade","iPhone|Tablette","Marteau|Tournevis","Sel|Poivre","Beurre|Confiture",
+    "Lait|Yaourt","Pirate|Viking","Sorcière|Fée","Vampire|Zombie","Batman|Superman","Mickey|Donald","Astronaute|Pilote","Professeur|Directeur",
+    "Boulanger|Pâtissier","Rose|Tulipe","Sapin|Palmier","Neige|Grêle","Orage|Tempête","Mouette|Pigeon","Cheval|Âne","Vache|Chèvre",
+    "Bougie|Lampe","Montre|Réveil","Parapluie|Imperméable","Sac à dos|Valise","Camping|Hôtel","Bowling|Billard","Karaoké|Concert","Jean|Jogging",
+    "Glace|Sorbet","Ketchup|Mayonnaise","Raclette|Fondue","Tour Eiffel|Arc de triomphe","Disneyland|Zoo","Basket|Handball","Hiver|Automne","Pyjama|Peignoir",
+    "Bonbon|Chewing-gum","Noël|Pâques","Plongée|Natation","Forêt|Jungle","Désert|Plage","Roi|Prince","Robot|Ordinateur","Fantôme|Squelette",
+    "Gâteau|Tarte","Pâtes|Riz","Frites|Chips","Hamac|Transat","Bateau|Sous-marin","Voiture|Moto","Clown|Magicien","Dragon|Dinosaure"
+  ];
+  var intrusWhite=false;
+  function normWord(w){return String(w||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]/g,"");}
+  function renderIntrus(P){
+    if(players.length<3)return needPlayers(P,3);
+    var pair=deck[idx].split("|");if(Math.random()<0.5)pair.reverse();
+    var civW=pair[0],intW=pair[1];
+    var roles={},pl=shuffle(players),useWhite=intrusWhite&&players.length>=5;
+    pl.forEach(function(p,i){roles[p]=i===0?"intrus":(useWhite&&i===1?"white":"civil");});
+    var alive=players.slice(),order=shuffle(players),ri=0,turn=1;
+    var NAME={civil:"🙂 Civil",intrus:"🎭 Intrus",white:"👻 Mr White"};
+    function chip(){return '<div class="chip"><span class="dot"></span>Manche '+(idx+1)+' · tour '+turn+' · '+alive.length+' en jeu</div>';}
+    function dist(){
+      if(ri>=order.length)return speak();
+      var p=order[ri];
+      P.innerHTML=passHTML(p,(ri?'Mot caché 🙈 ':'')+'Chacun découvre son mot <b>en secret</b>.','Je suis '+esc(p)+' → voir mon mot');
+      el("iam").addEventListener("click",function(){
+        var r=roles[p];
+        P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Rien que pour '+esc(p)+'</div>'+
+          (r==="white"?'<h2 class="qtext">👻 Tu es Mr White</h2><p class="instr">Tu n\'as <b>pas de mot</b>. Écoute bien les autres et bluffe ! Si tu es éliminé·e, tu pourras gagner en devinant le mot des civils.</p>':
+          '<p class="instr" style="margin-bottom:4px">Ton mot :</p><h2 class="qtext big2">'+esc(r==="intrus"?intW:civW)+'</h2><p class="instr">Attention : un joueur a un mot <b>proche mais différent</b>… et c\'est peut-être toi !</p>')+'</div>'+
+          '<div class="foot"><button class="btn" id="hide">🙈 Cacher et passer</button></div>';
+        el("hide").addEventListener("click",function(){ri++;dist();});
+      });
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    function speak(){
+      var so=shuffle(alive);if(roles[so[0]]==="white"&&so.length>1)so.push(so.shift());
+      P.innerHTML='<div class="body">'+chip()+'<h2 class="qtext">Chacun dit UN mot</h2>'+
+        '<p class="instr">Dans cet ordre, chacun donne <b>un seul mot</b> en rapport avec son mot secret. Ni trop précis (l\'intrus devinerait), ni trop vague (on vous soupçonnerait) !</p>'+
+        '<ol class="speakers">'+so.map(function(p){return '<li>'+esc(p)+'</li>';}).join("")+'</ol></div>'+
+        '<div class="foot"><button class="btn" id="vgo">👉 Tout le monde a parlé → on vote</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("vgo").addEventListener("click",function(){countIn(pick,"Pointez ! 👉");});
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    function pick(){
+      P.innerHTML='<div class="body">'+chip()+'<h2 class="qtext">Qui est éliminé ?</h2><p class="instr">Touchez la personne la plus pointée. En cas d\'égalité, revotez entre les ex æquo.</p>'+
+        '<div class="chips pick vgrid">'+alive.map(function(p){return '<button class="pchip" data-p="'+esc(p)+'">'+esc(p)+'</button>';}).join("")+'</div></div>'+
+        '<div class="foot"><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".vgrid button"),function(b){b.addEventListener("click",function(){eliminate(b.getAttribute("data-p"));});});
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    function eliminate(p){
+      alive.splice(alive.indexOf(p),1);
+      var r=roles[p];
+      if(r==="white"){
+        P.innerHTML='<div class="body">'+chip()+'<h2 class="qtext">'+esc(p)+' était 👻 Mr White !</h2><p class="instr">Dernière chance : quel est le mot des civils ?</p>'+
+          '<form class="mform" id="wf"><input id="wg" maxlength="40" placeholder="Le mot des civils" autocomplete="off"><button class="btn" type="submit">Proposer</button></form></div>';
+        el("wf").addEventListener("submit",function(e){e.preventDefault();
+          if(normWord(el("wg").value)===normWord(civW)){addPts(p,3);return finish("white",p);}
+          after(p,r,'Raté ! Le mot était « '+esc(civW)+' ».');
+        });
+        el("wg").focus();return;
+      }
+      after(p,r,"");
+    }
+    function after(p,r,extra){
+      var badLeft=alive.filter(function(x){return roles[x]!=="civil";}).length,civLeft=alive.filter(function(x){return roles[x]==="civil";}).length;
+      if(!badLeft)return finish("civil",p);
+      if(civLeft<=1)return finish("intrus",p);
+      P.innerHTML='<div class="body">'+chip()+'<h2 class="qtext">'+esc(p)+' était '+NAME[r]+'</h2>'+(extra?'<p class="instr">'+extra+'</p>':'')+
+        '<p class="instr">'+(r==="civil"?'Raté, c\'était un civil ! L\'intrus court toujours…':'Encore un imposteur en jeu…')+'</p></div>'+
+        '<div class="foot"><button class="btn" id="nt">Tour suivant →</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      haptic(40);
+      el("nt").addEventListener("click",function(){turn++;speak();});
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    function finish(who,last){
+      var intr=players.filter(function(x){return roles[x]==="intrus";})[0],wh=players.filter(function(x){return roles[x]==="white";})[0];
+      if(who==="civil")players.forEach(function(x){if(roles[x]==="civil")addPts(x,1);});
+      if(who==="intrus")addPts(intr,3);
+      var title={civil:"🙂 Les civils gagnent !",intrus:"🎭 L'intrus gagne !",white:"👻 Mr White gagne !"}[who];
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Fin de la manche '+(idx+1)+'</div><h2 class="qtext">'+title+'</h2>'+
+        '<div class="answer '+(who==="civil"?'ok':'ko')+'"><div class="aw">Civils : « '+esc(civW)+' »</div><div class="as">Intrus : <b>'+esc(intr)+'</b> avec « '+esc(intW)+' »'+(wh?' · Mr White : <b>'+esc(wh)+'</b>':'')+'</div></div>'+
+        '<p class="instr">'+(who==="civil"?'+1 point pour chaque civil.':who==="intrus"?'+3 points pour '+esc(intr)+' !':'+3 points pour '+esc(last)+' !')+'</p></div>'+
+        '<div class="foot"><div class="row2"><button class="btn drink" id="pen">'+(who==="civil"?esc(intr):'Les civils')+' → '+I()+'</button><button class="btn ghost" id="nx">'+(idx+1<deck.length?'Manche suivante →':'Voir le classement')+'</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      confetti();
+      function next(){if(idx+1>=deck.length){quitQuiz();return;}idx++;renderRound();}
+      el("pen").addEventListener("click",function(){penalty(who==="civil"?intr:"les civils",next);});
+      el("nx").addEventListener("click",next);
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    dist();
+  }
+
+  var menLast=null,menMode="histoires";
   function renderMenteur(P){
     if(players.length<3)return needPlayers(P,3);
+    if(menMode==="mots")return renderIntrus(P);
     var raw=deck[idx],spicy=raw.indexOf("épicé|")===0,theme=spicy?raw.slice(6):raw;
     var cand=players.filter(function(p){return p!==menLast;}),liar=cand[Math.floor(Math.random()*cand.length)];menLast=liar;
     var order=shuffle(players),ri=0,tellers=shuffle(players),ti=0;
