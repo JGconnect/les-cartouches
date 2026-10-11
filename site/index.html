@@ -2573,7 +2573,7 @@
     var TOP=["ninon","liste","blindtest","barometre","mission","connait","taboo","quiadit"];
     var topList=TOP.map(function(id){return pool.filter(function(g){return g.id===id&&!isFav(g);})[0];}).filter(Boolean);
     var showTop=filt==="tous"&&!favList.length;
-    var rest=pool.filter(function(g){return !isFav(g)&&(!showTop||TOP.indexOf(g.id)<0);});
+    var rest=pool.filter(function(g){return !showTop||TOP.indexOf(g.id)<0;});
     function sect(h,ss,list,cls){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games'+(cls?' '+cls:'')+'">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var TABS={tous:["🎲","Tous"],soiree:["🍻","Soirée"],trajet:["🚌","Trajet"],famille:["👨‍👩‍👧","Famille"]};
