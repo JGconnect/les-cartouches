@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#181022">
 <meta name="description" content="Huit jeux de soirée qui se jouent avec un téléphone et une bande de potes.">
 <meta property="og:title" content="Les Cartouches">
@@ -53,12 +53,22 @@
       var(--bg);
     -webkit-font-smoothing:antialiased;
   }
-  .app{min-height:100%;max-width:520px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+  .app{min-height:100%;max-width:520px;margin:0 auto;padding:0 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+  html,body{overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea{-webkit-user-select:text;user-select:text}
+  button,a,input,textarea{touch-action:manipulation}
 
-  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
+  .top{position:sticky;top:0;z-index:14;display:flex;align-items:center;gap:10px;min-height:52px;margin:0 -18px 6px;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+  .top .brand{flex:1;text-align:left}
+  .top .ttl{flex:1;min-width:0;font-family:var(--display);font-weight:800;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none}
+  .top.sub .ttl{display:block}.top.sub .brand{display:none}
+  .gear{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:18px;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  .top.sub .gear{display:none}
   .brand{font-family:var(--display);font-weight:800;letter-spacing:.16em;font-size:15px;text-transform:uppercase;color:var(--ink);background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .brand span{color:var(--accent)}
-  .back{display:none;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--ink-faint);font-family:var(--body);font-weight:600;font-size:13.5px;padding:6px 0;-webkit-tap-highlight-color:transparent}
+  .back{display:none;flex:none;width:40px;height:40px;align-items:center;justify-content:center;border-radius:12px;background:var(--surface);border:1px solid var(--line);cursor:pointer;color:var(--ink);padding:0;-webkit-tap-highlight-color:transparent}
+  .back .chev{font-size:30px;line-height:1;margin-top:-4px;font-weight:300}
   .back:hover{color:var(--ink-soft)}
   .back.show{display:inline-flex}
   .progress{font-variant-numeric:tabular-nums;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
@@ -180,6 +190,34 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .games{grid-template-columns:1fr 1fr;gap:10px}
+  .games .gcard{flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 12px;min-height:158px;border-radius:22px;
+    background:linear-gradient(155deg,color-mix(in srgb,var(--gc) 30%,var(--surface)) 0%,var(--surface) 62%);border:1px solid color-mix(in srgb,var(--gc) 26%,var(--line))}
+  .games .gcard .em{width:50px;height:50px;font-size:28px;border-radius:15px;background:color-mix(in srgb,var(--gc) 32%,var(--surface-2));margin-bottom:4px}
+  .games .gcard .nm{font-size:16.5px;line-height:1.12;padding-right:18px}
+  .games .gcard .tg{font-size:12.5px;line-height:1.32;margin-top:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .games .gcard:active{transform:scale(.96)}
+  .games .gcard{transition:transform .12s ease,border-color .12s ease}
+  .gcard .bdgs{display:flex;gap:4px;margin-top:auto}.gcard .bdg{font-size:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+  .games .fav{top:8px;right:6px;transform:none;width:36px;height:36px;font-size:19px}
+  .games .fav:active{transform:scale(.85)}
+  .games.favrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:6px -18px 0;padding:2px 18px 6px;scrollbar-width:none}
+  .games.favrow::-webkit-scrollbar{display:none}
+  .games.favrow .gw{flex:none;width:44%;scroll-snap-align:start}
+  .games.favrow .gcard{min-height:140px}
+  .hub .surprise{display:flex;align-items:center;gap:12px;text-align:left;border:0;padding:14px 16px;margin-top:12px;background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 38%,var(--surface)),color-mix(in srgb,#7c6cff 34%,var(--surface)));border-radius:20px}
+  .hub .surprise .se{font-size:30px}.hub .surprise b{display:block;font-family:var(--display);font-size:17px}.surprise span span{display:block;font-weight:500;font-size:13px;color:var(--ink-soft)}
+  .surprise .sa{margin-left:auto;font-size:26px;color:var(--ink-soft)}
+  #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;pointer-events:none;animation:splashout .45s ease .6s forwards}
+  #splash .sp{display:grid;justify-items:center;gap:14px;animation:splashin .5s cubic-bezier(.2,.8,.2,1)}
+  #splash img{width:96px;height:96px;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+  #splash .bn{font-family:var(--display);font-weight:800;letter-spacing:.16em;font-size:15px}#splash .bn span{color:var(--accent)}
+  @keyframes splashout{to{opacity:0;visibility:hidden}}
+  @keyframes splashin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+  .hub h1.htitle{font-family:var(--display);font-weight:800;font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:6px 2px 4px;text-align:left}
+  .setchip{display:flex;align-items:center;gap:10px;width:100%;margin:8px 0 2px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:16px;padding:11px 14px;font:inherit;cursor:pointer;text-align:left}
+  .setchip .sci{flex:none}.setchip .scs{flex:1;min-width:0;font-size:14px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.setchip .scm{flex:none;font-size:13px;color:var(--accent);font-weight:700}
+  .settings .setup{display:grid;gap:12px}
   .voicehelp{display:grid;gap:2px;justify-items:center;text-align:center;margin:6px 0 2px}
   .setupbox{margin:10px 0 4px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius)}
   .setupbox summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;-webkit-tap-highlight-color:transparent}
@@ -307,7 +345,17 @@
   .row1{display:grid}
   .row-crack{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
   .btn{-webkit-tap-highlight-color:transparent;cursor:pointer;font-family:var(--display);font-weight:700;font-size:18px;border:none;border-radius:var(--radius);padding:17px;width:100%;background:var(--ga);color:#fff;letter-spacing:.02em;box-shadow:var(--shadow);transition:transform .12s ease,filter .12s ease}
-  .btn:active{transform:translateY(2px);filter:brightness(1.06)}
+  .btn:active{transform:scale(.97);filter:brightness(1.08)}
+  .screen.anim-f{animation:slidef .32s cubic-bezier(.2,.8,.2,1)}
+  .screen.anim-b{animation:slideb .3s cubic-bezier(.2,.8,.2,1)}
+  @keyframes slidef{from{transform:translateX(28px);opacity:0}to{transform:none;opacity:1}}
+  @keyframes slideb{from{transform:translateX(-22px);opacity:0}to{transform:none;opacity:1}}
+  .seg button:active,.pchip:active,.minebtn:active,.surprise:active,.setchip:active,.tabbar button:active,.gear:active,.back:active,.vbtn:active,.opt:active{transform:scale(.95)}
+  .seg button,.pchip,.minebtn,.setchip,.tabbar button,.gear,.back,.vbtn,.opt{transition:transform .1s ease,background .15s ease,border-color .15s ease}
+  .sheet{animation:fadein .2s ease}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  #confetti{position:fixed;inset:0;z-index:90;pointer-events:none}
+  @media (prefers-reduced-motion: reduce){.screen.anim-f,.screen.anim-b,.sheet,.sheet-card{animation:none}}
   .btn:disabled{opacity:.4;cursor:default;box-shadow:none}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink-soft);box-shadow:none;font-size:15px;font-family:var(--body);font-weight:600;padding:14px}
   .btn.drink{background:var(--oui);color:var(--oui-ink)}
@@ -367,12 +415,15 @@
   @keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
 </style>
 </head>
-<body><div class="app">
-  <div class="top">
+<body><div id="splash" aria-hidden="true"><div class="sp"><img src="icon-192.png" alt=""><div class="bn">LES <span>CARTOUCHES</span></div></div></div>
+<div class="app">
+  <header class="top" id="topbar">
+    <button class="back" id="back" aria-label="Retour"><span class="chev">‹</span></button>
     <button class="brand" id="brand">LES <span>CARTOUCHES</span></button>
-    <button class="back" id="back">← Les jeux</button>
+    <div class="ttl" id="ttl"></div>
     <div class="progress" id="progress" hidden></div>
-  </div>
+    <button class="gear" id="gear" aria-label="Réglages">⚙️</button>
+  </header>
 
   <div class="stage">
     <section class="screen hub" id="s-hub"></section>
@@ -381,6 +432,7 @@
     <section class="screen end" id="s-end"></section>
     <section class="screen mine" id="s-mine" hidden></section>
     <section class="screen welcome" id="s-welcome" hidden></section>
+    <section class="screen settings" id="s-settings" hidden></section>
   </div>
   <nav class="tabbar" id="tabbar" hidden aria-label="Catégories de jeux"></nav>
   <div class="sheet" id="sheet" hidden>
@@ -2031,7 +2083,7 @@
     return pick.sort(function(a,b){return CASCADE.indexOf(a)-CASCADE.indexOf(b);});
   }
   function el(id){return document.getElementById(id);}
-  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end"),mine:el("s-mine"),welcome:el("s-welcome")};
+  var screens={hub:el("s-hub"),intro:el("s-intro"),play:el("s-play"),end:el("s-end"),mine:el("s-mine"),welcome:el("s-welcome"),settings:el("s-settings")};
   var timer=null;
   function clearT(){if(timer){clearInterval(timer);timer=null;}if(cTimer){clearTimeout(cTimer);cTimer=null;}var o=document.getElementById("countin");if(o)o.hidden=true;}
   /* ---------------- VIBRATIONS & COMPTE À REBOURS ---------------- */
@@ -2069,14 +2121,32 @@
       },i===3?550:750);
     })();
   }
+  var navPushed=false,curScreen="hub";
   function show(name){
     clearT();closeSheet();stopVoiceLoop();if(typeof micStop==="function")micStop();if(typeof stopAudio==="function")stopAudio();
+    var prev=curScreen;curScreen=name;
     for(var k in screens)screens[k].hidden=(k!==name);
-    el("back").classList.toggle("show",name!=="hub");
+    var sub=name!=="hub"&&name!=="welcome";
+    el("back").classList.toggle("show",sub);
+    el("topbar").classList.toggle("sub",sub);
+    el("ttl").textContent=({settings:"Réglages",mine:"Vos cartes perso"})[name]||((name==="intro"||name==="play"||name==="end")&&G?G.name:"");
+    el("gear").hidden=(name!=="hub");
     el("progress").hidden=(name!=="play"||!showProg);
     el("tabbar").hidden=(name!=="hub");
+    /* bouton retour du téléphone : on revient à l'accueil au lieu de quitter l'appli */
+    if(sub&&!navPushed){try{history.pushState({cart:1},"");navPushed=true;}catch(e){}}
+    if(!sub&&navPushed){navPushed=false;try{history.back();}catch(e){}}
+    var sc=screens[name];
+    if(sc&&prev!==name&&!REDUCED){sc.classList.remove("anim-f","anim-b");void sc.offsetWidth;sc.classList.add(sub?"anim-f":"anim-b");}
     window.scrollTo(0,0);
   }
+  var REDUCED=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.addEventListener("popstate",function(){
+    if(!navPushed)return;
+    navPushed=false;
+    if(curScreen==="mine"&&openMine.from){openIntro(openMine.from);return;}
+    toHub();
+  });
 
   /* ---------------- PÉNALITÉ (feuille) ---------------- */
   var sheetCb=null;
@@ -2207,6 +2277,7 @@
   function b64e(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
   function b64d(str){str=str.replace(/-/g,"+").replace(/_/g,"/");while(str.length%4)str+="=";return decodeURIComponent(escape(atob(str)));}
   function openMine(id,from){
+    openMine.from=from||null;
     if(id&&MINE_GAMES[id])mineSel=id;
     var m=mineAll(),cfg=MINE_GAMES[mineSel],gc=grpCode();
     if(!gc)mineTarget="local";
@@ -2441,6 +2512,28 @@
       '<p class="hint" style="margin:0">Des cartes spéciales passent en priorité dans 7 jeux.</p></div>';
   }
 
+  /* ---------------- CONFETTIS & PETITES VIBRATIONS ---------------- */
+  function confetti(){
+    if(REDUCED)return;
+    var c=document.createElement("canvas");c.id="confetti";document.body.appendChild(c);
+    var dpr=window.devicePixelRatio||1,W=c.width=innerWidth*dpr,H=c.height=innerHeight*dpr,ctx=c.getContext("2d");
+    var cols=["#ff4d8d","#ffd23f","#4ec5ff","#3ddc97","#c77dff","#ff8a5b"],P=[];
+    for(var i=0;i<140;i++)P.push({x:W*(0.2+Math.random()*0.6),y:H*0.35,vx:(Math.random()-0.5)*14*dpr,vy:(-Math.random()*16-6)*dpr,r:(4+Math.random()*5)*dpr,a:Math.random()*6,va:(Math.random()-0.5)*0.3,c:cols[i%cols.length]});
+    var t0=Date.now();
+    (function frame(){
+      var t=Date.now()-t0;ctx.clearRect(0,0,W,H);
+      P.forEach(function(p){p.vy+=0.45*dpr;p.vx*=0.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.globalAlpha=Math.max(0,1-t/2600);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore();});
+      if(t<2600)requestAnimationFrame(frame);else c.remove();
+    })();
+    haptic([40,60,40]);
+  }
+  /* petit retour tactile sur les boutons principaux */
+  document.addEventListener("click",function(e){
+    var t=e.target&&e.target.closest?e.target.closest(".btn,.gcard,.tabbar button,.seg button,.vbtn,.opt,.fav,.surprise"):null;
+    if(t&&!t.disabled)haptic(8);
+  },true);
+
   /* ---------------- ÉCRAN DE BIENVENUE ---------------- */
   function openWelcome(step){
     step=step||1;
@@ -2488,6 +2581,56 @@
     }else el("wdone").addEventListener("click",finish);
   }
 
+  function openSettings(focus){
+    var chips=players.map(function(p,i){
+      return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer '+esc(p)+'">×</button></span>';
+    }).join("");
+    el("s-settings").innerHTML=
+      '<div class="setup" style="margin-top:4px">'+
+        '<div class="panel">'+
+          '<div class="plbl">Joueurs <span class="cnt">'+(players.length?players.length:"")+'</span></div>'+
+          (chips?'<div class="chips">'+chips+'</div>':'')+
+          '<form class="addrow" id="addf"><input id="pname" maxlength="18" placeholder="Ajouter un prénom" autocomplete="off" enterkeyhint="done"><button class="add" type="submit">Ajouter</button></form>'+
+          (players.length<2?'<p class="hint">Facultatif. Sans prénoms, le jeu désigne « la personne à ta gauche », etc.</p>':'<p class="hint">Le jeu fera tourner la sellette entre vous.</p>')+
+        '</div>'+
+        '<div class="panel">'+
+          '<div class="plbl">Pénalités</div>'+
+          '<div class="seg" id="mode">'+
+            '<button data-m="famille"'+(mode==="famille"?' class="on"':'')+'>🧸 Famille<span class="s">tout public</span></button>'+
+            '<button data-m="gages"'+(mode==="gages"?' class="on"':'')+'>🎯 Gages<span class="s">sans alcool</span></button>'+
+            '<button data-m="alcool"'+(mode==="alcool"?' class="on"':'')+'>🍺 Gorgées<span class="s">soirée arrosée</span></button>'+
+          '</div>'+
+          (mode==="famille"?'<p class="hint">Gages doux, jeux et questions adaptés aux enfants : les jeux pour adultes sont masqués.</p>':mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
+        '</div>'+
+        themeHTML()+
+      '</div>'+
+      '<button class="linkbtn" id="rewelcome2">Revoir le guide de démarrage</button>'+
+      '<div class="foot"><button class="btn" id="setdone">C\'est bon</button></div>';
+    show("settings");
+    function re(){var y=window.scrollY;openSettings();window.scrollTo(0,y);}
+    Array.prototype.forEach.call(el("s-settings").querySelectorAll(".px"),function(b){
+      b.addEventListener("click",function(){players.splice(+b.getAttribute("data-i"),1);save();re();});
+    });
+    Array.prototype.forEach.call(el("mode").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){mode=b.getAttribute("data-m");save();re();});
+    });
+    Array.prototype.forEach.call(el("themes").querySelectorAll("button"),function(b){
+      b.addEventListener("click",function(){lsSet("cart_theme",b.getAttribute("data-t"));re();});
+    });
+    el("addf").addEventListener("submit",function(e){
+      e.preventDefault();
+      var v=el("pname").value.trim().replace(/\s+/g," ");
+      if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();var T=tourGet();if(T&&T.on&&!T.pts.hasOwnProperty(v)){T.pts[v]=0;tourSet(T);}}
+      re();el("pname").focus();
+    });
+    el("rewelcome2").addEventListener("click",function(){openWelcome(1);});
+    el("setdone").addEventListener("click",toHub);
+    if(focus)el("pname").focus();
+  }
+  function hubTitle(){
+    var h=new Date().getHours();
+    return mode==="famille"?"On joue à quoi ?":(h>=18||h<5)?"Ce soir, on joue à quoi ?":"On joue à quoi ?";
+  }
   function setupOpen(){var v=lsGet("cart_setup_open");return v===null?!players.length:v==="1";}
   function setupSummary(){
     var parts=[];
@@ -2526,10 +2669,12 @@
     if(filt!=="plus"&&!FILTERS.some(function(f){return f[0]===filt;}))filt="tous";
     function card(g){
       var on=favs.indexOf(g.id)>=0;
+      var badges=(NEEDS_NET[g.id]?'<span class="bdg" title="Il faut internet">📶</span>':'')+(curTheme()&&THEME_GAMES[g.id]?'<span class="bdg" title="Cartes du thème">'+THEMES[curTheme()].ico+'</span>':'');
       return '<div class="gw"><button class="gcard" data-id="'+g.id+'" style="--gc:'+g.gc+'">'+
         '<span class="em">'+g.em+'</span>'+
-        '<span class="txt"><span class="nm">'+g.name+(NEEDS_NET[g.id]?'<span class="net">📶 internet</span>':'')+(curTheme()&&THEME_GAMES[g.id]?'<span class="net">'+THEMES[curTheme()].ico+' thème</span>':'')+'</span><span class="tg">'+t(g.tg)+'</span>'+tallyHTML(g.id)+'</span>'+
-        '<span class="go"></span></button>'+
+        '<span class="nm">'+g.name+'</span><span class="tg">'+t(g.tg)+'</span>'+
+        (badges?'<span class="bdgs">'+badges+'</span>':'')+tallyHTML(g.id)+
+        '</button>'+
         '<button class="fav'+(on?' on':'')+'" data-fav="'+g.id+'" aria-pressed="'+on+'" aria-label="'+(on?'Retirer des favoris':'Ajouter aux favoris')+'">'+(on?'★':'☆')+'</button></div>';
     }
     function inFilter(g){
@@ -2541,7 +2686,7 @@
     var pool=GAMES.filter(inFilter);
     var favList=pool.filter(isFav);
     var rest=pool.filter(function(g){return !isFav(g);});
-    function sect(h,ss,list){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games">'+list.map(card).join("")+'</div>':'';}
+    function sect(h,ss,list,cls){return list.length?'<div class="sect"><div class="sh">'+h+'</div>'+(ss?'<div class="ss">'+ss+'</div>':'')+'</div><div class="games'+(cls?' '+cls:'')+'">'+list.map(card).join("")+'</div>':'';}
     var fcur=FILTERS.filter(function(f){return f[0]===filt;})[0];
     var TABS={tous:["🎲","Tous"],soiree:["🍻","Soirée"],trajet:["🚌","Trajet"],famille:["👨‍👩‍👧","Famille"]};
     el("tabbar").innerHTML='<div class="tabs" style="grid-template-columns:repeat('+(FILTERS.length+1)+',1fr)">'+
@@ -2549,8 +2694,8 @@
       '<button data-f="plus"'+(filt==="plus"?' class="on" aria-current="page"':'')+'><span class="ti">✨</span><span class="tl">Plus</span></button></div>';
     var gamesHTML=filt==="plus"?'':
       '<div id="gamestop"></div>'+
-      '<button class="surprise" id="surprise">🎲 Surprends-moi'+(filt!=="tous"?' <span style="opacity:.6;font-weight:600">· '+TABS[filt][1]+'</span>':'')+'</button>'+
-      sect("⭐ Tes favoris",favList.length?"":"",favList)+
+      '<button class="surprise" id="surprise"><span class="se">🎲</span><span><b>Surprends-moi</b><span>Un jeu au hasard'+(filt!=="tous"?' · '+TABS[filt][1]:'')+'</span></span><span class="sa">›</span></button>'+
+      sect("⭐ Tes favoris","",favList,"favrow")+
       (filt==="tous"?
         sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
         sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
@@ -2560,30 +2705,9 @@
       return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer '+esc(p)+'">×</button></span>';
     }).join("");
     el("s-hub").innerHTML=
-      '<div class="kicker">Jeux de soirée · sans matériel</div>'+
-      '<h1>Les Cartouches</h1>'+
-      '<p class="sub">Un téléphone, une bande, et c\'est parti.</p>'+
+      '<h1 class="htitle">'+hubTitle()+'</h1>'+
       incomingHTML()+grpIncomingHTML()+tourBannerHTML()+
-      '<details class="setupbox" id="setupbox"'+(setupOpen()?' open':'')+'><summary>'+
-        '<span class="sl">⚙️ Réglages</span><span class="sr">'+setupSummary()+'</span><span class="chev" aria-hidden="true">▾</span></summary>'+
-      '<div class="setup">'+
-        '<div class="panel">'+
-          '<div class="plbl">Joueurs <span class="cnt">'+(players.length?players.length:"")+'</span></div>'+
-          (chips?'<div class="chips">'+chips+'</div>':'')+
-          '<form class="addrow" id="addf"><input id="pname" maxlength="18" placeholder="Ajouter un prénom" autocomplete="off" enterkeyhint="done"><button class="add" type="submit">Ajouter</button></form>'+
-          (players.length<2?'<p class="hint">Facultatif. Sans prénoms, le jeu désigne « la personne à ta gauche », etc.</p>':'<p class="hint">Le jeu fera tourner la sellette entre vous.</p>')+
-        '</div>'+
-        '<div class="panel">'+
-          '<div class="plbl">Pénalités</div>'+
-          '<div class="seg" id="mode">'+
-            '<button data-m="famille"'+(mode==="famille"?' class="on"':'')+'>🧸 Famille<span class="s">tout public</span></button>'+
-            '<button data-m="gages"'+(mode==="gages"?' class="on"':'')+'>🎯 Gages<span class="s">sans alcool</span></button>'+
-            '<button data-m="alcool"'+(mode==="alcool"?' class="on"':'')+'>🍺 Gorgées<span class="s">soirée arrosée</span></button>'+
-          '</div>'+
-          (mode==="famille"?'<p class="hint">Gages doux, jeux et questions adaptés aux enfants : les jeux pour adultes sont masqués.</p>':mode==="alcool"?'<p class="hint">Réservé aux 18 ans et plus. À boire avec modération, et pas au volant.</p>':'<p class="hint">Chaque pénalité tire un gage au hasard : on joue sans rien boire.</p>')+
-        '</div>'+
-        themeHTML()+
-      '</div></details>'+
+      '<button class="setchip" id="setchip"><span class="sci">⚙️</span><span class="scs">'+setupSummary()+'</span><span class="scm">Modifier ›</span></button>'+
       gamesHTML+
       (filt==="plus"?
       '<div id="gamestop"></div><div class="sect"><div class="sh">✨ Pour aller plus loin</div><div class="ss">Vos propres cartes et un classement sur tout le trajet</div></div>'+
@@ -2613,11 +2737,9 @@
         window.scrollTo(0,Math.min(y,top));
       });
     });
-    el("setupbox").addEventListener("toggle",function(){lsSet("cart_setup_open",el("setupbox").open?"1":"0");});
+    el("setchip").addEventListener("click",function(){openSettings(!players.length);});
     var tb=el("tourbar");if(tb)tb.addEventListener("click",function(){lsSet("cart_filter","plus");buildHub();el("tourpanel").scrollIntoView({behavior:"smooth",block:"center"});});
-    Array.prototype.forEach.call(el("themes").querySelectorAll("button"),function(b){
-      b.addEventListener("click",function(){lsSet("cart_theme",b.getAttribute("data-t"));lsSet("cart_setup_open","1");var y=window.scrollY;buildHub();window.scrollTo(0,y);});
-    });
+
     Array.prototype.forEach.call(el("s-hub").querySelectorAll(".gcard"),function(b){
       b.addEventListener("click",function(){openIntro(b.getAttribute("data-id"));});
     });
@@ -2630,19 +2752,6 @@
       });
     });
 
-    Array.prototype.forEach.call(el("s-hub").querySelectorAll(".px"),function(b){
-      b.addEventListener("click",function(){players.splice(+b.getAttribute("data-i"),1);save();lsSet("cart_setup_open","1");var y=window.scrollY;buildHub();window.scrollTo(0,y);});
-    });
-    Array.prototype.forEach.call(el("mode").querySelectorAll("button"),function(b){
-      b.addEventListener("click",function(){mode=b.getAttribute("data-m");save();lsSet("cart_setup_open","1");var y=window.scrollY;buildHub();window.scrollTo(0,y);});
-    });
-    el("addf").addEventListener("submit",function(e){
-      e.preventDefault();
-      var v=el("pname").value.trim().replace(/\s+/g," ");
-      lsSet("cart_setup_open","1");if(v&&players.length<16&&players.indexOf(v)<0){players.push(v);save();var T=tourGet();if(T&&T.on&&!T.pts.hasOwnProperty(v)){T.pts[v]=0;tourSet(T);}}
-      buildHub(true);
-    });
-    if(focus)el("pname").focus();
   }
 
   function isStandalone(){return (window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||window.navigator.standalone===true;}
@@ -3063,6 +3172,7 @@
       runBtn.textContent="▶️ Reprendre";statusEl.textContent="En pause. Reprends quand tu veux.";
     }
     function win(){
+      confetti();
       trapRun=false;if(trapT){clearTimeout(trapT);trapT=null;}
       var w=alive[0];curP=w;drawAlive();
       whoEl.textContent=w;
@@ -3330,7 +3440,7 @@
     var armed=false;
     b=el("tend");if(b)b.addEventListener("click",function(){
       if(!armed){armed=true;b.textContent="Confirmer : afficher le podium";return;}
-      var T=tourGet();if(T){T.on=false;T.done=true;tourSet(T);}rebuild();
+      var T=tourGet();if(T){T.on=false;T.done=true;tourSet(T);}rebuild();setTimeout(confetti,200);
     });
   }
 
@@ -4346,6 +4456,7 @@
   /* ---------------- FIN ---------------- */
   function endGame(){
     clearT();showProg=false;el("progress").hidden=true;
+    var _ks=Object.keys(qScores);if(G&&G.cat==="quiz"&&_ks.some(function(k){return qScores[k]>0;}))setTimeout(confetti,350);
     el("s-end").innerHTML=
       '<div class="em">'+G.em+'</div>'+
       '<h2 class="big">Partie terminée.</h2>'+
@@ -4391,7 +4502,8 @@
   function toHub(){G=null;document.documentElement.style.setProperty("--ga","#ff4d8d");buildHub();show("hub");}
 
   el("brand").addEventListener("click",toHub);
-  el("back").addEventListener("click",toHub);
+  el("back").addEventListener("click",function(){if(curScreen==="mine"&&openMine.from){openIntro(openMine.from);return;}if(curScreen==="settings"){toHub();return;}toHub();});
+  el("gear").addEventListener("click",function(){openSettings();});
 
   /* appli installable + hors ligne */
   if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
@@ -4401,6 +4513,7 @@
   window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;if(screens.hub&&!screens.hub.hidden)buildHub();});
   buildHub();
   show("hub");
+  setTimeout(function(){var sp=el("splash");if(sp)sp.remove();},1300);
   if(!lsGet("cart_welcome")&&!players.length&&!mineIncoming&&!grpIncoming)openWelcome(1);
   if(grpCode())grpSync(function(ok){if(ok&&!screens.hub.hidden){var y=window.scrollY;buildHub();window.scrollTo(0,y);}});
   flush();
