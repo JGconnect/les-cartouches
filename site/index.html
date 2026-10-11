@@ -2013,7 +2013,7 @@
      rules:["L'appli appelle quelqu'un à voix haute et le mitraille de <b>questions en rafale</b>, avec des relances pour le piéger.","Il faut répondre à tout… <b>sans jamais dire « oui » ni « non »</b>.","Tu craques ? <b>{Pen}</b>. En mode <b>survivant</b> (au choix), tu es éliminé·e et le dernier debout gagne."]},
     {id:"menteur",name:"Le Menteur",em:"🃏",gc:"#f5b700",tg:"Tout le monde raconte, un seul invente. Qui ment ?",
      type:"menteur",vic:"Au tour de",partie:6,
-     rules:["Le téléphone donne un <b>thème à tout le monde</b> (« Ta pire honte en soirée »). Il passe de main en main : chacun découvre son rôle <b>en secret</b>.","Tout le monde raconte une <b>vraie</b> histoire… sauf <b>un menteur caché</b>, qui invente la sienne.","Chacun raconte en 30 secondes, puis vote en secret : <b>qui est le menteur ?</b> Démasqué, il prend {pen}. Sinon, il marque 2 points et ceux qui se sont trompés prennent {pen}."]},
+     rules:["Le téléphone donne un <b>thème à tout le monde</b> (« Ta pire honte en soirée »). Il passe de main en main : chacun découvre son rôle <b>en secret</b>.","Tout le monde raconte une <b>vraie</b> histoire… sauf <b>un menteur caché</b>, qui invente la sienne.","Chacun raconte en 30 secondes. Puis à <b>3, 2, 1</b>, tout le monde <b>pointe du doigt</b> le menteur ! Démasqué, il prend {pen}. Sinon, il marque 2 points et ceux qui se sont trompés prennent {pen}."]},
     {id:"coupable",name:"Le Coupable",em:"👉",gc:"#3ddc97",tg:"« Qui est le plus susceptible de… »",
      type:"deck",partie:10,instr:"À trois, tout le monde pointe une personne. Le plus <span class='g'>désigné {boit}</span>.",
      rules:["Le téléphone pose une question sur le groupe.","Au top, chacun pointe la personne la plus concernée.","La personne la plus désignée {boit}. Égalité ? Tout le monde y passe."]},
@@ -2102,11 +2102,11 @@
     if(left>0&&left<=3){haptic(35);if(box){box.classList.remove("warn");void box.offsetWidth;box.classList.add("warn");}}
     else if(left===0){haptic([220,90,220,90,320]);}
   }
-  function countIn(cb){
+  function countIn(cb,last){
     clearT();
     var o=document.getElementById("countin");
     if(!o){o=document.createElement("div");o.id="countin";o.innerHTML='<div class="cnum" id="cnum"></div>';document.body.appendChild(o);}
-    var steps=["3","2","1","C'est parti !"],i=0;
+    var steps=["3","2","1",last||"C'est parti !"],i=0;
     o.hidden=false;
     (function step(){
       var n=el("cnum");n.textContent=steps[i];n.className="cnum"+(i===3?" go":"");void n.offsetWidth;n.classList.add("pop");
@@ -3254,7 +3254,7 @@
     if(players.length<3)return needPlayers(P,3);
     var raw=deck[idx],spicy=raw.indexOf("épicé|")===0,theme=spicy?raw.slice(6):raw;
     var cand=players.filter(function(p){return p!==menLast;}),liar=cand[Math.floor(Math.random()*cand.length)];menLast=liar;
-    var order=shuffle(players),ri=0,tellers=shuffle(players),ti=0,votes={},vi=0,vorder=shuffle(players);
+    var order=shuffle(players),ri=0,tellers=shuffle(players),ti=0;
     var chip='<div class="chip"><span class="dot"></span>'+(spicy?'🌶️ ':'')+'Thème de la manche</div>';
     function roles(){
       if(ri>=order.length)return tell();
@@ -3282,30 +3282,34 @@
       el("stop").addEventListener("click",quitQuiz);
     }
     function vote(){
-      if(vi>=vorder.length)return reveal();
-      var v=vorder[vi];
-      P.innerHTML=passHTML(v,(vi?'Vote enregistré 🤫 ':'')+'Vote secret : <b>qui est le menteur ?</b> ('+vi+' / '+vorder.length+')','Je suis '+esc(v)+' → voter');
-      el("iam").addEventListener("click",function(){
-        P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Vote secret de '+esc(v)+'</div><h2 class="qtext">Qui a menti ?</h2>'+
-          '<div class="chips pick vgrid">'+players.filter(function(p){return p!==v;}).map(function(p){return '<button class="pchip" data-p="'+esc(p)+'">'+esc(p)+'</button>';}).join("")+'</div></div>';
-        Array.prototype.forEach.call(P.querySelectorAll(".vgrid button"),function(b){b.addEventListener("click",function(){var p=b.getAttribute("data-p");votes[p]=(votes[p]||[]).concat([v]);vi++;vote();});});
-      });
+      P.innerHTML='<div class="body">'+chip+'<h2 class="qtext">Qui a menti ?</h2>'+
+        '<p class="instr">Tout le monde se prépare… À <b>trois</b>, chacun <b>pointe du doigt</b> le menteur en même temps (le menteur aussi, pour brouiller les pistes !).</p></div>'+
+        '<div class="foot"><button class="btn" id="vgo">👉 Lancer le 3, 2, 1</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("vgo").addEventListener("click",function(){countIn(pick,"Pointez ! 👉");});
       el("stop").addEventListener("click",quitQuiz);
     }
-    function reveal(){
-      var ks=Object.keys(votes).sort(function(a,b){return votes[b].length-votes[a].length;}),max=ks.length?votes[ks[0]].length:0;
-      var caught=(votes[liar]||[]).length===max&&max>0;
-      var finders=(votes[liar]||[]),wrong=players.filter(function(p){return p!==liar&&finders.indexOf(p)<0;});
-      finders.forEach(function(p){addPts(p,1);});if(!caught)addPts(liar,2);
+    function pick(){
+      P.innerHTML='<div class="body">'+chip+'<h2 class="qtext">Qui a été le plus pointé ?</h2>'+
+        '<p class="instr">Touchez la personne que la table a désignée.</p>'+
+        '<div class="chips pick vgrid">'+players.map(function(p){return '<button class="pchip" data-p="'+esc(p)+'">'+esc(p)+'</button>';}).join("")+'</div></div>'+
+        '<div class="foot"><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".vgrid button"),function(b){b.addEventListener("click",function(){reveal(b.getAttribute("data-p"));});});
+      el("stop").addEventListener("click",quitQuiz);
+    }
+    function reveal(acc){
+      var caught=acc===liar;
+      if(!caught)addPts(liar,2);
       P.innerHTML='<div class="body">'+chip+'<h2 class="qtext">'+esc(theme)+'</h2>'+
-        '<div class="bars">'+ks.map(function(k){return '<div class="barrow"><span class="bn">'+esc(k)+'</span><span class="bt"><span class="bf" style="width:'+Math.round(100*votes[k].length/vorder.length)+'%"></span></span><span class="bv">'+votes[k].length+'</span></div>';}).join("")+'</div>'+
-        '<div class="answer '+(caught?'ok':'ko')+'"><div class="aw">🤥 Le menteur : '+esc(liar)+'</div><div class="as">'+(caught?'Démasqué ! '+(finders.length?'+1 point pour '+finders.map(esc).join(", ")+'.':''):'Il ou elle s\'en sort : +2 points !'+(finders.length?' (+1 pour '+finders.map(esc).join(", ")+')':''))+'</div></div></div>'+
+        '<p class="instr" style="margin-bottom:0">La table a désigné <b>'+esc(acc)+'</b>…</p>'+
+        '<div class="answer '+(caught?'ok':'ko')+'"><div class="aw">🤥 Le menteur : '+esc(liar)+'</div><div class="as">'+(caught?'Démasqué ! Touchez ceux qui l\'avaient pointé (+1 point chacun).':esc(liar)+' s\'en sort : +2 points !')+'</div></div>'+
+        (caught?padHTML("Qui avait pointé "+esc(liar)+" ? Touche pour +1"):'')+'</div>'+
         '<div class="foot"><div class="row2"><button class="btn drink" id="pen">'+(caught?esc(liar):'Les trompés')+' → '+I()+'</button><button class="btn ghost" id="nx">'+(idx+1<deck.length?'Manche suivante →':'Voir le classement')+'</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      if(caught)wirePad(P);
       haptic([30,40,60]);if(!caught)confetti();
       function next(){if(idx+1>=deck.length){quitQuiz();return;}idx++;renderRound();}
-      el("pen").addEventListener("click",function(){penalty(caught?liar:(wrong.length?wrong.join(", "):"les autres"),next);});
+      el("pen").addEventListener("click",function(){penalty(caught?liar:"tous ceux qui ont pointé "+acc,next);});
       el("nx").addEventListener("click",next);
-      el("stop").addEventListener("click",function(){quitQuiz();});
+      el("stop").addEventListener("click",quitQuiz);
     }
     roles();
   }
