@@ -1979,7 +1979,8 @@
      rules:["Les questions montent d'un cran à chaque palier.","À chacun de répondre honnêtement…","…ou d'esquiver avec {pen}. À toi de choisir."]},
     {id:"chrono",name:"Le Chrono",em:"⏱️",gc:"#4ec5ff",tg:"Cite un truc en cinq secondes, sinon {pen}.",
      type:"chrono",secs:5,
-     rules:["Le téléphone donne une catégorie.","On tourne : chacun cite un élément en moins de cinq secondes.","Tu sèches ou tu répètes ? {Pen}, et on change de catégorie."]},
+     vic:"Au tour de",
+     rules:["Le téléphone donne une catégorie et <b>désigne qui commence</b>.","Chacun son tour, <b>cinq secondes</b> pour citer un élément. On touche « Trouvé ! » et le chrono repart aussitôt pour <b>le suivant</b>, qui s'affiche à l'écran.","Tu sèches, tu répètes ou le temps est écoulé ? {Pen}, puis nouvelle catégorie : c'est la personne suivante qui commence."]},
     {id:"tribunal",name:"Le Tribunal",em:"⚖️",gc:"#ff4d6d",tg:"La table désigne l'accusé·e, qui plaide sa cause.",
      type:"tribunal",secs:30,vic:"L'accusé·e",partie:10,
      rules:["Le téléphone lit un <b>chef d'accusation</b>. À trois, tout le monde <b>pointe la personne qui le mérite le plus</b> : c'est l'accusé·e.","L'accusé·e a <b>trente secondes</b> pour plaider non coupable, avec toute sa mauvaise foi.","La table rend son verdict. Coupable → l'accusé·e {boit}. Acquitté·e → ceux qui l'ont pointé·e {boivent}."]},
@@ -2820,14 +2821,14 @@
 
   /* ---------------- RING ---------------- */
   function ringHTML(){return '<div class="ring" id="ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="88"></circle><circle class="arc" id="arc" cx="100" cy="100" r="88"></circle></svg><div class="num" id="tnum">0</div></div>';}
-  function runTimer(secs,onZero){
+  function runTimer(secs,onZero,noCount){
     clearT();
     var C=2*Math.PI*88,left=secs;
     var arc=el("arc"),num=el("tnum"),ring=el("ring");
     arc.style.strokeDasharray=C;
     function paint(){num.textContent=left;arc.style.strokeDashoffset=C*(1-left/secs);}
     paint();
-    countIn(function(){
+    (noCount?function(f){f();}:countIn)(function(){
       timer=setInterval(function(){
         left--;
         tickFx(left,ring);
@@ -3155,26 +3156,43 @@
   }
 
   function renderChrono(P){
-    P.innerHTML=
+    /* chacun son tour : le premier change à chaque catégorie */
+    var named=players.length>=2, n=named?vics.length:0, t=0, running=false;
+    function who(k){return named?vics[(idx+k)%n]:(k===0?"La personne qui commence":"La personne suivante (à gauche)");}
+    var cur0=who(0);
+    P.innerHTML=bannerHTML(G,cur0).replace('<div class="name">','<div class="name" id="chwho">')+
       '<div class="body">'+
         '<div class="chip"><span class="dot"></span>Catégorie</div>'+
         '<h2 class="qtext">'+deck[idx%deck.length]+'</h2>'+
         ringHTML()+
-        '<p class="instr" id="msg">Cinq secondes par personne. On lance dès que tu es prêt.</p>'+
+        '<p class="instr" id="msg">'+(named?'<b>'+esc(cur0)+'</b> commence. Cinq secondes chacun, puis on passe au suivant.':'Cinq secondes chacun, dans le sens des aiguilles d\'une montre.')+'</p>'+
       '</div>'+
       '<div class="foot">'+
-        '<button class="btn" id="tgo">Lancer le chrono</button>'+
+        '<button class="btn" id="tgo">▶️ Lancer le chrono</button>'+
         '<div class="row2"><button class="btn drink" id="fail">A séché → '+I()+'</button><button class="btn ghost" id="nx">Autre catégorie →</button></div>'+
         '<button class="linkbtn" id="stop">Terminer la partie</button>'+
       '</div>';
     el("tnum").textContent=G.secs;
-    el("tgo").addEventListener("click",function(){
+    function nextCat(){idx++;renderRound();}
+    function startTurn(first){
+      var w=who(t);
+      el("chwho").textContent=w;
       el("ring").classList.remove("done");
-      el("tgo").textContent="Réussi, on relance";
-      runTimer(G.secs,function(){el("msg").textContent="Trop lent ! "+I();});
+      if(named){el("msg").innerHTML='À <b>'+esc(w)+'</b> !'+(t>0?' <span style="opacity:.7">('+(t+1)+'<sup>e</sup> réponse)</span>':'');if(!first)say(w,function(){});}
+      else el("msg").textContent=t===0?"C'est parti !":"Au suivant !";
+      runTimer(G.secs,function(){
+        running=false;
+        el("tgo").textContent="▶️ Lancer le chrono";
+        el("msg").innerHTML='⏰ Temps écoulé : <b>'+esc(who(t))+'</b> a séché !';
+        setTimeout(function(){if(!screens.play.hidden)penalty(who(t),nextCat);},700);
+      },!first);
+    }
+    el("tgo").addEventListener("click",function(){
+      if(!running){running=true;el("tgo").textContent="✅ Trouvé ! Au suivant →";if(named)say(who(t),function(){});startTurn(true);}
+      else{t++;startTurn(false);}
     });
-    el("fail").addEventListener("click",function(){clearT();penalty("celui ou celle qui a séché");});
-    el("nx").addEventListener("click",function(){idx++;renderRound();});
+    el("fail").addEventListener("click",function(){clearT();running=false;penalty(who(t),nextCat);});
+    el("nx").addEventListener("click",function(){clearT();nextCat();});
     el("stop").addEventListener("click",endGame);
   }
 
