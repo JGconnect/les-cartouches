@@ -854,6 +854,7 @@
   ];
 
   var CHRONO=[
+    "Des excuses pour ne pas répondre à un message",
     "Des marques de voiture","Des prénoms autour de la table","Des films avec un chien","Des choses dans un frigo",
     "Des pays d'Europe","Des marques de bière","Des insultes gentilles","Des trucs qu'on regrette le lendemain",
     "Des chanteurs français","Des applis sur ton téléphone","Des choses interdites en soirée","Des séries à binge-watcher",
@@ -935,6 +936,7 @@
   ];
 
   var TRIBUNAL=[
+    "d'envoyer des vocaux de plus de 3 minutes",
     "d'être le ou la plus radin·e de la table","d'être toujours en retard","de mal tenir l'alcool",
     "de trop parler de son ex","de checker son téléphone toutes les trente secondes","de raconter les mêmes histoires",
     "d'être le ou la pire danseur·se","de ne jamais payer sa tournée","de mentir sur son temps de sport",
@@ -1021,6 +1023,7 @@
   ];
 
   var DILEMME=[
+    {a:"Ne plus jamais pouvoir mettre de musique en soirée",b:"Être toujours celui ou celle qui doit choisir la musique"},
     {a:"Sauver ta ou ton partenaire",b:"Sauver ton enfant",ctx:"À la naissance, un seul des deux peut être sauvé. Tu dois choisir."},
     {a:"Donner ton corps à la science",b:"Être enterré·e classiquement",ctx:"Après ta mort, une seule option."},
     {a:"Sauver cinq inconnus",b:"Sauver un seul de tes proches",ctx:"Tu ne peux pas les deux."},
@@ -1777,6 +1780,7 @@
 
   /* ---------------- VRAI OU FAUX : V/F | affirmation | explication ---------------- */
   var VRAIFAUX=[
+    "V|Les flamants roses naissent gris et deviennent roses grâce à leur alimentation.|Les petites crevettes et les algues qu'ils mangent contiennent des pigments (caroténoïdes) qui colorent leurs plumes.",
     "F|Les taureaux sont énervés par la couleur rouge.|Ils voient mal le rouge : c'est le mouvement de la cape qui les excite.",
     "F|Le Petit Prince a été écrit par Victor Hugo.|Par Antoine de Saint-Exupéry, en 1943.",
     "F|Le Brésil a gagné quatre Coupes du monde de football.|Il en a gagné cinq : 1958, 1962, 1970, 1994 et 2002.",
@@ -2035,7 +2039,7 @@
     {id:"avpiment",name:"Action ou Vérité",em:"😈",gc:"#ff3d6e",tg:"Trois niveaux, du flirt au brûlant.",type:"av",cat:"hot",vic:"Au tour de",
      rules:["Chacun son tour, le téléphone désigne un joueur, qui choisit <b>action</b> ou <b>vérité</b>.","Il répond franchement ou relève le défi… sinon <b>{pen}</b>.","On peut <b>toujours passer</b> son tour, sans se justifier : le jeu doit rester drôle pour tout le monde."]},
     {id:"jamais",name:"Je n'ai jamais",em:"🙊",gc:"#ff7a59",tg:"Ceux qui l'ont fait {boivent}.",type:"jamais",cat:"hot",partie:15,
-     rules:["Le téléphone affiche une phrase « Je n'ai jamais… ».","Tous ceux qui <b>l'ont déjà fait</b> {boivent}. Les plus courageux racontent.","Personne n'est obligé de donner les détails !"]},
+     rules:["Le téléphone pose une question « Qui a déjà… ? ».","Tous ceux qui <b>l'ont déjà fait</b> lèvent la main et {boivent}. Les plus courageux racontent.","Personne n'est obligé de donner les détails !"]},
     {id:"barometre",name:"Le Baromètre",em:"🌡️",gc:"#ff5470",tg:"Votes secrets : qui ici… ?",type:"barometre",cat:"hot",partie:8,
      rules:["Une question tombe : « Qui ici embrasse le mieux ? ».","Le téléphone passe de main en main : chacun vote <b>en secret</b> pour quelqu'un.","Le classement est révélé. Le ou la gagnante prend <b>{pen}</b> (ou un tonnerre d'applaudissements)."]},
     {id:"confessions",name:"Confessions anonymes",em:"🤫",gc:"#a06bff",tg:"Écris un secret, la table devine qui.",type:"confessions",cat:"hot",
@@ -3256,6 +3260,7 @@
 
   /* ---------------- L'INTRUS (mots proches, un joueur a un mot différent) ---------------- */
   var INTRUS_MOTS=[
+    "Brunch|Goûter",
     "Chat|Chien","Café|Thé","Plage|Piscine","Pizza|Burger","Train|Métro","Soleil|Lune","Guitare|Violon","Mer|Lac",
     "Ski|Snowboard","Croissant|Pain au chocolat","Fourchette|Cuillère","Football|Rugby","Netflix|YouTube","Avion|Hélicoptère","Livre|Magazine","Montagne|Colline",
     "Pomme|Poire","Citron|Orange","Lion|Tigre","Facebook|Instagram","Docteur|Infirmier","Policier|Pompier","Château|Palais","Vélo|Trottinette",
@@ -3455,7 +3460,8 @@
         '<div class="chip"><span class="dot"></span>Catégorie</div>'+
         '<h2 class="qtext">'+deck[idx%deck.length]+'</h2>'+
         ringHTML()+
-        '<p class="instr" id="msg">'+(named?'<b>'+esc(cur0)+'</b> commence. Cinq secondes chacun, puis on passe au suivant.':'Cinq secondes chacun, dans le sens des aiguilles d\'une montre.')+'</p>'+
+        '<p class="instr" style="margin:0"><b>Chacun son tour, UNE réponse en 5 secondes.</b> Celui qui sèche ou répète une réponse déjà dite perd.</p>'+
+        '<p class="instr" id="msg">'+(named?'<b>'+esc(cur0)+'</b> commence.':'On tourne dans le sens des aiguilles d\'une montre.')+'</p>'+
       '</div>'+
       '<div class="foot">'+
         '<button class="btn" id="tgo">▶️ Lancer le chrono</button>'+
@@ -4113,6 +4119,7 @@
   function hotTxt(x){return x.slice(2);}
 
   var AV_VERITES=[
+    "f|Le prénom de la dernière personne que tu as stalkée sur Instagram ?","b|Ce qui t'a fait craquer chez ton dernier coup d'un soir ? (sans dire son prénom)",
     "f|Qui ici trouves-tu le plus charmant·e (à part ton ou ta partenaire) ?","f|Ton pire râteau, en détail.","f|Ton premier bisou : où, quand, avec qui ?",
     "f|Le compliment qui t'a le plus fait rougir ?","f|Ta technique de drague qui marche à tous les coups (ou presque) ?","f|Le dernier message que tu as effacé avant de l'envoyer ?",
     "f|Tu as déjà eu un crush sur un ou une prof ?","f|Le prénom de ton plus gros crush secret d'adolescence ?","f|Qu'est-ce qui te fait craquer en premier chez quelqu'un ?",
@@ -4130,6 +4137,7 @@
     "b|Ce qui t'excite le plus chez quelqu'un, honnêtement ?","b|Le rendez-vous le plus chaud que tu aies vécu ?","b|Tu as déjà eu une relation cachée ?"
   ];
   var AV_ACTIONS=[
+    "f|Sors ta meilleure phrase d'approche à la personne à ta gauche.","b|Chuchote à l'oreille de quelqu'un la chose la plus audacieuse que tu oserais faire ce soir.",
     "f|Fais un compliment sincère et un peu charmeur à la personne à ta droite.","f|Imite ta technique de drague pendant 20 secondes.","f|Envoie un emoji 😏 à la dernière personne de tes conversations, sans explication.",
     "f|Fais ta meilleure déclaration d'amour à un objet de la pièce.","f|Danse 20 secondes de la façon la plus séduisante possible.","f|Regarde la personne de ton choix dans les yeux pendant 15 secondes sans rire.",
     "f|Lis à voix haute le dernier message que tu as envoyé (on te laisse en choisir un parmi les 3 derniers).","f|Fais un clin d'œil à chaque personne de la table.","f|Chante le refrain d'une chanson d'amour à la personne en face de toi.",
@@ -4144,23 +4152,24 @@
     "b|Décris ton baiser idéal à la table, avec les gestes.","b|Échange de place avec la personne de ton choix et reste collé·e à elle jusqu'au prochain tour.","b|Donne ton plus beau compliment physique à chaque personne de la table."
   ];
   var JAMAIS=[
-    "f|Je n'ai jamais eu un crush sur un ou une collègue.","f|Je n'ai jamais dragué quelqu'un sur une appli de rencontre.","f|Je n'ai jamais fait semblant d'avoir un appel pour fuir un date.",
-    "f|Je n'ai jamais envoyé un message à la mauvaise personne.","f|Je n'ai jamais stalké un ex jusqu'à ses photos de vacances d'il y a trois ans.","f|Je n'ai jamais menti sur mon âge pour séduire.",
-    "f|Je n'ai jamais eu un crush sur l'ami·e d'un·e ami·e.","f|Je n'ai jamais embrassé quelqu'un dans une boîte de nuit.","f|Je n'ai jamais écrit un poème ou une lettre d'amour.",
-    "f|Je n'ai jamais liké une vieille photo par erreur en stalkant.","f|Je n'ai jamais eu deux dates le même jour.","f|Je n'ai jamais ghosté quelqu'un.",
-    "f|Je n'ai jamais pleuré pour une rupture devant un film.","f|Je n'ai jamais flirté pour éviter une amende ou passer devant.","f|Je n'ai jamais dit « je t'aime » en premier.",
-    "c|Je n'ai jamais embrassé quelqu'un de cette table.","c|Je n'ai jamais eu un coup d'un soir.","c|Je n'ai jamais envoyé un message osé.",
-    "c|Je n'ai jamais eu un crush sur l'ex d'un·e ami·e.","c|Je n'ai jamais embrassé deux personnes dans la même soirée.","c|Je n'ai jamais dormi chez quelqu'un dès le premier rendez-vous.",
-    "c|Je n'ai jamais fait un strip-poker ou un jeu du même genre.","c|Je n'ai jamais été surpris·e en train d'embrasser quelqu'un.","c|Je n'ai jamais repris contact avec un ex après minuit.",
-    "c|Je n'ai jamais eu une relation secrète.","c|Je n'ai jamais séduit quelqu'un pour rendre une autre personne jalouse.","c|Je n'ai jamais fait un bain de minuit tout nu.",
-    "c|Je n'ai jamais embrassé un ou une inconnue en vacances.","c|Je n'ai jamais eu un rencard avec quelqu'un rencontré le soir même.","c|Je n'ai jamais fantasmé sur une personne célèbre au point d'en rêver.",
-    "b|Je n'ai jamais fait des folies dans un lieu public.","b|Je n'ai jamais eu un fantasme sur quelqu'un présent ce soir.","b|Je n'ai jamais envoyé une photo très osée.",
-    "b|Je n'ai jamais failli me faire surprendre dans une situation gênante.","b|Je n'ai jamais eu une aventure avec un ou une collègue.","b|Je n'ai jamais fait des folies dans une voiture.",
-    "b|Je n'ai jamais réalisé un de mes fantasmes.","b|Je n'ai jamais eu un « plan » avec un ou une ex après la rupture.","b|Je n'ai jamais embrassé quelqu'un du même sexe que moi.",
-    "b|Je n'ai jamais passé une nuit blanche… pour autre chose que dormir.","b|Je n'ai jamais fait de déclaration torride par message.","b|Je n'ai jamais rougi en lisant un livre un peu chaud.",
-    "b|Je n'ai jamais eu un rendez-vous qui a fini au petit matin.","b|Je n'ai jamais fait un jeu coquin en couple.","b|Je n'ai jamais séduit quelqu'un pour un pari."
+    "f|Qui a déjà eu un crush sur un ou une collègue ?","f|Qui a déjà dragué quelqu'un sur une appli de rencontre ?","f|Qui a déjà fait semblant d'avoir un appel pour fuir un date ?",
+    "f|Qui a déjà envoyé un message à la mauvaise personne ?","f|Qui a déjà stalké un ex jusqu'à ses photos de vacances d'il y a trois ans ?","f|Qui a déjà menti sur son âge pour séduire ?",
+    "f|Qui a déjà eu un crush sur l'ami·e d'un·e ami·e ?","f|Qui a déjà embrassé quelqu'un dans une boîte de nuit ?","f|Qui a déjà écrit un poème ou une lettre d'amour ?",
+    "f|Qui a déjà liké une vieille photo par erreur en stalkant ?","f|Qui a déjà eu deux dates le même jour ?","f|Qui a déjà ghosté quelqu'un ?",
+    "f|Qui a déjà pleuré pour une rupture devant un film ?","f|Qui a déjà flirté pour éviter une amende ou passer devant ?","f|Qui a déjà dit « je t'aime » en premier ?",
+    "c|Qui a déjà embrassé quelqu'un de cette table ?","c|Qui a déjà eu un coup d'un soir ?","c|Qui a déjà envoyé un message osé ?",
+    "c|Qui a déjà eu un crush sur l'ex d'un·e ami·e ?","c|Qui a déjà embrassé deux personnes dans la même soirée ?","c|Qui a déjà dormi chez quelqu'un dès le premier rendez-vous ?",
+    "c|Qui a déjà fait un strip-poker ou un jeu du même genre ?","c|Qui a déjà été surpris·e en train d'embrasser quelqu'un ?","c|Qui a déjà repris contact avec un ex après minuit ?",
+    "c|Qui a déjà eu une relation secrète ?","c|Qui a déjà séduit quelqu'un pour rendre une autre personne jalouse ?","c|Qui a déjà fait un bain de minuit tout nu ?",
+    "c|Qui a déjà embrassé un ou une inconnue en vacances ?","c|Qui a déjà eu un rencard avec quelqu'un rencontré le soir même ?","c|Qui a déjà fantasmé sur une personne célèbre au point d'en rêver ?",
+    "b|Qui a déjà fait des folies dans un lieu public ?","b|Qui a déjà eu un fantasme sur quelqu'un présent ce soir ?","b|Qui a déjà envoyé une photo très osée ?",
+    "b|Qui a déjà failli se faire surprendre dans une situation gênante ?","b|Qui a déjà eu une aventure avec un ou une collègue ?","b|Qui a déjà fait des folies dans une voiture ?",
+    "b|Qui a déjà réalisé un de ses fantasmes ?","b|Qui a déjà eu un « plan » avec un ou une ex après la rupture ?","b|Qui a déjà embrassé quelqu'un du même sexe que soi ?",
+    "b|Qui a déjà passé une nuit blanche… pour autre chose que dormir ?","b|Qui a déjà fait une déclaration torride par message ?","b|Qui a déjà rougi en lisant un livre un peu chaud ?",
+    "b|Qui a déjà eu un rendez-vous qui a fini au petit matin ?","b|Qui a déjà fait un jeu coquin en couple ?","b|Qui a déjà séduit quelqu'un pour un pari ?"
   ];
   var BAROMETRE=[
+    "f|Qui ici a le plus de conversations « vu » sans réponse ?","c|Qui ici finit la soirée avec quelqu'un rencontré ce soir ?",
     "f|Qui ici drague le plus sans s'en rendre compte ?","f|Qui ici a le sourire le plus charmeur ?","f|Qui ici serait le meilleur date ?",
     "f|Qui ici tombe amoureux·se le plus vite ?","f|Qui ici a le plus de succès sur les applis ?","f|Qui ici écrit les messages les plus mignons ?",
     "f|Qui ici danse de la façon la plus séduisante ?","f|Qui ici serait le ou la plus romantique ?","f|Qui ici a le style le plus irrésistible ?",
@@ -4189,6 +4198,7 @@
     "b|{a} et {b} se donnent un bisou (où ils veulent, s'ils sont d'accord) ou prennent tous les deux {pen}.","b|{a} choisit un vêtement que {b} doit retirer (raisonnable) jusqu'à la fin de la partie.","b|{a} et {b} se font un compliment physique précis chacun leur tour."
   ];
   var MISSIONS=[
+    "b|Fais dire « tu me rends dingue » à {x} avant la fin de la soirée.",
     "f|Fais en sorte que {x} te fasse un compliment.","f|Fais dire « mon cœur » à {x}.","f|Fais un clin d'œil à {x} au moins trois fois sans qu'on te le fasse remarquer.",
     "f|Réussis à t'asseoir à côté de {x}.","f|Fais rire {x} au moins trois fois.","f|Glisse le mot « irrésistible » dans trois conversations différentes.",
     "f|Fais en sorte que {x} te serve à boire.","f|Complimente la tenue de {x} au moins deux fois.","f|Obtiens de {x} qu'il ou elle te raconte son premier bisou.",
@@ -4263,7 +4273,7 @@
   function renderJamais(P){
     var c=deck[idx];
     P.innerHTML='<div class="body">'+hotChip(c)+'<h2 class="qtext">'+hotTxt(c)+'</h2>'+
-      '<p class="instr">'+t("Tous ceux qui l'ont déjà fait {boivent}. Les plus courageux racontent !")+'</p></div>'+
+      '<p class="instr">'+t("Ceux qui l'ont déjà fait lèvent la main et {boivent}. Les plus courageux racontent !")+'</p></div>'+
       '<div class="foot"><button class="btn" id="nx">Suivante →</button>'+(idx>0?'<button class="linkbtn" id="prev">← Précédente</button>':'')+'</div>';
     el("nx").addEventListener("click",advance);
     var pv=el("prev");if(pv)pv.addEventListener("click",goBack);
@@ -4436,6 +4446,7 @@
 
   /* ---------------- QUI ME CONNAÎT LE MIEUX ---------------- */
   var CONNAIT=[
+    "o|Quel plat {v} commande tout le temps au restaurant ?",
     "o|Quel est le plat préféré {de} ?","o|Quelle est la plus grande peur {de} ?","o|Quel métier {v} rêvait de faire enfant ?",
     "o|Quel est le film préféré {de} ?","o|Quelle chanson {v} chante sous la douche ?","o|Quel super-pouvoir {v} choisirait ?",
     "o|Quel pays {v} rêve de visiter ?","o|Si {v} était un animal, ce serait lequel ?","o|Quel est le dessert préféré {de} ?",
