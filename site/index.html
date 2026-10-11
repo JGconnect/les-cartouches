@@ -190,6 +190,21 @@
   .gcard .tg{font-size:13px;color:var(--ink-faint);margin-top:3px;line-height:1.35}
   .gcard .go{flex:none;width:34px}
   .gw{position:relative;display:grid}
+  .pass{text-align:center}.passem{font-size:56px;text-align:center;margin:10px 0 4px}
+  .qtext.big2{font-size:clamp(30px,9vw,40px)}
+  .duo.av .opt{min-height:120px}.duo.av .opt .k{font-size:34px}.duo.av .opt .t{font-family:var(--display);font-weight:800;font-size:22px}
+  .vgrid{justify-content:center;margin-top:14px}
+  .bars{display:grid;gap:10px;margin:14px 0 4px}
+  .barrow{display:grid;grid-template-columns:minmax(60px,auto) 1fr 28px;gap:10px;align-items:center;font-weight:600}
+  .barrow .bt{height:14px;border-radius:999px;background:var(--surface-2);overflow:hidden}.barrow .bf{display:block;height:100%;background:var(--ga);border-radius:999px;animation:grow .7s ease}
+  .barrow .bv{text-align:right;color:var(--ga)}
+  @keyframes grow{from{width:0}}
+  .wheel{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 0 6px;flex-wrap:wrap}
+  .wheel .wn{min-width:110px;padding:14px 16px;border-radius:18px;background:var(--surface);border:2px solid color-mix(in srgb,var(--ga) 50%,var(--line));font-family:var(--display);font-weight:800;font-size:19px;text-align:center}
+  .wheel .wamp{font-size:22px;color:var(--ga);font-weight:800}
+  .wheel.land .wn{animation:pop .35s ease;border-color:var(--ga);background:color-mix(in srgb,var(--ga) 18%,var(--surface))}
+  @keyframes pop{50%{transform:scale(1.08)}}
+  .mrev{display:grid;gap:10px;margin-top:10px}.mrev .mr{gap:8px}
   .games{grid-template-columns:1fr 1fr;gap:10px}
   .games .gcard{flex-direction:column;align-items:flex-start;gap:6px;padding:14px 14px 12px;min-height:158px;border-radius:22px;
     background:linear-gradient(155deg,color-mix(in srgb,var(--gc) 30%,var(--surface)) 0%,var(--surface) 62%);border:1px solid color-mix(in srgb,var(--gc) 26%,var(--line))}
@@ -2047,6 +2062,20 @@
     {id:"dilemme",name:"Le Dilemme",em:"🤔",gc:"#c77dff",tg:"Deux options, aucune échappatoire.",
      type:"dilemme",vic:"Au choix de",partie:8,
      rules:["Le téléphone pose un choix impossible entre deux options.","La personne désignée <b>tranche</b> et défend son choix devant la table.","Elle refuse de choisir ou botte en touche ? <b>{Pen}.</b> Puis le débat s'enflamme."]},
+    {id:"avpiment",name:"Action ou Vérité",em:"😈",gc:"#ff3d6e",tg:"Trois niveaux, du flirt au brûlant.",type:"av",cat:"hot",vic:"Au tour de",
+     rules:["Chacun son tour, le téléphone désigne un joueur, qui choisit <b>action</b> ou <b>vérité</b>.","Il répond franchement ou relève le défi… sinon <b>{pen}</b>.","On peut <b>toujours passer</b> son tour, sans se justifier : le jeu doit rester drôle pour tout le monde."]},
+    {id:"jamais",name:"Je n'ai jamais",em:"🙊",gc:"#ff7a59",tg:"Ceux qui l'ont fait {boivent}.",type:"jamais",cat:"hot",partie:15,
+     rules:["Le téléphone affiche une phrase « Je n'ai jamais… ».","Tous ceux qui <b>l'ont déjà fait</b> {boivent}. Les plus courageux racontent.","Personne n'est obligé de donner les détails !"]},
+    {id:"barometre",name:"Le Baromètre",em:"🌡️",gc:"#ff5470",tg:"Votes secrets : qui ici… ?",type:"barometre",cat:"hot",partie:8,
+     rules:["Une question tombe : « Qui ici embrasse le mieux ? ».","Le téléphone passe de main en main : chacun vote <b>en secret</b> pour quelqu'un.","Le classement est révélé. Le ou la gagnante prend <b>{pen}</b> (ou un tonnerre d'applaudissements)."]},
+    {id:"confessions",name:"Confessions anonymes",em:"🤫",gc:"#a06bff",tg:"Écris un secret, la table devine qui.",type:"confessions",cat:"hot",
+     rules:["Chacun écrit <b>en secret</b> une confession sur le téléphone (des idées sont proposées).","L'appli les lit dans le désordre : à trois, tout le monde pointe l'auteur.","On révèle. Ceux qui se sont trompés {boivent}."]},
+    {id:"roue",name:"La Roue du Piment",em:"🎡",gc:"#ff2d55",tg:"Deux joueurs, un défi, aucune échappatoire.",type:"roue",cat:"hot",partie:12,
+     rules:["La roue désigne <b>deux joueurs</b> et leur défi commun.","Défi relevé ? On relance. Refusé ? <b>{Pen}</b> pour les deux.","On peut <b>toujours passer</b> son tour, sans se justifier : le jeu doit rester drôle pour tout le monde."]},
+    {id:"mission",name:"Mission secrète",em:"🕶️",gc:"#ff9f1c",tg:"Une mission pour la soirée, sans se faire griller.",type:"mission",cat:"hot",
+     rules:["Chacun découvre <b>en secret</b> sa mission pour la soirée (« Fais-toi complimenter par Max »).","Jouez à autre chose, discutez… et accomplissez votre mission discrètement.","À la fin, on révèle tout : mission ratée = <b>{pen}</b>."]},
+    {id:"quideux",name:"Qui de nous deux ?",em:"💑",gc:"#ff6f91",tg:"Pour les couples : pointez-vous en même temps.",type:"quideux",cat:"hot",partie:15,
+     rules:["Pour un couple (ou deux amis très proches) : le téléphone pose une question « Qui de nous deux… ? ».","À trois, les deux <b>pointent</b> la personne qui correspond.","Pas d'accord ? <b>{Pen}</b>. À la fin, l'appli calcule votre complicité."]},
     {id:"devine",name:"Devine qui",em:"🕵️",gc:"#2ec4b6",tg:"Trouve le personnage secret, en oui ou non.",type:"devine",cat:"quiz",
      rules:["Le téléphone choisit un personnage secret pour le <b>maître du jeu</b> : célébrité, héros de BD, de jeu vidéo, personnage historique…","Chacun pose une question à tour de rôle. Réponse <b>oui</b> : la même personne rejoue. Réponse <b>non</b> : on passe au suivant.","Ça bloque ? Des <b>indices</b> se débloquent à 5, 7 et 9 minutes. Trouver sans indice rapporte 3 points, puis 2, puis 1."]},
     {id:"liste",name:"La Liste",em:"📝",gc:"#ffb347",tg:"Une catégorie, un chrono : cite un maximum de bonnes réponses.",type:"liste",cat:"quiz",
@@ -2653,7 +2682,7 @@
   ];
   var GAME_TAGS=(function(){
     var m={},q=["devine","liste","petitbac","taboo","fredonne","quiadit","vraifaux","blindtest","paroles","ousuisje","avant","histoire","connait"];
-    ["ouinon","ninon","menteur","coupable","cascade","chrono","tribunal","dilemme"].forEach(function(id){m[id]=["soiree"];});
+    ["ouinon","ninon","menteur","coupable","cascade","chrono","tribunal","dilemme","avpiment","jamais","barometre","confessions","roue","mission","quideux"].forEach(function(id){m[id]=["soiree"];});
     q.forEach(function(id){m[id]=["trajet","famille"];});
     ["chrono","dilemme","menteur"].forEach(function(id){m[id].push("trajet");});
     m.ninon.push("famille");m.chrono.push("famille");
@@ -2697,7 +2726,8 @@
       '<button class="surprise" id="surprise"><span class="se">🎲</span><span><b>Surprends-moi</b><span>Un jeu au hasard'+(filt!=="tous"?' · '+TABS[filt][1]:'')+'</span></span><span class="sa">›</span></button>'+
       sect("⭐ Tes favoris","",favList,"favrow")+
       (filt==="tous"?
-        sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return g.cat!=="quiz";}))+
+        sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return !g.cat;}))+
+        sect("🌶️ Hot","Pour les soirées entre adultes · 18+",rest.filter(function(g){return g.cat==="hot";}))+
         sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
         : sect(fcur[1],fcur[2],rest))+
       (favs.length?'':'<p class="hint" style="margin:14px 4px 0">Astuce : touche ☆ sur un jeu pour l\'épingler en haut.</p>');
@@ -2798,6 +2828,16 @@
   function openIntro(id){
     G=game(id);
     document.documentElement.style.setProperty("--ga",G.gc);
+    if(G.cat==="hot"&&lsGet("cart_adult")!=="1"){
+      el("s-intro").innerHTML='<div class="em">🔞</div><h2>Réservé aux adultes</h2>'+
+        '<p class="tg">Les jeux 🌶️ Hot contiennent des questions et des défis coquins, pour des soirées entre adultes consentants.</p>'+
+        '<div class="rules"><div class="rule"><span class="num">✋</span><p>Chacun peut <b>toujours passer</b> son tour, sans se justifier.</p></div><div class="rule"><span class="num">🤝</span><p>Les défis à deux se font seulement si les deux sont d\'accord.</p></div></div>'+
+        '<div class="foot"><button class="btn" id="adultok">J\'ai 18 ans ou plus</button><button class="btn ghost" id="adultno">Retour</button></div>';
+      show("intro");
+      el("adultok").addEventListener("click",function(){lsSet("cart_adult","1");openIntro(id);});
+      el("adultno").addEventListener("click",toHub);
+      return;
+    }
     var rules=G.rules.map(function(r,i){return '<div class="rule"><span class="num">'+(i+1)+'</span><p>'+t(r)+'</p></div>';}).join("");
     var amb=G.id==="ouinon"?
       '<div class="ambiance"><div class="lbl">Ambiance</div><div class="seg" id="seg">'+
@@ -2826,6 +2866,10 @@
     if(G.id==="avant")opts=segOpts("avmode","Cartes",["avant","jeune","mix"],avMode,function(n){return {avant:"📼 Objets d'avant",jeune:"📱 Mots des jeunes",mix:"🎲 Mélange"}[n]+'<span class="s">'+avPool(n).length+' cartes</span>';});
     if((G.id==="ousuisje"||G.id==="avant")&&players.length<2)opts+='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     if(G.id==="petitbac")opts=segOpts("bdur","Chrono",[60,90,120],bDur,function(n){return n+" s";});
+    if(G.cat==="hot"&&G.id!=="confessions")opts=segOpts("hotlvl","Niveau",["flirt","chaud","brulant"],hotLvl,function(n){return {flirt:'💋 Flirt<span class="s">pour chauffer</span>',chaud:'🔥 Chaud<span class="s">ça monte</span>',brulant:'🌶️ Brûlant<span class="s">sans filtre</span>'}[n];})+'<p class="hint" style="text-align:center;margin:0">Chaque niveau inclut les précédents.</p>'+
+      ((G.id==="barometre"||G.id==="mission")&&players.length<3?'<p class="hint">Ajoute au moins 3 prénoms dans les réglages pour ce jeu.</p>':'')+(G.id==="roue"&&players.length<2?'<p class="hint">Ajoute les prénoms dans les réglages pour que la roue désigne les joueurs.</p>':'')+
+      (G.id==="mission"&&missionsGet()?'<p class="hint">🕶️ Des missions sont en cours : « Commencer » les révèle.</p>':'');
+    if(G.id==="confessions"&&players.length<3)opts='<p class="hint">Ajoute au moins 3 prénoms dans les réglages pour ce jeu.</p>';
     if(G.id==="taboo")opts=segOpts("tteams","Nombre d'équipes",[2,3,4],tTeams,function(n){return n+" équipes";})+segOpts("tdur","Chrono",[45,60,90],tDur,function(n){return n+" s";});
     if((G.id==="fredonne"||G.id==="vraifaux"||G.id==="connait")&&players.length<2)opts='<p class="hint">Ajoute au moins 2 prénoms sur l\'accueil pour compter les points.</p>';
     el("s-intro").innerHTML=
@@ -2860,7 +2904,7 @@
         });
       });
     }
-    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}],["minem",function(n){mineMode=n;}]].forEach(function(o){
+    [["parcat",function(n){parCat=n;}],["oucat",function(n){ouCat=n;}],["avmode",function(n){avMode=n;}],["btcat",function(n){btCat=n;}],["qlvl",function(n){qLvl=n;}],["bdur",function(n){bDur=n;}],["tteams",function(n){tTeams=n;}],["tdur",function(n){tDur=n;}],["minem",function(n){mineMode=n;}],["hotlvl",function(n){hotLvl=n;}]].forEach(function(o){
       var box=el(o[0]);if(!box)return;
       Array.prototype.forEach.call(box.querySelectorAll("button"),function(b){
         b.addEventListener("click",function(){var v=b.getAttribute("data-n");o[1](isNaN(+v)?v:+v);Array.prototype.forEach.call(box.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});});
@@ -2929,6 +2973,12 @@
         showProg=true;break;
       case"vraifaux":deck=shuffle(VRAIFAUX);showProg=true;break;
       case"connait":deck=shuffle(CONNAIT);showProg=true;break;
+      case"av":deck=[];avV=freshFirst("avpiment",shuffle(hotPool(AV_VERITES)),9999);avA=freshFirst("avpiment",shuffle(hotPool(AV_ACTIONS)),9999);avI={v:0,a:0};showProg=false;break;
+      case"jamais":deck=shuffle(hotPool(JAMAIS));showProg=true;break;
+      case"quideux":deck=shuffle(hotPool(QUIDEUX));qdAgree=0;showProg=true;break;
+      case"roue":deck=shuffle(hotPool(ROUE));roueBag=[];showProg=true;break;
+      case"barometre":deck=shuffle(hotPool(BAROMETRE));showProg=true;break;
+      case"confessions":case"mission":deck=[];showProg=false;break;
       case"histoire":deck=freshAll("histoire",HIST_DEBUTS);showProg=false;break;
       case"ousuisje":deck=freshFirst("ou_"+ouCat,shuffle(ouPool(ouCat)),ouPool(ouCat).length);showProg=false;break;
       case"avant":deck=freshFirst("av_"+avMode,shuffle(avPool(avMode)),avPool(avMode).length);showProg=false;break;
@@ -2937,7 +2987,7 @@
     }
     qScores={};finalHTML="";padHist=[];tourCounted=false;
     curFresh={liste:"liste",taboo:"taboo",fredonne:"fredonne",histoire:"histoire",chrono:"chrono",cascade:"cascade",
-      ousuisje:"ou_"+ouCat,avant:"av_"+avMode,blindtest:"bt_"+btCat,paroles:"par_"+parCat,connait:"connait"}[G.id]||(G.partie?G.id:null);
+      ousuisje:"ou_"+ouCat,avant:"av_"+avMode,blindtest:"bt_"+btCat,paroles:"par_"+parCat,connait:"connait",avpiment:"avpiment"}[G.id]||(G.partie?G.id:null);
     if(G.partie&&G.type!=="cascade")deck=freshFirst(G.id,deck,Math.min(G.partie,deck.length));
     if(THEME_GAMES[G.id])deck=themeMix(G.id,deck);
     if(MINE_GAMES[G.id]){deck=mineMix(G.id,deck);if(G.id==="taboo")tPos=0;}
@@ -2991,6 +3041,13 @@
     if(G.type==="quiadit")return renderQuiadit(P);
     if(G.type==="vraifaux")return renderVraifaux(P);
     if(G.type==="connait")return renderConnait(P);
+    if(G.type==="av")return renderAV(P);
+    if(G.type==="jamais")return renderJamais(P);
+    if(G.type==="quideux")return renderQuideux(P);
+    if(G.type==="roue")return renderRoue(P);
+    if(G.type==="barometre")return renderBarometre(P);
+    if(G.type==="confessions")return renderConfessions(P);
+    if(G.type==="mission")return renderMission(P);
     if(G.type==="histoire")return renderHistoire(P);
     if(G.type==="ousuisje")return renderOusuisje(P);
     if(G.type==="avant")return renderAvant(P);
@@ -3938,6 +3995,342 @@
     wirePad(P,lv[1]);
     el("qnext").addEventListener("click",nextOrEnd);
     el("qquit").addEventListener("click",quitQuiz);
+  }
+
+  /* =====================================================================
+     JEUX HOT (18+) — 3 niveaux : f = 💋 Flirt, c = 🔥 Chaud, b = 🌶️ Brûlant
+     Le niveau Brûlant est prévu pour devenir payant : tout passe par
+     hotUnlocked(), qui renvoie toujours vrai tant que PAYWALL.on est faux.
+     ===================================================================== */
+  var PAYWALL={on:false,packs:{brulant:{name:"Pack Brûlant",levels:["b"]}}};
+  function packOwned(k){try{return (JSON.parse(lsGet("cart_packs")||"[]")||[]).indexOf(k)>=0;}catch(e){return false;}}
+  function hotUnlocked(l){if(!PAYWALL.on)return true;for(var k in PAYWALL.packs){if(PAYWALL.packs[k].levels.indexOf(l)>=0&&!packOwned(k))return false;}return true;}
+  var HOT_LV={flirt:["f"],chaud:["f","c"],brulant:["f","c","b"]};
+  var HOT_NAME={f:"💋 Flirt",c:"🔥 Chaud",b:"🌶️ Brûlant"};
+  var hotLvl="chaud";
+  function hotPool(arr){var ok=HOT_LV[hotLvl]||HOT_LV.chaud;return arr.filter(function(x){var l=x.charAt(0);return ok.indexOf(l)>=0&&hotUnlocked(l);});}
+  function hotTxt(x){return x.slice(2);}
+
+  var AV_VERITES=[
+    "f|Qui ici trouves-tu le plus charmant·e (à part ton ou ta partenaire) ?","f|Ton pire râteau, en détail.","f|Ton premier bisou : où, quand, avec qui ?",
+    "f|Le compliment qui t'a le plus fait rougir ?","f|Ta technique de drague qui marche à tous les coups (ou presque) ?","f|Le dernier message que tu as effacé avant de l'envoyer ?",
+    "f|Tu as déjà eu un crush sur un ou une prof ?","f|Le prénom de ton plus gros crush secret d'adolescence ?","f|Qu'est-ce qui te fait craquer en premier chez quelqu'un ?",
+    "f|Tu as déjà stalké un ex sur les réseaux ? Jusqu'où ?","f|Le pire date de ta vie ?","f|Ta chanson pour mettre l'ambiance en tête-à-tête ?",
+    "f|Tu as déjà dit « je t'aime » sans le penser ?","f|Quelle célébrité te ferait tout lâcher ?","f|Le surnom le plus gênant qu'on t'a donné en couple ?",
+    "c|Ton fantasme le plus avouable ?","c|Le lieu le plus insolite où tu as embrassé quelqu'un ?","c|Tu as déjà embrassé quelqu'un présent ce soir ?",
+    "c|Si tu devais sortir avec quelqu'un ici, qui ? (réponse obligatoire)","c|Ton plus gros mensonge pour séduire quelqu'un ?","c|Tu as déjà eu un coup d'un soir que tu regrettes ?",
+    "c|Ce qui te rend jaloux·se en une seconde ?","c|Le message le plus osé que tu aies envoyé ?","c|Plutôt slow langoureux ou baiser fougueux ?",
+    "c|Tu as déjà eu des sentiments pour l'ex d'un·e ami·e ?","c|Ta pire honte dans une relation ?","c|La partie du corps que tu regardes en premier ?",
+    "c|Une chose que tu n'as jamais osé demander à un ou une partenaire ?","c|Tu as déjà fait semblant d'être sous le charme pour obtenir quelque chose ?","c|Combien de personnes as-tu embrassées l'an dernier, à peu près ?",
+    "b|Ton fantasme secret, en une phrase.","b|L'endroit le plus risqué où tu as fait des folies ?","b|Qui ici aurait ses chances avec toi ce soir, en théorie ?",
+    "b|Ta pire anecdote « on a failli se faire surprendre » ?","b|Ce que tu préfères qu'on te murmure à l'oreille ?","b|Tu as déjà envoyé une photo osée ? Tu regrettes ?",
+    "b|La chose la plus folle que tu aies faite par désir ?","b|Ton ou ta partenaire idéal·e en trois adjectifs très précis ?","b|Le moment le plus torride de ta vie, sans les détails… ou presque.",
+    "b|Tu as déjà eu un crush sur quelqu'un de cette table ?","b|Une envie que tu n'as encore jamais réalisée ?","b|Avec qui ici tu échangerais un baiser pour cent euros ?",
+    "b|Ce qui t'excite le plus chez quelqu'un, honnêtement ?","b|Le rendez-vous le plus chaud que tu aies vécu ?","b|Tu as déjà eu une relation cachée ?"
+  ];
+  var AV_ACTIONS=[
+    "f|Fais un compliment sincère et un peu charmeur à la personne à ta droite.","f|Imite ta technique de drague pendant 20 secondes.","f|Envoie un emoji 😏 à la dernière personne de tes conversations, sans explication.",
+    "f|Fais ta meilleure déclaration d'amour à un objet de la pièce.","f|Danse 20 secondes de la façon la plus séduisante possible.","f|Regarde la personne de ton choix dans les yeux pendant 15 secondes sans rire.",
+    "f|Lis à voix haute le dernier message que tu as envoyé (on te laisse en choisir un parmi les 3 derniers).","f|Fais un clin d'œil à chaque personne de la table.","f|Chante le refrain d'une chanson d'amour à la personne en face de toi.",
+    "f|Laisse la table choisir ton nouveau surnom charmeur pour la soirée.","f|Fais une photo de groupe où tout le monde fait sa tête la plus séduisante.","f|Murmure un compliment à l'oreille de la personne à ta gauche.",
+    "c|Fais un bisou sur la joue à la personne de ton choix.","c|Masse les épaules de la personne à ta gauche pendant 30 secondes.","c|Fais un slow de 30 secondes avec la personne que la table désigne.",
+    "c|Laisse la personne à ta droite écrire un statut ou une story (raisonnable) à ta place.","c|Montre la dernière photo de ta galerie à la table.","c|Échange un vêtement (veste, chaussure, accessoire) avec la personne de ton choix.",
+    "c|Mime ton premier rendez-vous idéal sans parler.","c|Fais une déclaration enflammée à la personne que la table choisit, sans rire.","c|Assieds-toi sur les genoux de la personne de ton choix jusqu'au prochain tour.",
+    "c|Laisse quelqu'un regarder tes 5 derniers emojis utilisés et les commenter.","c|Fais deviner un film romantique en le mimant de façon très exagérée.","c|Envoie « Tu me manques » à la personne de ton choix dans tes contacts… et assume.",
+    "b|Fais un bisou dans le cou de la personne de ton choix (si elle est d'accord).","b|Laisse la personne à ta gauche choisir quelqu'un à qui tu fais un massage des mains de 30 secondes.","b|Décris en 3 mots ce que tu trouves sexy chez la personne en face de toi.",
+    "b|Fais un slow collé-serré de 30 secondes avec la personne de ton choix.","b|Retire un accessoire ou un vêtement (raisonnable) et garde-le retiré jusqu'à la fin de la partie.","b|Murmure à l'oreille de quelqu'un ce que tu ferais lors d'un rendez-vous parfait.",
+    "b|Joue une scène de film romantique avec la personne désignée par la table.","b|Laisse la table choisir quelqu'un qui te fera un bisou sur la joue… ou ailleurs (avec ton accord).","b|Fais ton regard le plus brûlant à chaque personne de la table, une par une.",
+    "b|Décris ton baiser idéal à la table, avec les gestes.","b|Échange de place avec la personne de ton choix et reste collé·e à elle jusqu'au prochain tour.","b|Donne ton plus beau compliment physique à chaque personne de la table."
+  ];
+  var JAMAIS=[
+    "f|Je n'ai jamais eu un crush sur un ou une collègue.","f|Je n'ai jamais dragué quelqu'un sur une appli de rencontre.","f|Je n'ai jamais fait semblant d'avoir un appel pour fuir un date.",
+    "f|Je n'ai jamais envoyé un message à la mauvaise personne.","f|Je n'ai jamais stalké un ex jusqu'à ses photos de vacances d'il y a trois ans.","f|Je n'ai jamais menti sur mon âge pour séduire.",
+    "f|Je n'ai jamais eu un crush sur l'ami·e d'un·e ami·e.","f|Je n'ai jamais embrassé quelqu'un dans une boîte de nuit.","f|Je n'ai jamais écrit un poème ou une lettre d'amour.",
+    "f|Je n'ai jamais liké une vieille photo par erreur en stalkant.","f|Je n'ai jamais eu deux dates le même jour.","f|Je n'ai jamais ghosté quelqu'un.",
+    "f|Je n'ai jamais pleuré pour une rupture devant un film.","f|Je n'ai jamais flirté pour éviter une amende ou passer devant.","f|Je n'ai jamais dit « je t'aime » en premier.",
+    "c|Je n'ai jamais embrassé quelqu'un de cette table.","c|Je n'ai jamais eu un coup d'un soir.","c|Je n'ai jamais envoyé un message osé.",
+    "c|Je n'ai jamais eu un crush sur l'ex d'un·e ami·e.","c|Je n'ai jamais embrassé deux personnes dans la même soirée.","c|Je n'ai jamais dormi chez quelqu'un dès le premier rendez-vous.",
+    "c|Je n'ai jamais fait un strip-poker ou un jeu du même genre.","c|Je n'ai jamais été surpris·e en train d'embrasser quelqu'un.","c|Je n'ai jamais repris contact avec un ex après minuit.",
+    "c|Je n'ai jamais eu une relation secrète.","c|Je n'ai jamais séduit quelqu'un pour rendre une autre personne jalouse.","c|Je n'ai jamais fait un bain de minuit tout nu.",
+    "c|Je n'ai jamais embrassé un ou une inconnue en vacances.","c|Je n'ai jamais eu un rencard avec quelqu'un rencontré le soir même.","c|Je n'ai jamais fantasmé sur une personne célèbre au point d'en rêver.",
+    "b|Je n'ai jamais fait des folies dans un lieu public.","b|Je n'ai jamais eu un fantasme sur quelqu'un présent ce soir.","b|Je n'ai jamais envoyé une photo très osée.",
+    "b|Je n'ai jamais failli me faire surprendre dans une situation gênante.","b|Je n'ai jamais eu une aventure avec un ou une collègue.","b|Je n'ai jamais fait des folies dans une voiture.",
+    "b|Je n'ai jamais réalisé un de mes fantasmes.","b|Je n'ai jamais eu un « plan » avec un ou une ex après la rupture.","b|Je n'ai jamais embrassé quelqu'un du même sexe que moi.",
+    "b|Je n'ai jamais passé une nuit blanche… pour autre chose que dormir.","b|Je n'ai jamais fait de déclaration torride par message.","b|Je n'ai jamais rougi en lisant un livre un peu chaud.",
+    "b|Je n'ai jamais eu un rendez-vous qui a fini au petit matin.","b|Je n'ai jamais fait un jeu coquin en couple.","b|Je n'ai jamais séduit quelqu'un pour un pari."
+  ];
+  var BAROMETRE=[
+    "f|Qui ici drague le plus sans s'en rendre compte ?","f|Qui ici a le sourire le plus charmeur ?","f|Qui ici serait le meilleur date ?",
+    "f|Qui ici tombe amoureux·se le plus vite ?","f|Qui ici a le plus de succès sur les applis ?","f|Qui ici écrit les messages les plus mignons ?",
+    "f|Qui ici danse de la façon la plus séduisante ?","f|Qui ici serait le ou la plus romantique ?","f|Qui ici a le style le plus irrésistible ?",
+    "f|Qui ici ferait la plus belle déclaration d'amour ?","f|Qui ici a le regard qui tue ?","f|Qui ici se ferait le plus draguer en boîte ?",
+    "c|Qui ici embrasse le mieux, à ton avis ?","c|Qui ici a le plus d'ex ?","c|Qui ici est le plus jaloux ou la plus jalouse ?",
+    "c|Qui ici a déjà eu le plus de coups d'un soir ?","c|Qui ici a le plus de secrets amoureux ?","c|Qui ici craquerait le plus vite pour quelqu'un ce soir ?",
+    "c|Qui ici renverrait un message à son ex à 2 h du matin ?","c|Qui ici a la voix la plus sexy ?","c|Qui ici serait le meilleur partenaire de slow ?",
+    "c|Qui ici a les fantasmes les plus surprenants ?","c|Qui ici est le ou la plus séducteur·rice ?","c|Avec qui ici irais-tu en week-end en amoureux (pour de faux) ?",
+    "b|Qui ici est le ou la plus torride ?","b|Qui ici a déjà fait le plus de folies ?","b|Qui ici a les goûts les plus osés ?",
+    "b|Avec qui ici échangerais-tu un baiser si c'était sans conséquence ?","b|Qui ici serait le meilleur coup… de cœur ?","b|Qui ici cache le plus son jeu ?",
+    "b|Qui ici a déjà fait des folies dans un lieu public ?","b|Qui ici est le plus sexy ce soir ?","b|Qui ici finirait la soirée avec quelqu'un ?",
+    "b|Qui ici a le plus d'expérience, à ton avis ?","b|Qui ici est le plus doué pour les câlins ?","b|Qui ici a déjà envoyé les messages les plus chauds ?"
+  ];
+  var ROUE=[
+    "f|{a} fait un compliment charmeur à {b}, les yeux dans les yeux.","f|{a} et {b} font un concours de regard : le premier qui rit prend {pen}.","f|{a} invente un surnom mignon pour {b}, qui doit le garder toute la soirée.",
+    "f|{a} et {b} se racontent leur pire date. La table vote : le pire prend {pen}.","f|{a} chante une chanson d'amour à {b}.","f|{a} fait une déclaration d'amour à {b} façon film des années 50.",
+    "f|{a} et {b} prennent une photo de couple très sérieuse.","f|{a} devine la couleur préférée, le plat préféré et le film préféré de {b}. Une erreur : {pen}.","f|{a} et {b} dansent 20 secondes comme dans un film romantique.",
+    "f|{a} écrit un petit mot doux pour {b} sur le téléphone et le lit à voix haute.","f|{a} mime une scène de demande en mariage à {b}.","f|{a} et {b} se tiennent la main jusqu'au prochain tour.",
+    "c|{a} fait un bisou sur la joue de {b}.","c|{a} masse les épaules de {b} pendant 30 secondes.","c|{a} et {b} dansent un slow de 30 secondes.",
+    "c|{a} s'assoit sur les genoux de {b} jusqu'au prochain tour.","c|{a} murmure un compliment à l'oreille de {b}.","c|{a} et {b} échangent un vêtement ou un accessoire.",
+    "c|{a} décrit en trois mots ce qui le ou la charme chez {b}.","c|{a} et {b} rejouent la scène du balcon de Roméo et Juliette.","c|{a} fait un baisemain très cérémonieux à {b}.",
+    "c|{a} et {b} se regardent dans les yeux 30 secondes, à 20 centimètres.","c|{a} raconte à {b} son rendez-vous idéal, en le regardant.","c|{a} et {b} font un câlin de 10 secondes.",
+    "b|{a} fait un bisou dans le cou de {b} (si {b} est d'accord, sinon {pen}).","b|{a} et {b} dansent un slow collé-serré de 30 secondes.","b|{a} masse les mains de {b} pendant 30 secondes, les yeux dans les yeux.",
+    "b|{a} murmure à {b} ce qu'il ou elle ferait lors d'un rendez-vous parfait.","b|{a} et {b} rejouent un baiser de cinéma… en s'arrêtant à 2 centimètres.","b|{a} retire un accessoire de {b}, avec les dents si possible.",
+    "b|{a} et {b} restent collés l'un à l'autre jusqu'au prochain tour.","b|{a} fait son regard le plus brûlant à {b} pendant 10 secondes.","b|{a} décrit le baiser idéal à {b}, avec les gestes, sans le faire.",
+    "b|{a} et {b} se donnent un bisou (où ils veulent, s'ils sont d'accord) ou prennent tous les deux {pen}.","b|{a} choisit un vêtement que {b} doit retirer (raisonnable) jusqu'à la fin de la partie.","b|{a} et {b} se font un compliment physique précis chacun leur tour."
+  ];
+  var MISSIONS=[
+    "f|Fais en sorte que {x} te fasse un compliment.","f|Fais dire « mon cœur » à {x}.","f|Fais un clin d'œil à {x} au moins trois fois sans qu'on te le fasse remarquer.",
+    "f|Réussis à t'asseoir à côté de {x}.","f|Fais rire {x} au moins trois fois.","f|Glisse le mot « irrésistible » dans trois conversations différentes.",
+    "f|Fais en sorte que {x} te serve à boire.","f|Complimente la tenue de {x} au moins deux fois.","f|Obtiens de {x} qu'il ou elle te raconte son premier bisou.",
+    "f|Fais en sorte que {x} te tape dans la main.","f|Fais en sorte que tout le monde trinque à l'amour.","f|Appelle {x} par un surnom affectueux sans qu'on te demande pourquoi.",
+    "c|Obtiens un câlin de {x}.","c|Fais en sorte que {x} danse avec toi.","c|Pose ta main sur l'épaule de {x} trois fois dans la soirée.",
+    "c|Fais en sorte que {x} t'avoue son crush de célébrité.","c|Fais un bisou sur la joue à {x} sans raison apparente.","c|Fais en sorte que {x} te regarde dans les yeux plus de 5 secondes.",
+    "c|Réussis à faire parler {x} de son ex.","c|Fais en sorte que {x} te prête un vêtement ou un accessoire.","c|Obtiens que {x} te dise que tu sens bon.",
+    "b|Fais en sorte que {x} t'invite à danser un slow.","b|Obtiens un bisou de {x} (n'importe où, avec son accord).","b|Murmure un compliment à l'oreille de {x} sans te faire repérer par les autres.",
+    "b|Fais en sorte que {x} s'assoie sur tes genoux ou toi sur les siens.","b|Obtiens que {x} te masse les épaules.","b|Fais avouer à {x} son fantasme le plus avouable.",
+    "b|Fais en sorte que {x} te tienne la main plus de 10 secondes.","b|Obtiens que {x} te dise que tu es sexy.","b|Fais en sorte que {x} te donne son numéro… alors que vous l'avez déjà."
+  ];
+  var QUIDEUX=[
+    "f|Qui de nous deux a fait le premier pas ?","f|Qui de nous deux est le plus romantique ?","f|Qui de nous deux est le plus jaloux ?",
+    "f|Qui de nous deux s'endort en premier ?","f|Qui de nous deux dit « je t'aime » le plus souvent ?","f|Qui de nous deux est le plus têtu ?",
+    "f|Qui de nous deux a le plus mauvais caractère le matin ?","f|Qui de nous deux est le meilleur cuisinier ?","f|Qui de nous deux s'excuse en premier après une dispute ?",
+    "f|Qui de nous deux est le plus dépensier ?","f|Qui de nous deux prend le plus de place dans le lit ?","f|Qui de nous deux est le plus drôle ?",
+    "f|Qui de nous deux oublie les dates importantes ?","f|Qui de nous deux est le plus câlin ?","f|Qui de nous deux est tombé amoureux en premier ?",
+    "c|Qui de nous deux embrasse le mieux ?","c|Qui de nous deux est le plus séducteur en soirée ?","c|Qui de nous deux a le plus d'ex ?",
+    "c|Qui de nous deux regarde le plus les autres ?","c|Qui de nous deux envoie les messages les plus osés ?","c|Qui de nous deux est le plus sexy le matin ?",
+    "c|Qui de nous deux prend le plus souvent l'initiative ?","c|Qui de nous deux a le plus de fantasmes ?","c|Qui de nous deux est le plus joueur ?",
+    "c|Qui de nous deux rougit le plus facilement ?","c|Qui de nous deux a eu le plus de crushs avant l'autre ?","c|Qui de nous deux serait le plus partant pour un week-end improvisé ?",
+    "b|Qui de nous deux est le plus coquin ?","b|Qui de nous deux a les idées les plus folles au lit ?","b|Qui de nous deux est le plus audacieux ?",
+    "b|Qui de nous deux a eu l'idée la plus osée ?","b|Qui de nous deux est le plus doué pour les massages ?","b|Qui de nous deux pense le plus souvent à « ça » ?",
+    "b|Qui de nous deux aime le plus les surprises coquines ?","b|Qui de nous deux est le plus bruyant ?","b|Qui de nous deux ferait des folies dans un lieu public ?",
+    "b|Qui de nous deux a le plus envie de l'autre en ce moment ?","b|Qui de nous deux est le plus tactile en public ?","b|Qui de nous deux a déjà envoyé une photo osée à l'autre ?"
+  ];
+  var CONF_PROMPTS=["Un secret que personne ici ne connaît sur moi…","Mon pire râteau…","Mon crush le plus inavouable…","Une chose que j'ai faite et que je ne referai jamais…","Ce qui me fait craquer chez quelqu'un…","Mon pire moment de honte en soirée…","Un mensonge que je n'ai jamais avoué…","La chose la plus folle que j'ai faite par amour…","Ce que je pense vraiment de quelqu'un ici (sans le nommer)…","Mon fantasme le plus avouable…"];
+  /* ---------------- JEUX HOT : rendu ---------------- */
+  var avV=[],avA=[],avI={v:0,a:0},qdAgree=0,roueBag=[];
+  function hotChip(x){return '<div class="chip"><span class="dot"></span>'+HOT_NAME[x.charAt(0)]+'</div>';}
+  function needPlayers(P,n){
+    P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Il faut des prénoms</div>'+
+      '<h2 class="qtext">Ajoute au moins '+n+' prénoms pour jouer à ce jeu.</h2>'+
+      '<p class="instr">Le jeu a besoin de savoir qui joue pour faire tourner le téléphone.</p></div>'+
+      '<div class="foot"><button class="btn" id="toset">⚙️ Ajouter des prénoms</button></div>';
+    el("toset").addEventListener("click",function(){openSettings(true);});
+  }
+  function passHTML(name,msg,btn){
+    return '<div class="body pass"><div class="passem">📱</div><h2 class="qtext">Passe le téléphone à <b>'+esc(name)+'</b></h2>'+
+      (msg?'<p class="instr">'+msg+'</p>':'')+'</div>'+
+      '<div class="foot"><button class="btn" id="iam">'+btn+'</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+  }
+
+  /* ACTION OU VÉRITÉ */
+  function renderAV(P){
+    var who=cur;
+    function choose(){
+      P.innerHTML=bannerHTML(G,who)+
+        '<div class="body"><h2 class="qtext big2">Action ou vérité ?</h2><p class="instr">'+esc(who)+' choisit. On peut toujours passer son tour.</p>'+
+        '<div class="duo av"><button class="opt" id="pv"><span class="k">🙊</span><span class="t">Vérité</span></button><button class="opt" id="pa"><span class="k">😈</span><span class="t">Action</span></button></div></div>'+
+        '<div class="foot"><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("pv").addEventListener("click",function(){show2("v");});
+      el("pa").addEventListener("click",function(){show2("a");});
+      el("stop").addEventListener("click",endGame);
+    }
+    function show2(k){
+      var pool=k==="v"?avV:avA;
+      if(!pool.length){P.querySelector(".instr").textContent="Plus de cartes à ce niveau : change de niveau ou ajoute les tiennes.";return;}
+      var c=pool[avI[k]%pool.length];avI[k]++;markSeen(c);
+      P.innerHTML=bannerHTML(G,who)+
+        '<div class="body">'+hotChip(c).replace('</div>',' · '+(k==="v"?'Vérité':'Action')+'</div>')+
+        '<h2 class="qtext">'+hotTxt(c)+'</h2></div>'+
+        '<div class="foot"><div class="row2"><button class="btn" id="done">✅ Fait !</button><button class="btn drink" id="pass">Je passe → '+I()+'</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("done").addEventListener("click",function(){idx++;renderRound();});
+      el("pass").addEventListener("click",function(){penalty(who,function(){idx++;renderRound();});});
+      el("stop").addEventListener("click",endGame);
+    }
+    choose();
+  }
+
+  /* JE N'AI JAMAIS */
+  function renderJamais(P){
+    var c=deck[idx];
+    P.innerHTML='<div class="body">'+hotChip(c)+'<h2 class="qtext">'+hotTxt(c)+'</h2>'+
+      '<p class="instr">'+t("Tous ceux qui l'ont déjà fait {boivent}. Les plus courageux racontent !")+'</p></div>'+
+      '<div class="foot"><button class="btn" id="nx">Suivante →</button>'+(idx>0?'<button class="linkbtn" id="prev">← Précédente</button>':'')+'</div>';
+    el("nx").addEventListener("click",advance);
+    var pv=el("prev");if(pv)pv.addEventListener("click",goBack);
+  }
+
+  /* QUI DE NOUS DEUX ? */
+  function renderQuideux(P){
+    var c=deck[idx];
+    function next(){if(idx+1>=deck.length){var pc=Math.round(100*qdAgree/deck.length);finalHTML='<div class="panel board"><div class="plbl">Votre complicité</div><p class="champ">💞 '+pc+' %</p><p class="hint" style="margin:0">D\'accord sur '+qdAgree+' question'+(qdAgree>1?'s':'')+' sur '+deck.length+'.</p></div>';if(pc>=70)setTimeout(confetti,300);endGame();return;}idx++;renderRound();}
+    P.innerHTML='<div class="body">'+hotChip(c)+'<h2 class="qtext">'+hotTxt(c)+'</h2>'+
+      '<p class="instr">À trois, les deux amoureux <b>pointent</b> la personne qui correspond. Le reste de la table arbitre !</p></div>'+
+      '<div class="foot"><div class="row2"><button class="btn" id="ok">🤝 D\'accord</button><button class="btn drink" id="ko">😬 Pas d\'accord → '+I()+'</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+    el("ok").addEventListener("click",function(){qdAgree++;next();});
+    el("ko").addEventListener("click",function(){penalty("les deux amoureux",next);});
+    el("stop").addEventListener("click",endGame);
+  }
+
+  /* LA ROUE DU PIMENT */
+  function renderRoue(P){
+    var names=players.length>=2?players.slice():["La personne à ta gauche","La personne à ta droite","La personne en face","Celui ou celle qui a lancé l'appli"];
+    function pick(){
+      if(roueBag.length<2)roueBag=roueBag.concat(shuffle(names.filter(function(n){return roueBag.indexOf(n)<0;})));
+      var a=roueBag.shift(),b=roueBag.shift();if(b===undefined||a===b)b=shuffle(names.filter(function(n){return n!==a;}))[0];
+      return [a,b];
+    }
+    var c=deck[idx];
+    P.innerHTML='<div class="body">'+hotChip(c)+
+      '<div class="wheel" id="wheel"><div class="wn" id="wa">?</div><div class="wamp">&</div><div class="wn" id="wb">?</div></div>'+
+      '<h2 class="qtext" id="wtx" style="min-height:3em"></h2></div>'+
+      '<div class="foot"><button class="btn" id="spin">🎡 Lancer la roue</button>'+
+      '<div class="row2" id="wact" hidden><button class="btn" id="ok">✅ Défi relevé</button><button class="btn drink" id="ko">On passe → '+I()+'</button></div>'+
+      '<button class="linkbtn" id="stop">Terminer la partie</button></div>';
+    var pair=null;
+    el("spin").addEventListener("click",function(){
+      el("spin").disabled=true;pair=pick();var n=0,max=16;
+      clearT();
+      timer=setInterval(function(){
+        n++;
+        el("wa").textContent=names[Math.floor(Math.random()*names.length)];
+        el("wb").textContent=names[Math.floor(Math.random()*names.length)];
+        if(n>=max){
+          clearT();el("wa").textContent=pair[0];el("wb").textContent=pair[1];el("wheel").classList.add("land");
+          el("wtx").innerHTML=t(hotTxt(c)).replace(/\{a\}/g,"<b>"+esc(pair[0])+"</b>").replace(/\{b\}/g,"<b>"+esc(pair[1])+"</b>");
+          el("spin").hidden=true;el("wact").hidden=false;haptic([30,40,60]);
+        }
+      },70);
+    });
+    el("ok").addEventListener("click",advance);
+    el("ko").addEventListener("click",function(){penalty(pair[0]+" et "+pair[1],advance);});
+    el("stop").addEventListener("click",endGame);
+  }
+
+  /* LE BAROMÈTRE : vote secret, téléphone qui tourne */
+  function renderBarometre(P){
+    if(players.length<3)return needPlayers(P,3);
+    var c=deck[idx],order=shuffle(players),vi=0,votes={};
+    function ask(){
+      if(vi>=order.length)return results();
+      var v=order[vi];
+      P.innerHTML='<div class="body">'+hotChip(c)+'<h2 class="qtext">'+hotTxt(c)+'</h2>'+
+        '<p class="instr">'+(vi?'Vote enregistré 🤫 ':'')+'Chacun vote <b>en secret</b>. Passe le téléphone à <b>'+esc(v)+'</b>.</p>'+
+        '<p class="hint" style="text-align:center">'+vi+' / '+order.length+' votes</p></div>'+
+        '<div class="foot"><button class="btn" id="iam">Je suis '+esc(v)+' → voter</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("iam").addEventListener("click",function(){
+        P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Vote secret de '+esc(v)+'</div><h2 class="qtext">'+hotTxt(c)+'</h2>'+
+          '<div class="chips pick vgrid">'+players.filter(function(p){return p!==v;}).map(function(p){return '<button class="pchip" data-p="'+esc(p)+'">'+esc(p)+'</button>';}).join("")+'</div></div>';
+        Array.prototype.forEach.call(P.querySelectorAll(".vgrid button"),function(b){b.addEventListener("click",function(){var p=b.getAttribute("data-p");votes[p]=(votes[p]||0)+1;vi++;ask();});});
+      });
+      el("stop").addEventListener("click",endGame);
+    }
+    function results(){
+      var ks=Object.keys(votes).sort(function(a,b){return votes[b]-votes[a];}),max=votes[ks[0]]||1,top=ks.filter(function(k){return votes[k]===max;});
+      P.innerHTML='<div class="body">'+hotChip(c)+'<h2 class="qtext">'+hotTxt(c)+'</h2>'+
+        '<div class="bars">'+ks.map(function(k){return '<div class="barrow"><span class="bn">'+esc(k)+'</span><span class="bt"><span class="bf" style="width:'+Math.round(100*votes[k]/order.length)+'%"></span></span><span class="bv">'+votes[k]+'</span></div>';}).join("")+'</div>'+
+        '<p class="instr">🏆 <b>'+top.map(esc).join(" et ")+'</b> l\'emporte'+(top.length>1?'nt':'')+' !</p></div>'+
+        '<div class="foot"><div class="row2"><button class="btn drink" id="pen">'+esc(top.join(" et "))+' → '+I()+'</button><button class="btn ghost" id="nx">Suivante →</button></div><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      haptic([30,40,30]);
+      el("pen").addEventListener("click",function(){penalty(top.join(" et "),advance);});
+      el("nx").addEventListener("click",advance);
+      el("stop").addEventListener("click",endGame);
+    }
+    ask();
+  }
+
+  /* CONFESSIONS ANONYMES */
+  function renderConfessions(P){
+    if(players.length<3)return needPlayers(P,3);
+    var order=shuffle(players),wi=0,conf=[];
+    function write(){
+      if(wi>=order.length)return reveal(shuffle(conf),0);
+      var w=order[wi];
+      P.innerHTML=passHTML(w,(wi?'Confession enregistrée 🤫 ':'')+'Chacun écrit une confession <b>en secret</b>. Personne ne regarde !','Je suis '+esc(w)+' → écrire');
+      el("iam").addEventListener("click",function(){
+        var pr=CONF_PROMPTS[Math.floor(Math.random()*CONF_PROMPTS.length)];
+        P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Confession de '+esc(w)+'</div>'+
+          '<p class="instr" id="cpr">Idée : <b>'+esc(pr)+'</b></p><button class="linkbtn" id="cother">🎲 Autre idée</button>'+
+          '<form class="mform" id="cf"><textarea id="ct" rows="4" maxlength="200" placeholder="Écris ta confession…"></textarea><button class="btn" type="submit">🤫 Valider en secret</button></form></div>';
+        el("cother").addEventListener("click",function(){el("cpr").innerHTML='Idée : <b>'+esc(CONF_PROMPTS[Math.floor(Math.random()*CONF_PROMPTS.length)])+'</b>';});
+        el("cf").addEventListener("submit",function(e){e.preventDefault();var v=el("ct").value.trim();if(!v){el("ct").focus();return;}conf.push({a:w,t:v.slice(0,200)});wi++;write();});
+        el("ct").focus();
+      });
+      el("stop").addEventListener("click",endGame);
+    }
+    function reveal(list,i){
+      if(i>=list.length){endGame();return;}
+      var c=list[i];
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Confession '+(i+1)+' / '+list.length+'</div>'+
+        '<h2 class="qtext quote">« '+esc(c.t)+' »</h2><p class="instr" id="ch">Qui a écrit ça ? À trois, tout le monde pointe un suspect !</p>'+
+        '<div id="ca" hidden><div class="answer ok"><div class="aw">✍️ '+esc(c.a)+'</div></div></div></div>'+
+        '<div class="foot"><button class="btn" id="cshow">Révéler l\'auteur</button><button class="btn" id="cnext" hidden>'+(i+1<list.length?'Confession suivante →':'Terminer')+'</button><button class="linkbtn" id="stop">Terminer la partie</button></div>';
+      el("cshow").addEventListener("click",function(){el("ca").hidden=false;el("ch").textContent="Ceux qui se sont trompés "+t("{boivent}")+" !";el("cshow").hidden=true;el("cnext").hidden=false;haptic(30);});
+      el("cnext").addEventListener("click",function(){reveal(list,i+1);});
+      el("stop").addEventListener("click",endGame);
+    }
+    write();
+  }
+
+  /* MISSION SECRÈTE : distribution, puis révélation (même plus tard) */
+  function missionsGet(){try{var o=JSON.parse(lsGet("cart_missions")||"null");return o&&Array.isArray(o.list)?o:null;}catch(e){return null;}}
+  function renderMission(P){
+    if(players.length<3)return needPlayers(P,3);
+    var M=missionsGet();
+    if(M)return revealM(M);
+    var pool=shuffle(hotPool(MISSIONS)),list=players.map(function(p,i){
+      var others=players.filter(function(x){return x!==p;}),x=others[Math.floor(Math.random()*others.length)];
+      return {p:p,m:hotTxt(pool[i%pool.length]).replace(/\{x\}/g,x),ok:null};
+    }),di=0;
+    function dist(){
+      if(di>=list.length){lsSet("cart_missions",JSON.stringify({list:list,at:Date.now()}));return waiting();}
+      var it=list[di];
+      P.innerHTML=passHTML(it.p,(di?'Mission cachée 🙈 ':'')+'Chacun découvre sa mission <b>en secret</b>.','Je suis '+esc(it.p)+' → voir ma mission');
+      el("iam").addEventListener("click",function(){
+        P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Mission de '+esc(it.p)+' · top secret</div>'+
+          '<h2 class="qtext">'+esc(it.m)+'</h2><p class="instr">Mémorise-la bien. Tu as toute la soirée pour la réussir sans te faire griller !</p></div>'+
+          '<div class="foot"><button class="btn" id="hide">🙈 Cacher et passer</button></div>';
+        el("hide").addEventListener("click",function(){di++;dist();});
+      });
+      el("stop").addEventListener("click",endGame);
+    }
+    function waiting(){
+      P.innerHTML='<div class="body"><div class="passem">🕶️</div><h2 class="qtext">Missions en cours</h2>'+
+        '<p class="instr">Jouez normalement, lancez d\'autres jeux… Quand vous voulez, revenez dans « Mission secrète » pour tout révéler.</p></div>'+
+        '<div class="foot"><button class="btn" id="tohub2">← Retour aux jeux</button><button class="btn ghost" id="rev">Révéler maintenant</button></div>';
+      el("tohub2").addEventListener("click",toHub);
+      el("rev").addEventListener("click",function(){revealM(missionsGet());});
+    }
+    function revealM(M){
+      P.innerHTML='<div class="body"><div class="chip"><span class="dot"></span>Révélation des missions</div><h2 class="qtext">Mission réussie ?</h2>'+
+        '<div class="mrev">'+M.list.map(function(it,i){return '<div class="panel mr"><div class="plbl">'+esc(it.p)+'</div><p style="margin:0">'+esc(it.m)+'</p>'+
+          '<div class="seg two" data-i="'+i+'"><button data-v="1"'+(it.ok===true?' class="on"':'')+'>✅ Réussie</button><button data-v="0"'+(it.ok===false?' class="on"':'')+'>❌ Ratée</button></div></div>';}).join("")+'</div></div>'+
+        '<div class="foot"><button class="btn" id="mend">Terminer</button></div>';
+      Array.prototype.forEach.call(P.querySelectorAll(".mrev .seg"),function(sg){
+        Array.prototype.forEach.call(sg.querySelectorAll("button"),function(b){b.addEventListener("click",function(){
+          M.list[+sg.getAttribute("data-i")].ok=b.getAttribute("data-v")==="1";lsSet("cart_missions",JSON.stringify(M));
+          Array.prototype.forEach.call(sg.querySelectorAll("button"),function(x){x.classList.toggle("on",x===b);});
+        });});
+      });
+      el("mend").addEventListener("click",function(){
+        var win=M.list.filter(function(x){return x.ok===true;}).map(function(x){return x.p;}),lose=M.list.filter(function(x){return x.ok===false;}).map(function(x){return x.p;});
+        try{localStorage.removeItem("cart_missions");}catch(e){}
+        finalHTML='<div class="panel board"><div class="plbl">Bilan des missions</div>'+
+          (win.length?'<p style="margin:0">🏆 Réussies : <b>'+win.map(esc).join(", ")+'</b></p>':'')+
+          (lose.length?'<p style="margin:0">'+I()+' Ratées : <b>'+lose.map(esc).join(", ")+'</b> → '+t("{pen}")+' chacun·e !</p>':'')+'</div>';
+        if(win.length)setTimeout(confetti,300);
+        endGame();
+      });
+    }
+    dist();
   }
 
   /* ---------------- QUI ME CONNAÎT LE MIEUX ---------------- */
