@@ -612,6 +612,10 @@
   ];
 
   var NINON=[
+    "Tu as vu la question arriver, celle-là ?","C'est toi qui as choisi la musique ?","Tu as déjà répondu à côté exprès ?","Tu es à l'aise avec le silence, là ?",
+    "On continue ?","C'est bon pour toi ?","Tu es d'accord avec la personne à ta gauche ?","Tu as regardé ton téléphone pendant que je parlais ?",
+    "Tu veux que je te laisse tranquille ?","Tu as déjà pleuré de rire ce soir ?","Tu te sens visé·e ?","Tu as dit « oui » dans ta tête, là ?",
+    "C'est ta première fois ici ?","Tu as réservé le resto la dernière fois ?","Tu reconnais cette chanson ?","Tu veux la dernière part ?",
     /* pièges réflexes : on répond oui/non sans réfléchir */
     "Tu m'entends bien ?","Tu as compris que tu n'as pas le droit de dire oui ?","Tu es en train de réfléchir, là ?",
     "Tu veux que je répète la question ?","Tu es prêt·e pour la suivante ?","Tu trouves que je parle trop vite ?",
@@ -632,7 +636,7 @@
     "Tu partirais en vacances avec la personne en face de toi ?","Tu as un chouchou à cette table ?",
     "Tu pourrais sortir avec quelqu'un d'ici ?","Tu préfères la personne à ta droite à celle à ta gauche ?",
     "Tu confierais ton téléphone déverrouillé à quelqu'un d'ici ?","Tu connais un secret sur quelqu'un de cette table ?",
-    "Tu es venu·e ce soir pour quelqu'un en particulier ?","Tu trouves qu'il y a quelqu'un de trop ce soir ?",
+    "Tu es venu·e ce soir pour quelqu'un en particulier ?",
     "Tu as déjà été jaloux·se de quelqu'un ici ?","Tu laisserais la personne en face de toi choisir ta prochaine coupe de cheveux ?",
     /* ego */
     "Tu te trouves plus beau ou plus belle que la moyenne ?","Tu penses que tout le monde t'aime bien ?",
@@ -651,8 +655,8 @@
     "Tu as déjà dormi tout habillé·e après une soirée ?","Tu as déjà quitté une soirée sans dire au revoir ?",
     /* choix tranchés */
     "L'ananas sur la pizza, c'est acceptable ?","Les chaussettes dans les sandales, c'est défendable ?",
-    "Tu pourrais vivre une semaine sans ton téléphone ?","Tu voudrais connaître la date de ta mort ?",
-    "Tu effacerais un souvenir si tu pouvais ?","Tu accepterais un million pour ne plus jamais voir ton ou ta meilleur·e ami·e ?",
+    "Tu pourrais vivre une semaine sans ton téléphone ?",
+    "Tu accepterais un million pour ne plus jamais voir ton ou ta meilleur·e ami·e ?",
     "Tu mangerais un insecte pour cent euros ?","Tu referais exactement la même vie ?",
     "Tu lirais ton journal intime devant tout le monde pour mille euros ?","Tu échangerais ta vie avec quelqu'un ici pendant une semaine ?",
     /* montée en pression */
@@ -679,7 +683,7 @@
     "Tu bois du café le matin ?",
     "Tu fumes ?",
     "Tu fais du sport ?",
-    "Tu as déjà pleuré cette année ?",
+    
     "Tu as un tatouage ?",
     "Tu regardes des téléréalités ?",
     "Tu as déjà été amoureux·se d'un personnage de série ?",
@@ -1481,6 +1485,11 @@
 
   /* ---------------- LE MOT INTERDIT : mot à faire deviner | trois mots interdits ---------------- */
   var TABOO=[
+    "Tinder|appli|rencontre|swiper","Ex|ancien|rupture|couple","Apéro|chips|verre|18 h","Brunch|dimanche|œufs|avocat",
+    "Barbecue|grill|saucisses|été","Story|Instagram|24 heures|photo","Vocal|message|WhatsApp|écouter","Covoiturage|voiture|BlaBlaCar|trajet",
+    "Déménagement|cartons|camion|appartement","Permis|conduire|examen|points","Belle-mère|mari|famille|repas","Sieste|dormir|après-midi|canapé",
+    "Marché|fruits|étal|dimanche","Doudou|peluche|enfant|dormir","Playlist|musique|Spotify|chansons","Mot de passe|secret|code|ordinateur",
+    "Grasse matinée|dormir|dimanche|tard","Vide-grenier|vendre|occasion|dimanche","Télétravail|maison|ordinateur|pyjama","Réunion|travail|bureau|collègues",
     "Plage|sable|mer|soleil","Pizza|Italie|fromage|four","Vampire|sang|dents|Dracula","Anniversaire|gâteau|bougies|cadeau","Avion|voler|pilote|aéroport",
     "Téléphone|appeler|portable|écran","Fantôme|drap|peur|château","Neige|blanc|froid|ski","Football|ballon|but|équipe","Dentiste|dents|carie|cabinet",
     "Pyjama|dormir|nuit|lit","Parapluie|pluie|ouvrir|mouillé","Réveil|matin|sonner|heure","Chocolat|cacao|tablette|noir","Pirate|bateau|trésor|crochet",
@@ -1491,17 +1500,17 @@
     "Bébé|pleurer|couche|biberon","Glace|froid|cornet|parfum","Coiffeur|cheveux|couper|ciseaux","Hamburger|pain|steak|fast-food","Princesse|château|roi|couronne",
     "Prison|barreaux|voleur|cellule","Bibliothèque|livres|lire|silence","Clown|cirque|nez|rire","Dinosaure|préhistoire|fossile|T-rex","Tatouage|encre|peau|dessin",
     "Ascenseur|étage|monter|bouton","Montagne|sommet|neige|grimper","Zombie|mort|vivant|cerveau","Facteur|lettre|courrier|boîte","Trottinette|roues|guidon|rouler",
-    "Bougie|flamme|cire|allumer","Serpent|ramper|venin|langue","Vacances|été|voyage|repos","Banane|jaune|fruit|singe","Télécommande|télé|chaîne|bouton",
+    "Bougie|flamme|cire|allumer","Serpent|ramper|venin|langue","Banane|jaune|fruit|singe","Télécommande|télé|chaîne|bouton",
     "Fromage|lait|vache|camembert","Miroir|reflet|glace|voir","Docteur|médecin|malade|ordonnance","Ninja|Japon|noir|combat","Sushi|riz|poisson|Japon",
     "Embouteillage|voitures|bouchon|route","Boussole|nord|direction|aiguille","Arc-en-ciel|couleurs|pluie|ciel","Pâtes|Italie|spaghetti|cuire","Lune|nuit|ciel|croissant",
     "Kangourou|Australie|sauter|poche","Requin|mer|dents|nager","Valise|voyage|bagage|roulettes","Chaussette|pied|paire|laine","Magicien|tour|lapin|chapeau",
     "Bowling|quilles|boule|strike","Piscine|nager|eau|plonger","Ours|forêt|miel|brun","Discothèque|danser|musique|nuit","Moustique|piquer|bzz|été",
     "Bonhomme de neige|carotte|hiver|blanc","Hélicoptère|hélice|voler|pilote","Poubelle|déchets|jeter|sac","Taxi|voiture|chauffeur|course","Ballon|gonfler|air|fête",
     "Château de sable|plage|seau|pelle","Gâteau|four|sucre|anniversaire","Football américain|ballon|casque|Super Bowl","Père Noël|cadeaux|barbe|traîneau","Lapin|oreilles|carotte|sauter",
-    "Wi-Fi|internet|réseau|code","Influenceur|Instagram|abonnés|réseaux","Cafard|insecte|cuisine|dégoûtant","Hôpital|malade|médecin|lit","Plombier|tuyau|fuite|Mario",
-    "Grand-mère|vieille|famille|mamie","Chauve|cheveux|tête|crâne","Ronfler|dormir|bruit|nez","Sauna|chaud|transpirer|bois","Canapé|salon|assis|coussin",
+    "Wi-Fi|internet|réseau|code","Influenceur|Instagram|abonnés|réseaux","Hôpital|malade|médecin|lit","Plombier|tuyau|fuite|Mario",
+    "Ronfler|dormir|bruit|nez","Sauna|chaud|transpirer|bois","Canapé|salon|assis|coussin",
     "Ferme|vache|tracteur|campagne","Supermarché|courses|caddie|caisse","Train|rails|gare|SNCF","Bus|chauffeur|arrêt|ticket","Métro|souterrain|ligne|station",
-    "Éternuer|nez|atchoum|rhume","Bisou|lèvres|embrasser|joue","Licenciement|travail|patron|viré","Carte bleue|payer|banque|code","Journal|lire|nouvelles|papier",
+    "Éternuer|nez|atchoum|rhume","Bisou|lèvres|embrasser|joue","Carte bleue|payer|banque|code","Journal|lire|nouvelles|papier",
     "Guitare|cordes|jouer|musique","Batterie|tambour|baguettes|frapper","Pharaon|Égypte|roi|pyramide","Chevalier|armure|épée|château","Fée|ailes|baguette|magie",
     "Astronaute|espace|fusée|Lune","Catcheur|ring|combat|muscles","Boxe|gants|ring|coups","Golf|trou|balle|club","Tennis|raquette|balle|filet",
     "Raclette|fromage|fondre|pommes de terre","Crêpe|farine|poêle|Bretagne","Baguette|pain|boulangerie|France","Champagne|bulles|fête|bouteille","Café|tasse|matin|noir"
@@ -1761,7 +1770,7 @@
   ];
 
   /* ---------------- L'HISTOIRE À LA CHAÎNE ---------------- */
-  var HIST_DEBUTS=["Ce matin-là, en ouvrant mon frigo, j'ai trouvé un petit mot qui disait : « Ne mange surtout pas le yaourt. »","Le chauffeur du bus s'est arrêté au milieu de la route et a annoncé : « Changement de programme. »","Ma grand-mère m'a appelé à trois heures du matin pour me dire qu'elle avait gagné quelque chose.","Le jour de mon mariage, le témoin est arrivé déguisé en dinosaure.","En rentrant de vacances, on a découvert que quelqu'un avait vécu chez nous pendant notre absence.","Mon chat a disparu pendant une semaine, puis il est revenu avec un collier en or.","Le prof a fermé la porte à clé et a dit : « Personne ne sort tant que le coupable ne s'est pas dénoncé. »","À la caisse du supermarché, la caissière m'a regardé et a chuchoté : « Ils vous cherchent. »","Pendant la nuit, toutes les voitures de la ville ont été repeintes en rose.","Je me suis réveillé dans un pays dont je ne parlais pas la langue, avec un chameau attaché à ma valise.","Le GPS a dit : « Dans 200 mètres, faites demi-tour… et ne vous retournez pas. »","Mon voisin a frappé à ma porte avec un gâteau et une pelle.","Ce soir-là, au restaurant, le serveur nous a apporté un plat que personne n'avait commandé.","L'équipe de foot du village s'est qualifiée pour la Coupe du monde, à la surprise générale.","En creusant dans le jardin, papa a trouvé un vieux coffre avec mon prénom gravé dessus.","Le jour de la rentrée, le nouveau professeur était un robot.","Un matin, les animaux du zoo se sont mis à parler.","Au milieu du concert, le chanteur s'est arrêté et m'a désigné du doigt.","On était perdus en pleine forêt quand on a vu une lumière clignoter au loin.","Le téléphone a sonné : c'était moi, avec dix ans de plus.","Ma colocataire est rentrée avec un pingouin sous le bras.","Le jour où j'ai gagné au loto, j'ai perdu le ticket dans le bus.","Pendant l'entretien d'embauche, le patron a sorti un jeu de cartes.","Sur l'aire d'autoroute, un inconnu nous a demandé de garder sa valise cinq minutes.","Quand j'ai ouvert le colis, il était vide… à part une carte au trésor.","Le maire a annoncé que, désormais, il serait interdit de sourire le lundi.","En pleine nuit, le bus s'est arrêté devant un château qui n'était sur aucune carte.","Ma tante a décidé de faire le tour du monde en trottinette.","Le facteur m'a remis une lettre datée de 1952, adressée à mon nom.","Au camping, la tente des voisins a commencé à chanter."];
+  var HIST_DEBUTS=["En arrivant au bureau, j'ai découvert que ma chaise avait été remplacée par un trône.","Ma mère m'a envoyé un vocal de douze minutes qui commençait par : « Surtout ne panique pas. »","Le livreur a sonné avec un colis que j'avais commandé… dans trois ans.","Au mariage de mon cousin, la pièce montée s'est mise à bouger toute seule.","Le matin de mon anniversaire, tous mes contacts avaient changé de nom dans mon téléphone.","Ce matin-là, en ouvrant mon frigo, j'ai trouvé un petit mot qui disait : « Ne mange surtout pas le yaourt. »","Le chauffeur du bus s'est arrêté au milieu de la route et a annoncé : « Changement de programme. »","Ma grand-mère m'a appelé à trois heures du matin pour me dire qu'elle avait gagné quelque chose.","Le jour de mon mariage, le témoin est arrivé déguisé en dinosaure.","En rentrant de vacances, on a découvert que quelqu'un avait vécu chez nous pendant notre absence.","Mon chat a disparu pendant une semaine, puis il est revenu avec un collier en or.","Le prof a fermé la porte à clé et a dit : « Personne ne sort tant que le coupable ne s'est pas dénoncé. »","À la caisse du supermarché, la caissière m'a regardé et a chuchoté : « Ils vous cherchent. »","Pendant la nuit, toutes les voitures de la ville ont été repeintes en rose.","Je me suis réveillé dans un pays dont je ne parlais pas la langue, avec un chameau attaché à ma valise.","Le GPS a dit : « Dans 200 mètres, faites demi-tour… et ne vous retournez pas. »","Mon voisin a frappé à ma porte avec un gâteau et une pelle.","Ce soir-là, au restaurant, le serveur nous a apporté un plat que personne n'avait commandé.","L'équipe de foot du village s'est qualifiée pour la Coupe du monde, à la surprise générale.","En creusant dans le jardin, papa a trouvé un vieux coffre avec mon prénom gravé dessus.","Le jour de la rentrée, le nouveau professeur était un robot.","Un matin, les animaux du zoo se sont mis à parler.","Au milieu du concert, le chanteur s'est arrêté et m'a désigné du doigt.","On était perdus en pleine forêt quand on a vu une lumière clignoter au loin.","Le téléphone a sonné : c'était moi, avec dix ans de plus.","Ma colocataire est rentrée avec un pingouin sous le bras.","Le jour où j'ai gagné au loto, j'ai perdu le ticket dans le bus.","Pendant l'entretien d'embauche, le patron a sorti un jeu de cartes.","Sur l'aire d'autoroute, un inconnu nous a demandé de garder sa valise cinq minutes.","Quand j'ai ouvert le colis, il était vide… à part une carte au trésor.","Le maire a annoncé que, désormais, il serait interdit de sourire le lundi.","En pleine nuit, le bus s'est arrêté devant un château qui n'était sur aucune carte.","Ma tante a décidé de faire le tour du monde en trottinette.","Le facteur m'a remis une lettre datée de 1952, adressée à mon nom.","Au camping, la tente des voisins a commencé à chanter."];
   var HIST_MOTS=["parapluie","licorne","saucisson","astronaute","grand-mère","volcan","perruque","trampoline","pingouin","moustache","baguette","fantôme","karaoké","tracteur","bisou","fromage","hélicoptère","pyjama","dentiste","crocodile","pirate","raclette","sirène","trottinette","cactus","chaussette","ninja","momie","banane","château","police","tatouage","dinosaure","magicien","camping-car","escargot","wifi","selfie","boulangerie","fusée","sorcière","boule à facettes","clown","pizza","robot","moustique","guitare","prison","Père Noël","chewing-gum","lama","influenceur","casserole","tempête","mariage","perroquet","sous-marin","patin à glace","zombie","cornichon","piscine","rap","marathon","pharaon","cow-boy","bouée canard","hamster","trésor","éclair","ascenseur","lasagnes","yoga","dragon","poubelle","Tour Eiffel","pétanque","chevalier","coiffeur","accordéon","carte bleue","coupe du monde","sumo","croissant","laser","ours polaire","boomerang","tutu","miroir","vélo","Las Vegas","biberon","cascade","crêpe","bowling","horoscope","nain de jardin","tornade","talons aiguilles","taupe","jacuzzi"];
 
   /* ---------------- OÙ SUIS-JE ? : lieu | catégorie | 5 indices du plus vague au plus précis ---------------- */
