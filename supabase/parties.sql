@@ -1,4 +1,4 @@
--- Les Cartouches : statistiques d'utilisation anonymes (quel jeu, combien de temps, fini ou abandonné)
+-- Jozzo (ex-Les Cartouches) : statistiques d'utilisation anonymes (quel jeu, combien de temps, fini ou abandonné)
 -- À coller dans le SQL Editor de Supabase, puis « Run ». Ne touche pas aux avis.
 create table if not exists public.parties (
   id         bigint generated always as identity primary key,

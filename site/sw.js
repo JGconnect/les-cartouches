@@ -1,4 +1,4 @@
-/* Les Cartouches : fonctionnement hors ligne.
+/* Jozzo : fonctionnement hors ligne.
    La page est toujours redemandée au réseau d'abord (pour avoir la dernière version),
    et la copie gardée sur le téléphone sert quand il n'y a pas de réseau. */
 var CACHE = "cartouches-__VERSION__";

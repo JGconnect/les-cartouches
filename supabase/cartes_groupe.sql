@@ -1,5 +1,5 @@
 -- =====================================================================
--- Les Cartouches : cartes perso partagées par une bande (code de groupe)
+-- Jozzo (ex-Les Cartouches) : cartes perso partagées par une bande (code de groupe)
 -- À coller dans le SQL Editor de Supabase, puis « Run ». Sans risque
 -- pour les avis existants : crée seulement une nouvelle table.
 --

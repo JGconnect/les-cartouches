@@ -1,11 +1,12 @@
-# Les Cartouches
+# Jozzo (ex-Les Cartouches)
 
-Huit jeux de soirée entre amis qui se jouent **avec un seul téléphone** que l'on
+Des jeux de soirée, de trajet et en famille qui se jouent **avec un seul téléphone** que l'on
 se passe autour de la table. Aucun matériel, aucune installation : c'est une
 simple page web.
 
-> Nom de travail : **Les Cartouches** (chaque jeu = une cartouche). Pas encore
-> définitif.
+> Nom de l'appli : **Jozzo** (depuis le 16/10/2026, auparavant « Les Cartouches »).
+> Noms de domaine prévus : myjozzo.fr et myjozzo.com. Le dépôt garde son nom
+> `les-cartouches` pour ne pas changer l'adresse actuelle.
 
 ---
 
@@ -31,7 +32,7 @@ envoyés.
 ## Contenu du dossier
 
 ```
-Les Cartouches/
+les-cartouches/
 ├── site/
 │   └── index.html        ← le jeu complet (une seule page, branchée sur Supabase)
 ├── supabase/

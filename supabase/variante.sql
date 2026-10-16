@@ -1,4 +1,4 @@
--- Les Cartouches : suivi des variantes (ex. Le Menteur Histoires / Mots) + liste des jeux assouplie
+-- Jozzo (ex-Les Cartouches) : suivi des variantes (ex. Le Menteur Histoires / Mots) + liste des jeux assouplie
 alter table public.parties add column if not exists variante text check (variante is null or variante ~ '^[a-z]{2,20}$');
 drop policy if exists "ajout anonyme des parties" on public.parties;
 create policy "ajout anonyme des parties" on public.parties for insert to anon with check (

@@ -1,5 +1,5 @@
 -- =====================================================================
---  Les Cartouches — table des avis de test (Supabase / PostgreSQL)
+--  Jozzo (ex-Les Cartouches) — table des avis de test (Supabase / PostgreSQL)
 -- ---------------------------------------------------------------------
 --  Projet Supabase : cartouches (id gfxpldjnrcoxdodidkze, région eu-west-3)
 --  Cette table est DÉJÀ installée sur le projet Supabase de Julien.

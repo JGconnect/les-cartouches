@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#181022">
-<meta name="description" content="Huit jeux de soirée qui se jouent avec un téléphone et une bande de potes.">
-<meta property="og:title" content="Les Cartouches">
-<meta property="og:description" content="Huit jeux de soirée qui se jouent avec un téléphone et une bande de potes.">
+<meta name="description" content="Jeux de soirée, de trajet et en famille, avec un seul téléphone et une bande de potes.">
+<meta property="og:title" content="Jozzo">
+<meta property="og:description" content="Jeux de soirée, de trajet et en famille, avec un seul téléphone et une bande de potes.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
-<title>Les Cartouches</title>
+<title>Jozzo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#181022">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cartouches">
+<meta name="apple-mobile-web-app-title" content="Jozzo">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -435,11 +435,11 @@
   @keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
 </style>
 </head>
-<body><div id="splash" aria-hidden="true"><div class="sp"><img src="icon-192.png" alt=""><div class="bn">LES <span>CARTOUCHES</span></div></div></div>
+<body><div id="splash" aria-hidden="true"><div class="sp"><img src="icon-192.png" alt=""><div class="bn">JO<span>ZZ</span>O</div></div></div>
 <div class="app">
   <header class="top" id="topbar">
     <button class="back" id="back" aria-label="Retour"><span class="chev">‹</span></button>
-    <button class="brand" id="brand">LES <span>CARTOUCHES</span></button>
+    <button class="brand" id="brand">JO<span>ZZ</span>O</button>
     <div class="ttl" id="ttl"></div>
     <div class="progress" id="progress" hidden></div>
     <button class="flag" id="flag" hidden aria-label="Signaler cette carte">👎</button>
@@ -1118,7 +1118,7 @@
   function tally(id){var u=0,d=0;votes.forEach(function(v){if(v.g===id&&!v.card){if(v.v>0)u++;else d++;}});return{u:u,d:d};}
   function bilan(){
     var dt=new Date().toLocaleDateString("fr-FR");
-    var lines=["Bilan Les Cartouches du "+dt+" ("+votes.length+" avis)",""];
+    var lines=["Bilan Jozzo du "+dt+" ("+votes.length+" avis)",""];
     GAMES.map(function(g){var t0=tally(g.id);return{g:g,t:t0,n:t0.u+t0.d};})
       .sort(function(a,b){return (b.t.u-b.t.d)-(a.t.u-a.t.d)||b.n-a.n;})
       .forEach(function(o){
@@ -2232,8 +2232,8 @@
     var sb=el("mshare");if(sb)sb.addEventListener("click",function(){
       var mm=mineAll(),o={};Object.keys(mm).forEach(function(k){if(mm[k].length)o[k]=mm[k];});
       var url=location.origin+location.pathname+"#cartes="+b64e(JSON.stringify(o));
-      var txt="Nos cartes perso pour Les Cartouches 🎉 Ouvre ce lien pour les ajouter :";
-      if(navigator.share){navigator.share({title:"Les Cartouches",text:txt,url:url}).catch(function(){});}
+      var txt="Nos cartes perso pour Jozzo 🎉 Ouvre ce lien pour les ajouter :";
+      if(navigator.share){navigator.share({title:"Jozzo",text:txt,url:url}).catch(function(){});}
       else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){el("smsg").textContent="✓ Lien copié : colle-le dans votre groupe.";},function(){el("smsg").textContent=url;});}
       else el("smsg").textContent=url;
     });
@@ -2270,8 +2270,8 @@
     });
     var inv=el("ginvite");if(inv)inv.addEventListener("click",function(){
       var url=location.origin+location.pathname+"#groupe="+grpCode();
-      var txt="Rejoins notre bande sur Les Cartouches 🎉 (code "+grpFmt(grpCode())+") :";
-      if(navigator.share){navigator.share({title:"Les Cartouches",text:txt,url:url}).catch(function(){});}
+      var txt="Rejoins notre bande sur Jozzo 🎉 (code "+grpFmt(grpCode())+") :";
+      if(navigator.share){navigator.share({title:"Jozzo",text:txt,url:url}).catch(function(){});}
       else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){el("gmsg").textContent="✓ Lien copié : colle-le dans votre groupe.";},function(){el("gmsg").textContent=url;});}
       else el("gmsg").textContent=url;
     });
@@ -2426,7 +2426,7 @@
     var W=el("s-welcome"),html="";
     if(step===1){
       var chips=players.map(function(p,i){return '<span class="pchip">'+esc(p)+'<button class="px" data-i="'+i+'" aria-label="Retirer">×</button></span>';}).join("");
-      html='<div class="wem">🎉</div><h2>Bienvenue dans<br>Les Cartouches</h2>'+
+      html='<div class="wem">🎉</div><h2>Bienvenue sur<br>Jozzo</h2>'+
         '<p class="sub">Des jeux pour la soirée, le trajet ou la famille. Un seul téléphone suffit, il passe de main en main.</p>'+
         '<div class="panel"><div class="plbl">Qui joue ? <span class="cnt">'+(players.length||"")+'</span></div>'+
         (chips?'<div class="chips">'+chips+'</div>':'')+
@@ -2586,7 +2586,7 @@
       sect("⭐ Tes favoris","",favList,"favrow")+
       (showTop?sect("🏆 Les incontournables","Pour bien commencer · touche ☆ pour épingler tes jeux préférés ici",topList,"favrow"):"")+
       (filt==="tous"?
-        sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"On se balance des cartouches",rest.filter(function(g){return !g.cat;}))+
+        sect(mode==="famille"?"🎉 Jeux d'ambiance":"🔥 Soirée",mode==="famille"?"Pour rire ensemble":"Que la soirée commence",rest.filter(function(g){return !g.cat;}))+
         sect("🌶️ Hot","Pour les soirées entre adultes · 18+",rest.filter(function(g){return g.cat==="hot";}))+
         sect("🧠 Quiz & devinettes","Pour le car, le train, les longues routes · à points, sans pénalité",rest.filter(function(g){return g.cat==="quiz";}))
         : sect(fcur[1],fcur[2],rest))+
@@ -2648,7 +2648,7 @@
   function installHTML(){
     if(isStandalone())return "";
     var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
-    if(deferredInstall)return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli</div><p class="hint">Une icône sur ton écran d\'accueil, le plein écran, et la plupart des jeux marchent même sans réseau.</p><button class="btn sm" id="instb">Installer Les Cartouches</button></div>';
+    if(deferredInstall)return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli</div><p class="hint">Une icône sur ton écran d\'accueil, le plein écran, et la plupart des jeux marchent même sans réseau.</p><button class="btn sm" id="instb">Installer Jozzo</button></div>';
     if(ios)return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli sur iPhone</div><p class="hint">Dans Safari, touche le bouton <b>Partager</b> (le carré avec une flèche), puis <b>« Sur l\'écran d\'accueil »</b>. L\'appli s\'ouvrira en plein écran, et la plupart des jeux marcheront même sans réseau.</p></div>';
     return '<div class="panel inst"><div class="plbl">📲 Installer l\'appli</div><p class="hint">Dans le menu du navigateur, choisis <b>« Ajouter à l\'écran d\'accueil »</b> ou <b>« Installer l\'application »</b>. La plupart des jeux marcheront même sans réseau.</p></div>';
   }
