@@ -49,7 +49,7 @@ les-cartouches/
 
 ## Mise en ligne (GitHub Pages)
 
-Le jeu est en ligne sur **https://jgconnect.github.io/les-cartouches/**
+Le jeu est en ligne sur **https://myjozzo.fr** (depuis le 19/10/2026 ; l'ancienne adresse https://jgconnect.github.io/les-cartouches/ redirige vers myjozzo.fr)
 
 - Hébergement **gratuit et illimité** sur GitHub Pages (dépôt public `JGconnect/les-cartouches`).
 - **Automatique** : chaque modification poussée sur la branche `main` remet le site en ligne toute seule
@@ -60,7 +60,7 @@ Le jeu est en ligne sur **https://jgconnect.github.io/les-cartouches/**
 
 ## Vérifier que les avis remontent bien
 
-1. Ouvrir https://jgconnect.github.io/les-cartouches/ sur un téléphone.
+1. Ouvrir https://myjozzo.fr sur un téléphone.
 2. Jouer une partie, puis donner un 👍 ou 👎 à la fin.
 3. Dans Supabase → projet **cartouches** → **Table Editor** → table `retours` :
    une nouvelle ligne doit apparaître.
