@@ -9,7 +9,7 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#181022",
     "ios": {
-      "bundleIdentifier": "com.jgconnect.jozzo",
+      "bundleIdentifier": "com.jozzo.app",
       "supportsTablet": false,
       "config": { "usesNonExemptEncryption": false },
       "infoPlist": {
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.jgconnect.jozzo",
+      "package": "com.jozzo.app",
       "adaptiveIcon": {
         "backgroundColor": "#181022",
         "foregroundImage": "./assets/android-icon-foreground.png"
