@@ -8,14 +8,8 @@ import { jeu as trouverJeu, t, type NiveauHot } from '@/lib/contenu';
 import { useReglages } from '@/lib/reglages';
 import { C, F, melange, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
-import { JEUX_NATIFS, type Ambiance } from '@/jeux/moteur';
+import { estNatif, MODULES, optionsDe } from '@/jeux/registre';
 import { useState } from 'react';
-
-const AMBIANCES: { id: Ambiance; titre: string; sous: string; couleur: string }[] = [
-  { id: 'soft', titre: 'Soft', sous: 'Pour chauffer', couleur: C.soft },
-  { id: 'epice', titre: 'Épicé', sous: 'Ça pique', couleur: C.epice },
-  { id: 'trash', titre: 'Trash', sous: 'Sans pitié', couleur: C.trash },
-];
 
 const NIVEAUX: { id: NiveauHot; titre: string; sous: string }[] = [
   { id: 'flirt', titre: '💋 Flirt', sous: 'Taquin' },
@@ -27,11 +21,14 @@ export default function IntroJeu() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const j = trouverJeu(String(id));
   const insets = useSafeAreaInsets();
-  const { mode, adulte, setAdulte, niveauHot, setNiveauHot } = useReglages();
-  const [ambiance, setAmbiance] = useState<Ambiance>('epice');
+  const { mode, adulte, setAdulte, niveauHot, setNiveauHot, joueurs } = useReglages();
+  const [opts, setOpts] = useState<Record<string, string>>({});
   if (!j) return null;
   const hot = j.famille === 'hot';
-  const pret = JEUX_NATIFS.has(j.id);
+  const pret = estNatif(j);
+  const options = optionsDe(j);
+  const valeur = (cle: string, defaut: string) => opts[cle] ?? defaut;
+  const minJ = MODULES[j.type]?.minJoueurs || 0;
 
   if (hot && !adulte) {
     return (
@@ -64,19 +61,28 @@ export default function IntroJeu() {
         ))}
       </View>
 
-      {j.type === 'grill' ? (
-        <View style={{ alignSelf: 'stretch', gap: 10 }}>
-          <Text style={styles.lbl}>AMBIANCE</Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {AMBIANCES.map((a) => (
-              <Pressable key={a.id} onPress={() => { vibrer.choix(); setAmbiance(a.id); }} style={[styles.choix, ambiance === a.id && { borderColor: C.ink, backgroundColor: C.surface2 }]}>
-                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: a.couleur }} />
-                <Text style={[styles.choixTitre, ambiance === a.id && { color: C.ink }]}>{a.titre}</Text>
-                <Text style={styles.choixSous}>{a.sous}</Text>
-              </Pressable>
-            ))}
+      {options.map((o) => (
+        <View key={o.cle} style={{ alignSelf: 'stretch', gap: 10 }}>
+          <Text style={styles.lbl}>{o.titre.toUpperCase()}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {o.choix.map((c) => {
+              const on = valeur(o.cle, o.defaut) === c.id;
+              return (
+                <Pressable key={c.id} onPress={() => { vibrer.choix(); setOpts((x) => ({ ...x, [o.cle]: c.id })); }} style={[styles.choix, { minWidth: '30%' }, on && { borderColor: j.couleur, backgroundColor: melange(j.couleur, 0.22, C.surface) }]}>
+                  <Text style={[styles.choixTitre, on && { color: C.ink }]}>{c.titre}</Text>
+                  {c.sous ? <Text style={styles.choixSous}>{c.sous}</Text> : null}
+                </Pressable>
+              );
+            })}
           </View>
         </View>
+      ))}
+
+      {minJ && joueurs.length < minJ ? (
+        <Pressable onPress={() => router.push('/reglages')} style={styles.bientot}>
+          <Text style={styles.bientotTitre}>👥 Il faut au moins {minJ} prénoms</Text>
+          <Text style={styles.bientotTxt}>Ajoute les joueurs dans les Réglages (touche ici).</Text>
+        </Pressable>
       ) : null}
 
       {hot ? (
@@ -94,14 +100,14 @@ export default function IntroJeu() {
       ) : null}
 
       <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 10 }}>
-        {pret ? (
-          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id, ...(j.type === 'grill' ? { ambiance } : {}) } })} style={{ flex: 0 }} />
-        ) : (
+        {pret && !(minJ && joueurs.length < minJ) ? (
+          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id, opts: JSON.stringify(Object.fromEntries(options.map((o) => [o.cle, valeur(o.cle, o.defaut)]))) } })} style={{ flex: 0 }} />
+        ) : !pret ? (
           <View style={styles.bientot}>
             <Text style={styles.bientotTitre}>🛠️ Bientôt dans l'appli</Text>
             <Text style={styles.bientotTxt}>Ce jeu est en train d'être refait pour l'iPhone. En attendant, il se joue sur myjozzo.fr.</Text>
           </View>
-        )}
+        ) : null}
       </View>
     </ScrollView>
   );

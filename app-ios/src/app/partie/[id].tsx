@@ -13,18 +13,22 @@ import { useReglages } from '@/lib/reglages';
 import { C, F, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
 import { CarteJeu } from '@/jeux/cartes';
-import { cleFraicheur, preparerPartie, SANS_PROGRESSION, tirerGage, type Ambiance, type Extra } from '@/jeux/moteur';
+import { cleFraicheur, preparerPartie, SANS_PROGRESSION, tirerGage } from '@/jeux/moteur';
+import { MODULES } from '@/jeux/registre';
+import type { Options } from '@/jeux/types';
 
 export type Scores = Record<string, number>;
 
 export default function Partie() {
   useKeepAwake();
-  const { id, ambiance } = useLocalSearchParams<{ id: string; ambiance?: Ambiance }>();
-  const j = trouverJeu(String(id))!;
+  const params = useLocalSearchParams<{ id: string; opts?: string }>();
+  const j = trouverJeu(String(params.id))!;
+  const opts = useMemo<Record<string, string>>(() => { try { return JSON.parse(params.opts || '{}'); } catch { return {}; } }, [params.opts]);
+  const module = MODULES[j.type];
   const insets = useSafeAreaInsets();
   const { mode, theme, niveauHot, joueurs } = useReglages();
   const [pioche, setPioche] = useState<unknown[] | null>(null);
-  const [extra, setExtra] = useState<Extra>({});
+  const [extra, setExtra] = useState<any>({});
   const [idx, setIdx] = useState(0);
   const [fini, setFini] = useState(false);
   const [penalite, setPenalite] = useState<Penalite>(null);
@@ -33,13 +37,16 @@ export default function Partie() {
   const ensuite = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
-    preparerPartie(j, { mode, theme, niveauHot, joueurs, ambiance }).then((r) => { setExtra(r.extra); setPioche(r.pioche); });
+    const o: Options = { mode, theme, niveauHot, joueurs, opts };
+    const prep = module ? (module.preparer ? module.preparer(o) : Promise.resolve({ pioche: [0] as unknown[], extra: {} })) : preparerPartie(j, o);
+    prep.then((r) => { setExtra(r.extra || {}); setPioche(r.pioche); });
     // la pioche se prépare une fois, au lancement
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const carte = pioche?.[idx];
-  useEffect(() => { if (carte !== undefined) marquerVue(cleFraicheur(j), carte); }, [carte, j]);
+  const cleVue = module ? (module.fraicheur ? module.fraicheur({ mode, theme, niveauHot, joueurs, opts }) : null) : cleFraicheur(j);
+  useEffect(() => { if (carte !== undefined) marquerVue(cleVue, carte); }, [carte, cleVue]);
 
   if (!pioche) return <View style={{ flex: 1, backgroundColor: C.bg }} />;
 
@@ -60,11 +67,34 @@ export default function Partie() {
     <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: insets.top + 6, paddingBottom: insets.bottom + 12 }}>
       <View style={styles.barre}>
         <Pressable onPress={() => router.back()} hitSlop={10}><Text style={styles.retour}>‹ {j.nom}</Text></Pressable>
-        {!fini && !SANS_PROGRESSION.has(j.id) ? <Text style={styles.prog}>{idx + 1} / {pioche.length}</Text> : null}
+        {!fini && !(module ? module.sansProgression : SANS_PROGRESSION.has(j.id)) ? <Text style={styles.prog}>{idx + 1} / {pioche.length}</Text> : null}
       </View>
 
       {fini || !pioche.length ? (
-        <Fin jeu={j.nom} emoji={j.emoji} quiz={j.famille === 'quiz'} scores={scores} vide={!pioche.length} rejouer={() => router.replace({ pathname: '/partie/[id]', params: { id: j.id, ...(ambiance ? { ambiance } : {}) } })} />
+        <Fin jeu={j.nom} emoji={j.emoji} quiz={j.famille === 'quiz'} scores={scores} vide={!pioche.length} rejouer={() => router.replace({ pathname: '/partie/[id]', params: { id: j.id, opts: params.opts || '{}' } })} />
+      ) : module ? (
+        <module.Composant
+          key={idx}
+          jeu={j}
+          carte={carte}
+          idx={idx}
+          total={pioche.length}
+          tour={victimes[idx % victimes.length]}
+          joueurs={joueurs}
+          mode={mode}
+          niveauHot={niveauHot}
+          opts={opts}
+          scores={scores}
+          pioche={pioche}
+          extra={extra}
+          suivant={suivant}
+          precedent={precedent}
+          donnerGage={donnerGage}
+          ajouterPoint={ajouterPoint}
+          quitter={quitter}
+          remplacer={(c) => setPioche((p) => (p ? p.map((x, i) => (i === idx ? c : x)) : p))}
+          marquerVue={(cle, c) => marquerVue(cle, c)}
+        />
       ) : (
         <CarteJeu
           key={idx}
@@ -84,6 +114,9 @@ export default function Partie() {
           remplacer={(c) => setPioche((p) => (p ? p.map((x, i) => (i === idx ? c : x)) : p))}
           pioche={pioche}
           extra={extra}
+          niveauHot={niveauHot}
+          opts={opts}
+          marquerVue={(cle, c) => marquerVue(cle, c)}
         />
       )}
 

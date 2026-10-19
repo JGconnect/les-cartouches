@@ -9,24 +9,8 @@ import { marquerVue } from '@/lib/cartes';
 import { C, F, melange, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
 
-export type PropsCarte = {
-  jeu: Jeu;
-  carte: any;
-  idx: number;
-  total: number;
-  tour: string;
-  joueurs: string[];
-  mode: Mode;
-  scores: Record<string, number>;
-  pioche: unknown[];
-  suivant: () => void;
-  precedent?: () => void;
-  donnerGage: (pour: string, puis?: () => void) => void;
-  ajouterPoint: (qui: string, n?: number) => void;
-  quitter: () => void;
-  remplacer: (c: unknown) => void;
-  extra?: { verites?: string[]; actions?: string[] };
-};
+export type { PropsCarte } from './types';
+import type { PropsCarte } from './types';
 
 /** Mise en page commune : le contenu au centre, les boutons en bas. */
 function Cadre({ children, pied }: { children: React.ReactNode; pied: React.ReactNode }) {

@@ -1,5 +1,6 @@
 // Préparation d'une partie : la pioche de chaque jeu, comme startGame() de l'appli web.
 import { famOK, HOT_NIVEAUX, L, THEME_GAMES, THEMES, type Jeu, type Mode, type NiveauHot } from '@/lib/contenu';
+import type { Options } from './types';
 import { fraichesDabord, melanger } from '@/lib/cartes';
 
 /** Jeux déjà refaits en natif (les autres arrivent écran par écran). */
@@ -9,7 +10,7 @@ export const JEUX_NATIFS = new Set(['coupable', 'cascade', 'tribunal', 'dilemme'
 export const SANS_PROGRESSION = new Set(['chrono', 'avpiment', 'avant']);
 
 export type Ambiance = 'soft' | 'epice' | 'trash';
-export type Options = { mode: Mode; theme: string; niveauHot: NiveauHot; joueurs: string[]; ambiance?: Ambiance };
+export type { Options };
 
 const NIVEAUX_AMBIANCE: Record<Ambiance, string[]> = { soft: ['soft'], epice: ['soft', 'epice'], trash: ['soft', 'epice', 'trash'] };
 
@@ -22,7 +23,7 @@ export function cleFraicheur(j: Jeu): string | null {
   return speciales[j.id] ?? (j.partie ? j.id : null);
 }
 
-function cartesDuTheme(id: string, o: Options): unknown[] {
+export function cartesDuTheme(id: string, o: Options): unknown[] {
   const th = THEMES[o.theme];
   if (!th || (th.adult && o.mode === 'famille')) return [];
   const brut = (th.cards[id] || []).filter((x) => famOK(x, o.mode));
@@ -33,7 +34,7 @@ function cartesDuTheme(id: string, o: Options): unknown[] {
 }
 
 /** Les cartes du thème de la soirée passent en priorité (themeMix du site). */
-function avecTheme(j: Jeu, pioche: unknown[], o: Options): unknown[] {
+export function avecTheme(j: Jeu, pioche: unknown[], o: Options): unknown[] {
   if (!THEME_GAMES[j.id]) return pioche;
   let tc = melanger(cartesDuTheme(j.id, o));
   if (!tc.length) return pioche;
@@ -45,7 +46,7 @@ function avecTheme(j: Jeu, pioche: unknown[], o: Options): unknown[] {
   return j.partie ? tout.slice(0, Math.max(n, tc.length)) : tout;
 }
 
-function piocheHot(liste: string[], niveau: NiveauHot): string[] {
+export function piocheHot(liste: string[], niveau: NiveauHot): string[] {
   const ok = HOT_NIVEAUX[niveau] || HOT_NIVEAUX.chaud;
   return liste.filter((x) => ok.includes(x.charAt(0)));
 }
@@ -62,7 +63,7 @@ export async function preparerPartie(j: Jeu, o: Options): Promise<{ pioche: unkn
 export async function preparerPioche(j: Jeu, o: Options): Promise<unknown[]> {
   let pioche: unknown[] = [];
   switch (j.type) {
-    case 'grill': pioche = melanger((L.OUINON as { l: string }[]).filter((q) => NIVEAUX_AMBIANCE[o.ambiance || 'epice'].includes(q.l))); break;
+    case 'grill': pioche = melanger((L.OUINON as { l: string }[]).filter((q) => NIVEAUX_AMBIANCE[(o.opts.ambiance as Ambiance) || 'epice'].includes(q.l))); break;
     case 'chrono': {
       const ok = (L.CHRONO as string[]).filter((x) => famOK(x, o.mode));
       return avecTheme(j, await fraichesDabord('chrono', melanger(ok), ok.length), o);
