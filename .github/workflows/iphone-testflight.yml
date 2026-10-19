@@ -1,5 +1,7 @@
 # Compile l'appli iPhone Jozzo (dossier app-ios) chez Expo, puis l'envoie sur TestFlight.
 # Lancement MANUEL uniquement : onglet Actions › iPhone › TestFlight › Run workflow.
+# « Mise à jour rapide » : envoie les changements d'écrans/textes/cartes aux iPhone déjà installés (EAS Update).
+# Si un module natif a changé, la mise à jour rapide ne s'applique pas : refaire une compilation.
 # Secrets GitHub nécessaires (saisis par Florine ou Julien, jamais dans le code) :
 #   EXPO_TOKEN      : jeton d'accès du compte Expo « jgconnect »
 # Le contenu des jeux est recopié depuis site/index.html juste avant la compilation.
@@ -10,10 +12,14 @@ name: iPhone › TestFlight
 on:
   workflow_dispatch:
     inputs:
-      envoi_seul:
-        description: "Envoyer seulement la dernière version déjà compilée (sans recompiler)"
-        type: boolean
-        default: false
+      mode:
+        description: "Que faire ?"
+        type: choice
+        default: "Nouvelle compilation + TestFlight (15-20 min)"
+        options:
+          - "Mise à jour rapide (2 min)"
+          - "Nouvelle compilation + TestFlight (15-20 min)"
+          - "Renvoyer la dernière compilation sur TestFlight"
 
 concurrency:
   group: iphone-testflight
@@ -80,7 +86,7 @@ jobs:
           '
 
       - name: Compiler et envoyer sur TestFlight
-        if: ${{ !inputs.envoi_seul }}
+        if: ${{ inputs.mode == 'Nouvelle compilation + TestFlight (15-20 min)' }}
         env:
           EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/asc.p8
           EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -91,5 +97,9 @@ jobs:
         run: eas build --platform ios --profile production --non-interactive --auto-submit --wait
 
       - name: Envoyer la dernière version sur TestFlight
-        if: ${{ inputs.envoi_seul }}
+        if: ${{ inputs.mode == 'Renvoyer la dernière compilation sur TestFlight' }}
         run: eas submit --platform ios --profile production --latest --non-interactive --wait
+
+      - name: Mise à jour rapide
+        if: ${{ inputs.mode == 'Mise à jour rapide (2 min)' }}
+        run: eas update --channel production --platform ios --message "$(git log -1 --pretty=%s)" --non-interactive

@@ -30,6 +30,9 @@ const config: ExpoConfig = {
     ['expo-audio', { microphonePermission: false }],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
+  // Mises à jour rapides (EAS Update) : runtimeVersion « fingerprint » = une mise à jour ne va qu'aux compilations compatibles.
+  updates: { url: `https://u.expo.dev/${projectId}` },
+  runtimeVersion: { policy: 'fingerprint' },
   extra: projectId ? { eas: { projectId } } : {},
 };
 
