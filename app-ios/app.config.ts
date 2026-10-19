@@ -2,7 +2,7 @@
 import type { ExpoConfig } from 'expo/config';
 
 // Identifiant du projet Expo « jozzo » (public) : créé sur expo.dev, à recopier ici.
-const projectId = process.env.EAS_PROJECT_ID || '';
+const projectId = '6e4f0f41-f257-4a6f-9e08-500a3988c58d';
 
 const config: ExpoConfig = {
   name: 'Jozzo',
