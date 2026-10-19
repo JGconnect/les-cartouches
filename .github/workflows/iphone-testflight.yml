@@ -1,0 +1,95 @@
+# Compile l'appli iPhone Jozzo (dossier app-ios) chez Expo, puis l'envoie sur TestFlight.
+# Lancement MANUEL uniquement : onglet Actions › iPhone › TestFlight › Run workflow.
+# Secrets GitHub nécessaires (saisis par Florine ou Julien, jamais dans le code) :
+#   EXPO_TOKEN      : jeton d'accès du compte Expo « jgconnect »
+# Le contenu des jeux est recopié depuis site/index.html juste avant la compilation.
+#   ASC_API_KEY_P8  : contenu du fichier .p8 de la clé API App Store Connect
+#   ASC_KEY_ID, ASC_ISSUER_ID, APPLE_TEAM_ID : identifiants de la clé et de l'équipe Apple
+name: iPhone › TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      envoi_seul:
+        description: "Envoyer seulement la dernière version déjà compilée (sans recompiler)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: iphone-testflight
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app-ios/package-lock.json
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Installer
+        run: npm ci
+
+      - name: Recopier le contenu des jeux depuis le site
+        run: node ../outils/extraire-contenu.js
+
+      - name: Vérifier le code (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Vérifier l'identifiant du projet Expo
+        run: |
+          if ! grep -Eq "projectId = .*'[0-9a-f]{8}-[0-9a-f]{4}-" app.config.ts; then
+            echo "::error::Il manque l'identifiant du projet Expo « jozzo » dans app-ios/app.config.ts."
+            exit 1
+          fi
+
+      - name: Clé App Store Connect
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: printf '%s' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/asc.p8"
+
+      - name: Réglages d'envoi App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        # Complète eas.json seulement le temps de l'envoi (rien n'est enregistré dans le dépôt).
+        run: |
+          node -e '
+            const fs = require("fs");
+            const c = JSON.parse(fs.readFileSync("eas.json", "utf8"));
+            Object.assign(c.submit.production.ios, {
+              ascApiKeyPath: process.env.RUNNER_TEMP + "/asc.p8",
+              ascApiKeyId: process.env.ASC_KEY_ID,
+              ascApiKeyIssuerId: process.env.ASC_ISSUER_ID,
+              appleTeamId: process.env.APPLE_TEAM_ID,
+            });
+            fs.writeFileSync("eas.json", JSON.stringify(c, null, 2));
+          '
+
+      - name: Compiler et envoyer sur TestFlight
+        if: ${{ !inputs.envoi_seul }}
+        env:
+          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/asc.p8
+          EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          EXPO_APPLE_TEAM_TYPE: INDIVIDUAL
+          EAS_BUILD_NO_EXPO_GO_WARNING: "true"
+        run: eas build --platform ios --profile production --non-interactive --auto-submit --wait
+
+      - name: Envoyer la dernière version sur TestFlight
+        if: ${{ inputs.envoi_seul }}
+        run: eas submit --platform ios --profile production --latest --non-interactive --wait
