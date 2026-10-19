@@ -8,7 +8,14 @@ import { jeu as trouverJeu, t, type NiveauHot } from '@/lib/contenu';
 import { useReglages } from '@/lib/reglages';
 import { C, F, melange, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
-import { JEUX_NATIFS } from '@/jeux/moteur';
+import { JEUX_NATIFS, type Ambiance } from '@/jeux/moteur';
+import { useState } from 'react';
+
+const AMBIANCES: { id: Ambiance; titre: string; sous: string; couleur: string }[] = [
+  { id: 'soft', titre: 'Soft', sous: 'Pour chauffer', couleur: C.soft },
+  { id: 'epice', titre: 'Épicé', sous: 'Ça pique', couleur: C.epice },
+  { id: 'trash', titre: 'Trash', sous: 'Sans pitié', couleur: C.trash },
+];
 
 const NIVEAUX: { id: NiveauHot; titre: string; sous: string }[] = [
   { id: 'flirt', titre: '💋 Flirt', sous: 'Taquin' },
@@ -21,6 +28,7 @@ export default function IntroJeu() {
   const j = trouverJeu(String(id));
   const insets = useSafeAreaInsets();
   const { mode, adulte, setAdulte, niveauHot, setNiveauHot } = useReglages();
+  const [ambiance, setAmbiance] = useState<Ambiance>('epice');
   if (!j) return null;
   const hot = j.famille === 'hot';
   const pret = JEUX_NATIFS.has(j.id);
@@ -56,6 +64,21 @@ export default function IntroJeu() {
         ))}
       </View>
 
+      {j.type === 'grill' ? (
+        <View style={{ alignSelf: 'stretch', gap: 10 }}>
+          <Text style={styles.lbl}>AMBIANCE</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {AMBIANCES.map((a) => (
+              <Pressable key={a.id} onPress={() => { vibrer.choix(); setAmbiance(a.id); }} style={[styles.choix, ambiance === a.id && { borderColor: C.ink, backgroundColor: C.surface2 }]}>
+                <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: a.couleur }} />
+                <Text style={[styles.choixTitre, ambiance === a.id && { color: C.ink }]}>{a.titre}</Text>
+                <Text style={styles.choixSous}>{a.sous}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
       {hot ? (
         <View style={{ alignSelf: 'stretch', gap: 10 }}>
           <Text style={styles.lbl}>NIVEAU</Text>
@@ -72,7 +95,7 @@ export default function IntroJeu() {
 
       <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 10 }}>
         {pret ? (
-          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id } })} style={{ flex: 0 }} />
+          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id, ...(j.type === 'grill' ? { ambiance } : {}) } })} style={{ flex: 0 }} />
         ) : (
           <View style={styles.bientot}>
             <Text style={styles.bientotTitre}>🛠️ Bientôt dans l'appli</Text>

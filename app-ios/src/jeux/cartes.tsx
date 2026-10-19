@@ -1,9 +1,11 @@
 // Les écrans de jeu « à cartes » (une carte à la fois), refaits en natif d'après l'appli web.
+import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, Consigne, Lien, Ligne, Puce, Question, Reponse } from '@/components/ui';
 import { HOT_NOM, icone, L, t, type Jeu, type Mode } from '@/lib/contenu';
+import { marquerVue } from '@/lib/cartes';
 import { C, F, melange, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
 
@@ -23,6 +25,7 @@ export type PropsCarte = {
   ajouterPoint: (qui: string, n?: number) => void;
   quitter: () => void;
   remplacer: (c: unknown) => void;
+  extra?: { verites?: string[]; actions?: string[] };
 };
 
 /** Mise en page commune : le contenu au centre, les boutons en bas. */
@@ -39,7 +42,7 @@ function Tour({ jeu, nom }: { jeu: Jeu; nom: string }) {
   return (
     <View style={[styles.tour, { borderColor: melange(jeu.couleur, 0.4, C.line) }]}>
       <Text style={{ fontSize: 22 }}>{jeu.emoji}</Text>
-      <View>
+      <View style={{ flex: 1 }}>
         <Text style={styles.tourLbl}>{(jeu.victime || 'Au tour de').toUpperCase()}</Text>
         <Text style={styles.tourNom}>{nom}</Text>
       </View>
@@ -241,8 +244,170 @@ function Avant(p: PropsCarte) {
   );
 }
 
+
+/* ---------------- Oui ou Non (sur le grill) ---------------- */
+const NOM_NIVEAU: Record<string, string> = { soft: 'Soft', epice: 'Épicé', trash: 'Trash' };
+const COULEUR_NIVEAU: Record<string, string> = { soft: C.soft, epice: C.epice, trash: C.trash };
+
+function Grill(p: PropsCarte) {
+  const I = icone(p.mode);
+  const q = p.carte as { l: string; c: string; q: string; r: string[]; f?: string };
+  const [n, setN] = useState(0);
+  const [micro, setMicro] = useState(false);
+  const relance = micro ? q.f : n > 0 ? q.r[n - 1] : null;
+  const finiPieges = n >= q.r.length;
+  function piege() {
+    vibrer.choix();
+    if (!finiPieges) { setN(n + 1); return; }
+    if (q.f && !micro) setMicro(true);
+  }
+  const titrePiege = !finiPieges ? 'Question piège' : q.f && !micro ? '🎤 Micro ouvert' : micro ? `À elle de jouer, sinon ${I}` : 'Plus de pièges, on enchaîne';
+  return (
+    <Cadre pied={<>
+      <Bouton titre={titrePiege} couleur={p.jeu.couleur} onPress={piege} desactive={micro || (finiPieges && !q.f)} style={{ flex: 0 }} />
+      <Ligne><Bouton titre={`A craqué → ${I}`} variante="penalite" onPress={() => p.donnerGage(p.tour)} /><Bouton titre="Suivant →" variante="fantome" onPress={p.suivant} /></Ligne>
+      <Precedent fn={p.precedent} libelle="← Question précédente" />
+    </>}>
+      <Tour jeu={p.jeu} nom={p.tour} />
+      <Puce texte={`${q.c} · ${NOM_NIVEAU[q.l] || ''}`} couleur={COULEUR_NIVEAU[q.l] || p.jeu.couleur} />
+      <Question>{q.q}</Question>
+      <View style={[styles.relance, relance ? { borderStyle: 'solid', borderColor: micro ? C.oui : C.line } : null]}>
+        <Text style={[styles.relanceLbl, { color: micro ? C.oui : p.jeu.couleur }]}>
+          {micro ? 'MICRO OUVERT · LA RÈGLE DU OUI/NON SAUTE' : `${(p.jeu.relance || 'Question piège').toUpperCase()}${n ? `  ${n}/${q.r.length}` : ''}`}
+        </Text>
+        <Text style={[styles.relanceTxt, !relance && { color: C.inkFaint }]}>{relance || "Appuie sur « Question piège » pour l'enfoncer un peu plus."}</Text>
+      </View>
+      <Text style={styles.bande}>Elle ne dit que <Text style={{ color: C.oui }}>OUI</Text> / <Text style={{ color: C.non }}>NON</Text>, sinon {I}</Text>
+    </Cadre>
+  );
+}
+
+/* ---------------- Le Chrono (chacun son tour, 5 secondes) ---------------- */
+function parler(texte: string) {
+  Speech.stop();
+  Speech.speak(texte, { language: 'fr-FR', rate: 1.05 });
+}
+
+function Chrono(p: PropsCarte) {
+  const I = icone(p.mode);
+  const secs = p.jeu.secondes || 5;
+  const nommes = p.joueurs.length >= 2;
+  const ordre = useRef(nommes ? [...p.joueurs.slice(p.idx % p.joueurs.length), ...p.joueurs.slice(0, p.idx % p.joueurs.length)] : []);
+  const qui = (k: number) => (nommes ? ordre.current[k % ordre.current.length] : k === 0 ? 'La personne qui commence' : 'La personne suivante (à gauche)');
+  const [tourN, setTourN] = useState(0);
+  const [reste, setReste] = useState<number | null>(null);
+  const [compte, setCompte] = useState<number | null>(null);
+  const [message, setMessage] = useState(nommes ? `${qui(0)} commence.` : "On tourne dans le sens des aiguilles d'une montre.");
+  const minuteur = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tourRef = useRef(0);
+  const arreter = () => { if (minuteur.current) clearInterval(minuteur.current); minuteur.current = null; };
+  useEffect(() => () => { arreter(); Speech.stop(); }, []);
+
+  function lancerTour(k: number) {
+    arreter();
+    tourRef.current = k;
+    setTourN(k);
+    setMessage(nommes ? `À ${qui(k)} !` : k === 0 ? "C'est parti !" : 'Au suivant !');
+    if (nommes && k > 0) parler(qui(k));
+    setReste(secs);
+    minuteur.current = setInterval(() => {
+      setReste((r) => {
+        const n = (r ?? 1) - 1;
+        if (n > 0 && n <= 3) vibrer.leger();
+        if (n <= 0) {
+          arreter();
+          vibrer.fort();
+          const perdant = qui(tourRef.current);
+          setMessage(`⏰ Temps écoulé : ${perdant} a séché !`);
+          setTimeout(() => p.donnerGage(perdant, p.suivant), 700);
+          return 0;
+        }
+        return n;
+      });
+    }, 1000);
+  }
+  function demarrer() {
+    if (nommes) parler(qui(0));
+    let c = 3;
+    setCompte(c);
+    vibrer.moyen();
+    const t = setInterval(() => {
+      c -= 1;
+      if (c <= 0) { clearInterval(t); setCompte(null); vibrer.fort(); lancerTour(0); return; }
+      vibrer.moyen();
+      setCompte(c);
+    }, 800);
+  }
+  const enCours = reste !== null && reste > 0;
+  return (
+    <Cadre pied={<>
+      {compte !== null ? null : !enCours && reste === null ? (
+        <Bouton titre="▶️ Lancer le chrono" couleur={p.jeu.couleur} onPress={demarrer} style={{ flex: 0 }} />
+      ) : enCours ? (
+        <Bouton titre="✅ Trouvé ! Au suivant →" couleur={p.jeu.couleur} onPress={() => lancerTour(tourRef.current + 1)} style={{ flex: 0 }} />
+      ) : null}
+      <Ligne><Bouton titre={`A séché → ${I}`} variante="penalite" onPress={() => { arreter(); p.donnerGage(qui(tourN), p.suivant); }} /><Bouton titre="Autre catégorie →" variante="fantome" onPress={() => { arreter(); p.suivant(); }} /></Ligne>
+      <Lien titre="Terminer la partie" onPress={() => { arreter(); p.quitter(); }} />
+    </>}>
+      <Tour jeu={p.jeu} nom={qui(tourN)} />
+      <Puce texte="Catégorie" couleur={p.jeu.couleur} />
+      <Question>{p.carte}</Question>
+      {compte !== null ? <Text style={[styles.chrono, { color: p.jeu.couleur }]}>{compte}</Text>
+        : reste !== null ? <Text style={[styles.chrono, reste <= 2 && { color: C.danger }]}>{reste}</Text> : null}
+      <Consigne style={{ fontFamily: F.texteDemi, color: C.ink }}>Chacun son tour, UNE réponse en {secs} secondes. Celui qui sèche ou répète une réponse déjà dite perd.</Consigne>
+      <Consigne>{message}</Consigne>
+    </Cadre>
+  );
+}
+
+/* ---------------- Action ou Vérité (Hot) ---------------- */
+function ActionVerite(p: PropsCarte) {
+  const I = icone(p.mode);
+  const [carte, setCarte] = useState<{ k: 'v' | 'a'; c: string } | null>(null);
+  const [vide, setVide] = useState(false);
+  const pos = useRef<Record<'v' | 'a', number>>({ v: p.idx, a: p.idx });
+  function choisir(k: 'v' | 'a') {
+    const pool = (k === 'v' ? p.extra?.verites : p.extra?.actions) || [];
+    if (!pool.length) { setVide(true); return; }
+    vibrer.moyen();
+    const c = pool[pos.current[k] % pool.length];
+    marquerVue('avpiment', c);
+    setCarte({ k, c });
+  }
+  if (!carte) {
+    return (
+      <Cadre pied={<Lien titre="Terminer la partie" onPress={p.quitter} />}>
+        <Tour jeu={p.jeu} nom={p.tour} />
+        <Question>Action ou vérité ?</Question>
+        <Consigne>{vide ? 'Plus de cartes à ce niveau : change de niveau.' : `${p.tour} choisit. On peut toujours passer son tour.`}</Consigne>
+        <Ligne>
+          {(['v', 'a'] as const).map((k) => (
+            <Pressable key={k} onPress={() => choisir(k)} style={({ pressed }) => [styles.av, pressed && { transform: [{ scale: 0.97 }] }, { borderColor: melange(p.jeu.couleur, 0.5, C.line) }]}>
+              <Text style={{ fontSize: 40 }}>{k === 'v' ? '🙊' : '😈'}</Text>
+              <Text style={styles.avTxt}>{k === 'v' ? 'Vérité' : 'Action'}</Text>
+            </Pressable>
+          ))}
+        </Ligne>
+      </Cadre>
+    );
+  }
+  return (
+    <Cadre pied={<>
+      <Ligne><Bouton titre="✅ Fait !" couleur={p.jeu.couleur} onPress={p.suivant} /><Bouton titre={`Je passe → ${I}`} variante="penalite" onPress={() => p.donnerGage(p.tour, p.suivant)} /></Ligne>
+      <Lien titre="Terminer la partie" onPress={p.quitter} />
+    </>}>
+      <Tour jeu={p.jeu} nom={p.tour} />
+      <Puce texte={`${HOT_NOM[carte.c.charAt(0)] || ''} · ${carte.k === 'v' ? 'Vérité' : 'Action'}`} couleur={p.jeu.couleur} />
+      <Question>{carte.c.slice(2)}</Question>
+    </Cadre>
+  );
+}
+
 export function CarteJeu(p: PropsCarte) {
   switch (p.jeu.type) {
+    case 'grill': return <Grill {...p} />;
+    case 'chrono': return <Chrono {...p} />;
+    case 'av': return <ActionVerite {...p} />;
     case 'deck': return <Coupable {...p} />;
     case 'cascade': return <Cascade {...p} />;
     case 'tribunal': return <Tribunal {...p} />;
@@ -265,6 +430,12 @@ const styles = StyleSheet.create({
   optionKTxt: { color: C.inkSoft, fontFamily: F.titre, fontSize: 16 },
   optionTxt: { flex: 1, color: C.ink, fontFamily: F.titreGras, fontSize: 17, lineHeight: 21 },
   chrono: { color: C.ink, fontFamily: F.titre, fontSize: 64, textAlign: 'center' },
+  relance: { backgroundColor: C.surface, borderWidth: 1, borderStyle: 'dashed', borderColor: C.line, borderRadius: R.md, padding: 15, gap: 6, minHeight: 66, justifyContent: 'center' },
+  relanceLbl: { fontFamily: F.texteDemi, fontSize: 11, letterSpacing: 1.8 },
+  relanceTxt: { color: C.ink, fontFamily: F.texteMoyen, fontSize: 16, lineHeight: 22 },
+  bande: { color: C.inkFaint, fontFamily: F.texteDemi, fontSize: 12.5, letterSpacing: 0.8, textAlign: 'center', textTransform: 'uppercase' },
+  av: { flex: 1, alignItems: 'center', gap: 8, paddingVertical: 26, borderRadius: R.lg, borderWidth: 1, backgroundColor: C.surface },
+  avTxt: { color: C.ink, fontFamily: F.titre, fontSize: 20 },
   pave: { backgroundColor: C.surface, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 14, gap: 10 },
   paveLbl: { color: C.inkFaint, fontFamily: F.texteDemi, fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase' },
   puces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

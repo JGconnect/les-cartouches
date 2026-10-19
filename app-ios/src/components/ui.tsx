@@ -78,6 +78,8 @@ export function Ligne({ children, style }: { children: ReactNode; style?: StyleP
 export const styles = StyleSheet.create({
   btn: {
     flex: 1,
+    flexShrink: 0,
+    minHeight: 52,
     borderRadius: R.lg,
     paddingVertical: 17,
     paddingHorizontal: 14,

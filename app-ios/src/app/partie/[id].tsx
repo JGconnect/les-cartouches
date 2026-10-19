@@ -13,17 +13,18 @@ import { useReglages } from '@/lib/reglages';
 import { C, F, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
 import { CarteJeu } from '@/jeux/cartes';
-import { cleFraicheur, preparerPioche, tirerGage } from '@/jeux/moteur';
+import { cleFraicheur, preparerPartie, SANS_PROGRESSION, tirerGage, type Ambiance, type Extra } from '@/jeux/moteur';
 
 export type Scores = Record<string, number>;
 
 export default function Partie() {
   useKeepAwake();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, ambiance } = useLocalSearchParams<{ id: string; ambiance?: Ambiance }>();
   const j = trouverJeu(String(id))!;
   const insets = useSafeAreaInsets();
   const { mode, theme, niveauHot, joueurs } = useReglages();
   const [pioche, setPioche] = useState<unknown[] | null>(null);
+  const [extra, setExtra] = useState<Extra>({});
   const [idx, setIdx] = useState(0);
   const [fini, setFini] = useState(false);
   const [penalite, setPenalite] = useState<Penalite>(null);
@@ -32,7 +33,7 @@ export default function Partie() {
   const ensuite = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
-    preparerPioche(j, { mode, theme, niveauHot, joueurs }).then(setPioche);
+    preparerPartie(j, { mode, theme, niveauHot, joueurs, ambiance }).then((r) => { setExtra(r.extra); setPioche(r.pioche); });
     // la pioche se prépare une fois, au lancement
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -59,11 +60,11 @@ export default function Partie() {
     <View style={{ flex: 1, backgroundColor: C.bg, paddingTop: insets.top + 6, paddingBottom: insets.bottom + 12 }}>
       <View style={styles.barre}>
         <Pressable onPress={() => router.back()} hitSlop={10}><Text style={styles.retour}>‹ {j.nom}</Text></Pressable>
-        {!fini ? <Text style={styles.prog}>{idx + 1} / {pioche.length}</Text> : null}
+        {!fini && !SANS_PROGRESSION.has(j.id) ? <Text style={styles.prog}>{idx + 1} / {pioche.length}</Text> : null}
       </View>
 
       {fini || !pioche.length ? (
-        <Fin jeu={j.nom} emoji={j.emoji} quiz={j.famille === 'quiz'} scores={scores} vide={!pioche.length} rejouer={() => router.replace({ pathname: '/partie/[id]', params: { id: j.id } })} />
+        <Fin jeu={j.nom} emoji={j.emoji} quiz={j.famille === 'quiz'} scores={scores} vide={!pioche.length} rejouer={() => router.replace({ pathname: '/partie/[id]', params: { id: j.id, ...(ambiance ? { ambiance } : {}) } })} />
       ) : (
         <CarteJeu
           key={idx}
@@ -82,6 +83,7 @@ export default function Partie() {
           quitter={quitter}
           remplacer={(c) => setPioche((p) => (p ? p.map((x, i) => (i === idx ? c : x)) : p))}
           pioche={pioche}
+          extra={extra}
         />
       )}
 
