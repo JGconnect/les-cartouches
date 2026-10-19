@@ -1,0 +1,63 @@
+# Fabrique l'appli iPhone Jozzo dans le cloud Expo (EAS Build) et l'envoie sur TestFlight.
+# Lancement à la main : onglet Actions › « Appli iPhone (TestFlight) » › Run workflow.
+# Il faut le secret EXPO_TOKEN (Settings › Secrets and variables › Actions) et un premier
+# build fait une fois depuis un ordinateur (création des certificats Apple), voir mobile/README.md.
+name: Appli iPhone (TestFlight)
+
+on:
+  workflow_dispatch:
+    inputs:
+      envoyer:
+        description: "Envoyer sur TestFlight une fois fabriquée"
+        type: boolean
+        default: true
+
+concurrency:
+  group: appli-iphone
+  cancel-in-progress: false
+
+jobs:
+  fabriquer:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Vérifier que le jeton Expo est là
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Le secret EXPO_TOKEN manque dans le dépôt (Settings › Secrets and variables › Actions)."
+            exit 1
+          fi
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Vérifier le code (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Fabriquer (et envoyer sur TestFlight)
+        run: |
+          if [ "${{ inputs.envoyer }}" = "true" ]; then
+            if grep -q "A-REMPLACER" eas.json; then
+              echo "::error::Il manque l'Apple ID de l'appli (ascAppId) dans mobile/eas.json."
+              exit 1
+            fi
+            eas build -p ios --profile production --non-interactive --auto-submit
+          else
+            eas build -p ios --profile production --non-interactive
+          fi
