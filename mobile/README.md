@@ -25,7 +25,7 @@ Rien de secret dans ce dossier. Le jeton Expo est rangé dans le secret GitHub `
   `in-native-app` sur `<html>`. Le user-agent contient `JozzoApp/1`.
 - `src/native.ts` : ce que fait l'iPhone (partage, vibrations, Safari).
 - `src/config.ts` : adresse du site, domaines internes, couleur de fond.
-- `app.json` : nom « Jozzo », identifiant **`com.jozzo.app`** (définitif dès que la fiche
+- `app.json` : nom « Jozzo », identifiant **`fr.jozzo.app`** (définitif dès que la fiche
   App Store Connect existe), icône « JZ », fond `#181022`.
 - `eas.json` : fabrication dans le cloud Expo, envoi sur TestFlight (`ascAppId` à remplir).
 - `../.github/workflows/appli-iphone.yml` : action GitHub « Appli iPhone (TestFlight) », lancée à la main.
@@ -33,7 +33,7 @@ Rien de secret dans ce dossier. Le jeton Expo est rangé dans le secret GitHub `
 ## Brancher pour la première fois (à faire une fois)
 
 ### 1. App Store Connect : créer la fiche
-Apps › + › Nouvelle app › iOS, nom « Jozzo », langue français, identifiant `com.jozzo.app`
+Apps › + › Nouvelle app › iOS, nom « Jozzo », langue français, identifiant `fr.jozzo.app`
 (s'il n'apparaît pas : developer.apple.com › Identifiers › +), SKU `jozzo`.
 Noter l'**Apple ID** de l'appli (Informations sur l'app) → `ascAppId` dans `eas.json` (Claude peut le faire).
 
