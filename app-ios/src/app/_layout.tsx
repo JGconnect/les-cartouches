@@ -27,6 +27,10 @@ function Pile() {
       <Stack.Screen name="jeu/[id]" options={{ headerShown: true, headerTransparent: true, headerTitle: '', headerTintColor: C.ink, headerBackTitle: 'Jeux' }} />
       <Stack.Screen name="partie/[id]" options={{ gestureEnabled: false }} />
       <Stack.Screen name="reglages" options={{ presentation: 'modal', contentStyle: { backgroundColor: C.bg } }} />
+      <Stack.Screen name="cartes-perso" />
+      <Stack.Screen name="bienvenue" options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }} />
+      <Stack.Screen name="tournoi" options={{ headerShown: false, presentation: 'modal' }} />
+      <Stack.Screen name="avis" options={{ headerShown: false, presentation: 'modal' }} />
     </Stack>
   );
 }

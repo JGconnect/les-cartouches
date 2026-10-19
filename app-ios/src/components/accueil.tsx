@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BandeauTournoi } from '@/components/tournoi';
 import { icone, jeuxVisibles, t, THEMES, TOP, type Jeu, type Onglet } from '@/lib/contenu';
 import { useReglages } from '@/lib/reglages';
 import { C, F, melange, R } from '@/lib/theme';
@@ -106,6 +107,8 @@ export function Accueil({ onglet }: { onglet: Onglet }) {
         <Text style={styles.resumeTxt} numberOfLines={1}>⚙️  {resume}</Text>
         <Text style={styles.resumeLien}>Modifier ›</Text>
       </Pressable>
+
+      <BandeauTournoi />
 
       <Pressable onPress={surprise} style={({ pressed }) => [styles.surprise, pressed && { transform: [{ scale: 0.98 }] }]}>
         <Text style={{ fontSize: 30 }}>🎲</Text>

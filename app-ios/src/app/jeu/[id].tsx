@@ -1,5 +1,5 @@
 // Intro d'un jeu : règles, options (niveau pour les jeux Hot), puis « On joue ».
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,7 +9,8 @@ import { useReglages } from '@/lib/reglages';
 import { C, F, melange, R } from '@/lib/theme';
 import { vibrer } from '@/lib/vibrer';
 import { estNatif, MODULES, optionsDe } from '@/jeux/registre';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { MINE_GAMES, mineCount } from '@/lib/perso';
 
 const NIVEAUX: { id: NiveauHot; titre: string; sous: string }[] = [
   { id: 'flirt', titre: '💋 Flirt', sous: 'Taquin' },
@@ -23,6 +24,12 @@ export default function IntroJeu() {
   const insets = useSafeAreaInsets();
   const { mode, adulte, setAdulte, niveauHot, setNiveauHot, joueurs } = useReglages();
   const [opts, setOpts] = useState<Record<string, string>>({});
+  const [nbPerso, setNbPerso] = useState(0);
+  useFocusEffect(useCallback(() => {
+    let vivant = true;
+    if (j && MINE_GAMES[j.id]) mineCount(j.id).then((n) => { if (vivant) setNbPerso(n); });
+    return () => { vivant = false; };
+  }, [j]));
   if (!j) return null;
   const hot = j.famille === 'hot';
   const pret = estNatif(j);
@@ -78,6 +85,33 @@ export default function IntroJeu() {
         </View>
       ))}
 
+      {j && MINE_GAMES[j.id] ? (
+        <View style={{ alignSelf: 'stretch', gap: 10 }}>
+          {nbPerso ? (
+            <>
+              <Text style={styles.lbl}>{`VOS CARTES PERSO (${nbPerso})`}</Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'mix', titre: '🔀 Mélangées', sous: 'avec celles du jeu' },
+                  { id: 'only', titre: '✏️ Seulement les nôtres', sous: `${nbPerso} carte${nbPerso > 1 ? 's' : ''}` },
+                ].map((c) => {
+                  const on = (opts.perso || 'mix') === c.id;
+                  return (
+                    <Pressable key={c.id} onPress={() => { vibrer.choix(); setOpts((x) => ({ ...x, perso: c.id })); }} style={[styles.choix, on && { borderColor: j.couleur, backgroundColor: melange(j.couleur, 0.22, C.surface) }]}>
+                      <Text style={[styles.choixTitre, on && { color: C.ink }]}>{c.titre}</Text>
+                      <Text style={styles.choixSous}>{c.sous}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
+          <Pressable onPress={() => router.push({ pathname: '/cartes-perso', params: { jeu: j.id } })} hitSlop={8} style={{ alignSelf: 'center', padding: 6 }}>
+            <Text style={styles.lienPerso}>✏️ {nbPerso ? 'Modifier vos cartes' : 'Ajouter vos propres cartes à ce jeu'}</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       {minJ && joueurs.length < minJ ? (
         <Pressable onPress={() => router.push('/reglages')} style={styles.bientot}>
           <Text style={styles.bientotTitre}>👥 Il faut au moins {minJ} prénoms</Text>
@@ -101,7 +135,7 @@ export default function IntroJeu() {
 
       <View style={{ alignSelf: 'stretch', marginTop: 10, gap: 10 }}>
         {pret && !(minJ && joueurs.length < minJ) ? (
-          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id, opts: JSON.stringify(Object.fromEntries(options.map((o) => [o.cle, valeur(o.cle, o.defaut)]))) } })} style={{ flex: 0 }} />
+          <Bouton titre="On joue !" couleur={j.couleur} onPress={() => router.push({ pathname: '/partie/[id]', params: { id: j.id, opts: JSON.stringify({ ...Object.fromEntries(options.map((o) => [o.cle, valeur(o.cle, o.defaut)])), ...(opts.perso ? { perso: opts.perso } : {}) }) } })} style={{ flex: 0 }} />
         ) : !pret ? (
           <View style={styles.bientot}>
             <Text style={styles.bientotTitre}>🛠️ Bientôt dans l'appli</Text>
@@ -128,6 +162,7 @@ const styles = StyleSheet.create({
   choix: { flex: 1, padding: 12, borderRadius: R.md, backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, gap: 3, alignItems: 'center' },
   choixTitre: { color: C.inkSoft, fontFamily: F.titreGras, fontSize: 15 },
   choixSous: { color: C.inkFaint, fontFamily: F.texte, fontSize: 12 },
+  lienPerso: { color: C.inkSoft, fontFamily: F.texteDemi, fontSize: 14.5, textDecorationLine: 'underline' },
   bientot: { backgroundColor: C.surface, borderRadius: R.lg, borderWidth: 1, borderColor: C.line, padding: 18, gap: 6 },
   bientotTitre: { color: C.ink, fontFamily: F.titreGras, fontSize: 17, textAlign: 'center' },
   bientotTxt: { color: C.inkSoft, fontFamily: F.texte, fontSize: 14.5, lineHeight: 20, textAlign: 'center' },

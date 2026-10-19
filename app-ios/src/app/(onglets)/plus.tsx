@@ -25,8 +25,8 @@ export default function Plus() {
     <ScrollView style={{ flex: 1, backgroundColor: C.bg }} contentContainerStyle={{ paddingTop: insets.top + 20, paddingHorizontal: 18, paddingBottom: 120, gap: 12 }}>
       <Text style={styles.grandTitre}>✨ Plus</Text>
       <Ligne emoji="⚙️" titre="Réglages" sous="Joueurs, pénalités, thème de la soirée" onPress={() => router.push('/reglages')} />
-      <Ligne emoji="✏️" titre="Vos cartes perso" sous="Bientôt dans l'appli" />
-      <Ligne emoji="🏆" titre="Tournoi du trajet" sous="Bientôt dans l'appli" />
+      <Ligne emoji="✏️" titre="Vos cartes perso" sous="Vos blagues internes, et les cartes de la bande" onPress={() => router.push('/cartes-perso')} />
+      <Ligne emoji="🏆" titre="Tournoi du trajet" sous="Enchaînez les quiz, champion·ne à l'arrivée" onPress={() => router.push('/tournoi')} />
       <Text style={styles.version}>Jozzo · version {Constants.expoConfig?.version ?? '1.0.0'}</Text>
     </ScrollView>
   );
